@@ -68,10 +68,10 @@ let wallet	= new function() {
 			wallet.updateTimer(true);
 		}
 
-		const engine	= ZeroClientProvider({getAccounts: function(){},rpcUrl:CONFIG['network']['provider']});
-		wallet.web3		= new Web3(engine);
+		wallet.web3		= new Web3(new Web3.providers.HttpProvider(CONFIG['network']['provider']));
 		wallet.showEthNetwork();
-		engine.on('block', function(){wallet.updateTimer(false);wallet.updateNavAccount();if(wallet.state()==2)wallet.updateBalance(function(){/*todo*/});else wallet.balance=-1;update();});
+				
+		setInterval(function(){wallet.updateTimer(false);wallet.updateNavAccount();if(wallet.state()==2)wallet.updateBalance(function(){/*todo*/});else wallet.balance=-1;update();},2000);
 	},
 	this.updateTimer		= function(update) {
 		let time = new Date().getTime();

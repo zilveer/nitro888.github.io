@@ -6,27 +6,29 @@ library cards{
 	function getCardPoint(uint8 _card) internal pure returns(uint8) {
 		return uint8((_card-1)%13)+1;
 	}
-	function shoe(uint _repeat, address _a, address _b, uint _c) internal pure returns (uint8[]) {
+
+	function shoe(uint _repeat, uint8 dropCnt, address _a, address _b, uint _c) internal pure returns (uint8[]) {
 		uint8[] memory card	= new uint8[](52*_repeat);
 		for(uint i = 0 ; i < card.length ; i++)
 			card[i] = uint8(i%52+1);
-		return shuffle(card,_a,_b,_c);
+		return shuffle(card,dropCnt,_a,_b,_c);
 	}
-	function shuffle(uint8[] _cards, address _a, address _b, uint _c) internal pure returns (uint8[]) {
-		uint[][] memory rnds	= new uint[][](_cards.length/256+1);
 
-		for(uint i = 0 ; i < rnds.length ; i++)
-			rnds[i] = utils.rnd(_cards.length,_a,_b,(i==0?_c:rnds[i-1][0]));
+	function shuffle(uint8[] _cards, uint8 shuffleLength, address _a, address _b, uint _c) internal pure returns (uint8[]) {
+	    uint[] memory rnds  = utils.RNG(_cards.length,uint8(shuffleLength*(_c%3+1)), _a, _b, _c);
+	    
+        for(uint i = 0 ; i < rnds.length ; i++) {
+            uint pos1       = (_cards.length-shuffleLength) + i%shuffleLength;
+		    uint pos2       = rnds[i];
 
-		for(i = 0 ; i < _cards.length ; i++) {
-			uint index		= rnds[i/256][i%256];
-			uint8 temp		= _cards[i];
-			_cards[i]		= _cards[index];
-			_cards[index]	= temp;
+			uint8 temp	    = _cards[pos1];
+			_cards[pos1]    = _cards[pos2];
+			_cards[pos2]    = temp;
 		}
 
         return _cards;
 	}
+
 	function validateSlot(uint8[] _slots, uint8 _indexMax) internal pure returns (bool) {
 	    for(uint i=0;i<_slots.length;i++)
 	        if(_slots[i]>=_indexMax)
@@ -88,13 +90,13 @@ contract casino is ownership {
             round[0]++;
             round[1]        = 1;
     		history.length  = 0;
-    		shoe            = cards.shoe(getShoeDeckCount(), _a, _b, _c); // 6set of decks
+    		shoe            = cards.shoe(getShoeDeckCount(),9, _a, _b, _c);
     		drawCardsFromShoe(9,_c|uint(shoe[0])<<64|(uint(shoe[1])<<128)|(uint(shoe[2])<<192)|(uint(shoe[3])<<248));// delete cards
         }
     }
 
     function drawCardsFromShoe(uint8 _count, uint _seed) internal returns(uint8[]) {
-        shoe                    = cards.shuffle(shoe,block.coinbase,lastUser,_seed);
+        shoe                    = cards.shuffle(shoe,_count,block.coinbase,lastUser,_seed);
         uint8[] memory temp     = new uint8[](_count);
         
         for(uint i = 0 ; i < _count ; i++)
@@ -147,7 +149,7 @@ contract casino is ownership {
 		for(uint8 i = 0 ; i < max ; i++) {
 		    for(uint j=0 ; j < slots[i].length ; j++ ) {
 		        if(_pushBack)   totalTransfer   +=transfer(pending(slots[i][j], betPrice+fee), address(this).balance-totalTransfer);
-		        else if(i==_win)totalTransfer   +=transfer(pending(slots[i][j], utils.percent(betPrice,_rate)), address(this).balance-totalTransfer);
+		        else if(i==_win)totalTransfer   +=transfer(pending(slots[i][j], utils.PERCENT(betPrice,_rate)), address(this).balance-totalTransfer);
     		}
 		}
 

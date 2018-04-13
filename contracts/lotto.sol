@@ -18,10 +18,10 @@ library machine {
 	}
 	function lotto(uint8 _ballCount, uint8 _drawCount, address _a, address _b, uint _c) internal pure returns (uint64,uint64) {
 		uint64[] memory b	= balls(_ballCount);
-		uint[] memory rnds  = utils.rnd(_ballCount, _a, _b, _c);
+		uint[] memory rnds  = utils.RNG(_ballCount,uint8(_drawCount*(_c%3+1)), _a, _b, _c);
 		
 		for(uint i = 0 ; i < rnds.length ; i++) {
-		    uint pos1       = i%_ballCount;
+		    uint pos1       = i%_drawCount;
 		    uint pos2       = rnds[i];
 
 			uint64 temp	    = b[pos1];
@@ -29,10 +29,10 @@ library machine {
 			b[pos2]         = temp;
 		}
 
-		for(i=1 ; i < _drawCount ; i++)
+		for(i=1 ; i < _drawCount-1 ; i++)
 			b[0]	|=b[i];
 
-		return (b[0],b[_drawCount]);	// prize, bonus
+		return (b[0],b[_drawCount-1]);	// prize, bonus
 	}
     function validateTicket(uint64[] _tickets, uint8 _ballCount, uint8 _drawCount) internal pure returns (bool) {
 		uint64[] memory b       = balls(_ballCount);

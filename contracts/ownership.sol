@@ -1,9 +1,9 @@
 pragma solidity ^0.4.21;
 
 library utils{
-	function rnd(uint _max, address _a, address _b, uint _c) internal pure returns (uint[]) {
+	function RNG(uint _max, uint8 length, address _a, address _b, uint _c) internal pure returns (uint[]) {
 	    // 0~_max-1
-	    uint[] memory	r = new uint[](256);
+	    uint[] memory	r = new uint[](length%256+1);
 	    uint			seed= uint(keccak256(_c,_a,_b)); 
 	    for(uint i = 0 ; i < r.length ; i++) {
 	        r[i]	= seed%_max;
@@ -11,7 +11,7 @@ library utils{
 	    }
         return r;
 	}
-	function percent(uint _value, uint _percent) internal pure returns (uint) {
+	function PERCENT(uint _value, uint _percent) internal pure returns (uint) {
 	    return _value * _percent / 100 ;
 	}
 }

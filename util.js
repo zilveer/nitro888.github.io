@@ -54,7 +54,7 @@ let wallet	= new function() {
 			if(storage.address!=='')
 				return 2;
 			else
-				return 1;	
+				return 1;
 		}
 		return 0;
 	},
@@ -70,7 +70,7 @@ let wallet	= new function() {
 
 		wallet.web3		= new Web3(new Web3.providers.HttpProvider(CONFIG['network']['provider']));
 		wallet.showEthNetwork();
-				
+
 		setInterval(function(){wallet.updateTimer(false);wallet.updateNavAccount();if(wallet.state()==2)wallet.updateBalance(function(){/*todo*/});else wallet.balance=-1;update();},2000);
 	},
 	this.updateTimer		= function(update) {
@@ -108,13 +108,13 @@ let wallet	= new function() {
 		{
 			case 0:
 				$('#navAccount').html(	'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.create()">Create</a>'+
-										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.restore()">Restore</a>' );					
+										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.restore()">Restore</a>' );
 				break;
 			case 1:
-				$('#navAccount').html(	'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.logIn()">Login</a>' );					
+				$('#navAccount').html(	'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.logIn()">Login</a>' );
 				break;
 			case 2:
-				$('#navAccount').html(	
+				$('#navAccount').html(
 										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.deposit()">Deposit</a>' +
 										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.withrawal()">Withrawal</a>' +
 										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.history()">History</a>' +
@@ -125,7 +125,7 @@ let wallet	= new function() {
 										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.logOut()">Logout</a>' );
 				break;
 		}
-		
+
 		wallet.stateBackup	= temp;
 	},
 
@@ -172,12 +172,12 @@ let wallet	= new function() {
 		if(p1===p2 && p1.length > 7) {
 			let dk				= keythereum.create();
 			let keyObject		= keythereum.dump(p1, dk.privateKey, dk.salt, dk.iv);
-			
+
 			keyObject.isMainNet	= CONFIG['network']['isMainNet'];
 			storage.wallet		= JSON.stringify(keyObject);
 			storage.reset();
 			storage.save();
-			
+
 			wallet.updateNavAccount();
 			UPDATE();
 
@@ -192,17 +192,17 @@ let wallet	= new function() {
 		}
 	}
 	// create
-	
+
 	// login&out
 	this.logIn			= function() {
 		let body			=	'<div style="overflow-x:auto;">' +
 							'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="loginPass" type="password" class="form-control" placeholder="Password" aria-label="Password"></div>' +
-							'</div>';		
+							'</div>';
 		modal.update('Login',body,'wallet.logInOK()');
 	},
 	this.logInOK			= function() {
 		let password		= $('#loginPass').val();
-		
+
 		try {
 			keythereum.recover(password, JSON.parse(storage.wallet));
 			wallet.loginWithPK();
@@ -210,7 +210,7 @@ let wallet	= new function() {
 			if(password!='')
 				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong.</div>');
 			else
-				modal.alert('<div class="alert alert-warning" role="alert">Password is empty</div>');			
+				modal.alert('<div class="alert alert-warning" role="alert">Password is empty</div>');
 		}
 	}
 	this.loginWithPK		= function() {
@@ -219,18 +219,18 @@ let wallet	= new function() {
 				if((r==1&&data.isMainNet)||(r==3&&!data.isMainNet)) {
 					wallet.web3.eth.defaultAccount			= '0x'+data.address;
 					wallet.web3.settings.defaultAccount		= '0x'+data.address;
-					
+
 					storage.address	= '0x'+data.address;
 					storage.time		= new Date().getTime();
 					storage.save();
 
 					wallet.updateNavAccount();
 					UPDATE();
-					
+
 					modal.update('Login','Login Success');
 				} else  {
 					modal.update('Login','Login Fail');
-					return;					
+					return;
 				}
 			});
 	},
@@ -240,7 +240,7 @@ let wallet	= new function() {
 	this.logOutOK		= function() {
 		storage.reset();
 		storage.save();
-		
+
 		wallet.updateNavAccount();
 		UPDATE();
 
@@ -248,13 +248,13 @@ let wallet	= new function() {
 		setTimeout(function(){storage.reset();storage.save();location.href=location.origin;},2000);
 	},
 	// login&out
-	
+
 	// destory
 	this.destory			= function() {
 		let body	=	'<p class="text-danger">Destroy Wallet.</p>' +
 						'<div style="overflow-x:auto;">' +
 						'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="destoryPass" type="password" class="form-control" placeholder="Password" aria-label="Password"></div>' +
-						'</div>';		
+						'</div>';
 		modal.update('Destory',body,'wallet.destroyOK()');
 	},
 	this.destroyOK		= function() {
@@ -269,22 +269,22 @@ let wallet	= new function() {
 			if(password!='')
 				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong.</div>');
 			else
-				modal.alert('<div class="alert alert-warning" role="alert">Password is empty</div>');			
+				modal.alert('<div class="alert alert-warning" role="alert">Password is empty</div>');
 		}
 	},
 	// destory
-	
+
 	// export & import
 	this.export	= function() {
 		wallet.updateTimer(true);
 		let body			=	'<div style="overflow-x:auto;">' +
 							'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="exportPass" type="password" class="form-control" placeholder="Password" aria-label="Password"></div>' +
-							'</div>';		
+							'</div>';
 		modal.update('Export Wallet',body,'wallet.exportOK()');
 	},
 	this.exportOK	= function() {
 		let password		= $('#exportPass').val();
-		
+
 		try {
 			let privateKey		= keythereum.recover(password, JSON.parse(storage.wallet));
 			modal.update('Export Wallet','<div style="overflow-x:auto;"><small>'+storage.wallet+'</small></div>');
@@ -292,7 +292,7 @@ let wallet	= new function() {
 			if(re=='')
 				modal.alert('<div class="alert alert-warning" role="alert">Password is empty</div>');
 			else
-				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');			
+				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');
 		}
 	},
 	this.restore	= function() {
@@ -304,14 +304,14 @@ let wallet	= new function() {
 		let body		=	'<div style="overflow-x:auto;">' +
 							'<div class="input-group mb-3"><input id="restoreStr" type="text" class="form-control" placeholder="Restore string" aria-label="Restore string"></div>' +
 							'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="restorePass" type="password" class="form-control" placeholder="Password" aria-label="Password"></div>' +
-							'</div>';		
+							'</div>';
 		modal.update('Restore',body,'wallet.restoreOK()');
 	},
 	this.restoreOK	= function() {
 		let password		= $('#restorePass').val();
 		let restore		= $('#restoreStr').val();
 		let keyObject	= JSON.parse(restore);
-		
+
 		try {
 			let privateKey		= keythereum.recover(password, keyObject);
 			storage.wallet		= JSON.stringify(keyObject);
@@ -324,11 +324,11 @@ let wallet	= new function() {
 			else if(restore=='')
 				modal.alert('<div class="alert alert-warning" role="alert">Restore string is empty</div>');
 			else if(password=='')
-				modal.alert('<div class="alert alert-warning" role="alert">Restore password is empty</div>');			
+				modal.alert('<div class="alert alert-warning" role="alert">Restore password is empty</div>');
 		}
 	},
 	// export & import
-	
+
 	// deposit & withdrawal
 	this.deposit			= function() {
 		wallet.updateTimer(true);
@@ -351,7 +351,7 @@ let wallet	= new function() {
 		let amount		= $('#withrawalVal').val();
 		let password	= $('#withrawalPass').val();
 		modal.alert('');
-		
+
 		if(address==''||amount==0||amount==''||password==''||!wallet.web3.isAddress(address)||address==storage.address) {
 			if(!wallet.web3.isAddress(address))	modal.alert('<div class="alert alert-warning" role="alert">Address is wrong</div>');
 			else if(address=='')				modal.alert('<div class="alert alert-warning" role="alert">Address is empty</div>');
@@ -364,13 +364,13 @@ let wallet	= new function() {
 					if(storage.tx != '') {
 						wallet.web3.eth.getTransaction(storage.tx,function(e,r){
 							if(!e)
-								if(r.blockNumber==null || parseInt(r.blockHash) == 0) 
+								if(r.blockNumber==null || parseInt(r.blockHash) == 0)
 									modal.alert('<div class="alert alert-warning" role="alert">Transaction is pending : <br/><small><a target="_blank" href="'+CONFIG['network']['href']+'/tx/'+storage.tx+'">'+storage.tx+'</a></small></div>');
 								else {
 									storage.tx	= '';
 									storage.save();
 									if(!wallet.sendTransaction(address,password,amount))
-										modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');									
+										modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');
 								}
 							else
 								modal.alert('<div class="alert alert-warning" role="alert">Transaction fail</div>');
@@ -399,9 +399,9 @@ let wallet	= new function() {
 							modal.alert('<div class="alert alert-warning" role="alert">Network error - getTransactionCount</div>');
 						} else {
 							let txParams	= {	'nonce'		:	wallet.web3.toHex(parseInt(t)),
-												'gasPrice'	:	gasPrice, 
+												'gasPrice'	:	gasPrice,
 												'gasLimit'	:	wallet.web3.toHex(gasLimit),
-												'to'		:	address, 
+												'to'		:	address,
 												'value'		:	wallet.web3.toHex(wallet.web3.toWei(amount, 'ether'))};
 							if(data!=null)
 								txParams['data']	= data;
@@ -417,7 +417,7 @@ let wallet	= new function() {
 		return false;
 	},
 	// deposit & withdrawal
-	
+
 	// history
 	this.history			= function() {
 		wallet.updateTimer(true);
@@ -429,11 +429,11 @@ let wallet	= new function() {
 				modal.update('Transaction History',data["message"]);
 			else {
 					let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
-					
+
 					for(i=0;i<data["result"].length;i++){
 						let date	= new Date(data["result"][i]["timeStamp"]*1000);
 						let tx		= '<a target="_blank" href="'+CONFIG['network']['href']+'/tx/' + data["result"][i]["hash"] + '">'+data["result"][i]["hash"]+'</a>';
-						let from	= '<a target="_blank" href="'+CONFIG['network']['href']+'/address/' + data["result"][i]["from"] + '">'+data["result"][i]["from"]+'</a>'; 
+						let from	= '<a target="_blank" href="'+CONFIG['network']['href']+'/address/' + data["result"][i]["from"] + '">'+data["result"][i]["from"]+'</a>';
 						let to		= '<a target="_blank" href="'+CONFIG['network']['href']+'/address/' + data["result"][i]["to"] + '">'+data["result"][i]["to"]+'</a>';
 						let value	= wallet.web3.fromWei(data["result"][i]["value"],'ether');
 						let status	= data["result"][i]["txreceipt_status"]==0?"<div class='text-danger'><small>[CANCELLED]</small></div>":"";
@@ -441,10 +441,10 @@ let wallet	= new function() {
 						//let gas		= data["result"][i]["gas"];
 						//let gasPrice	= data["result"][i]["gasPrice"];
 						//let gasUsed	= data["result"][i]["gasUsed"];
-						//let input	= data["result"][i]["input"];						
+						//let input	= data["result"][i]["input"];
 						//value *= (data["result"][i]["from"]==storage.address)?-1:1;
 						//table	+="<tr><td><div><h6>"+date+"</h6></div><div style='width:320; text-overflow:ellipsis; overflow:hidden; white-space:nowrap'><small>Tx : "+tx+"</small></div><div style='width:320; text-overflow:ellipsis; overflow:hidden; white-space:nowrap'><small>From : "+from+"</small></div><div style='width:320; text-overflow:ellipsis; overflow:hidden; white-space:nowrap'><small>To : "+to+"</small></div></td><td align='right'>"+value+" ETH</td></tr>";
-						
+
 						if(data["result"][i]["from"]==storage.address) {
 							value *= -1;
 							table	+="<tr><td><div><h6>"+date+"</h6></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>Tx : "+tx+"</small></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>To : "+to+"</small></div></td><td class='align-middle text-right'>"+status+value+" ETH</td></tr>";
@@ -454,7 +454,7 @@ let wallet	= new function() {
 					}
 					table		+= "</tbody></table></div>";
 					modal.update('Transaction History',table);
-				}			
+				}
 			});
 	}
 	// history
@@ -470,7 +470,7 @@ let modal	= new function() {
 	},
 	this.alert	= function(alert=''){
 		$('#modalAlert').html(alert);
-	}		
+	}
 }
 
 let util	= new function() {
@@ -479,7 +479,7 @@ let util	= new function() {
 	this.win				= function(game,openCards) {
 		let win		= 0;
 		let toolTip	= '';
-		
+
 		switch(game){
 			case 'baccarat':
 				let b	= (util.cut10(util.card(openCards['1st'][0]))+util.cut10(util.card(openCards['1st'][1])))%10;
@@ -578,13 +578,13 @@ let util	= new function() {
 	},
 	this.ticketLottoRandom=function (ticket,max,mark) {
 		let marks	= [];
-		
+
 		for(let k=0;k<max;k++)
 			marks.push(k);
 
 		for(let i=0;i<marks.length;i++) {
 			$('#t'+ticket+'_'+i).prop('checked',false);
-			
+
 			let s = Math.floor(Math.random() * marks.length);
 			let b = marks[i];
 			marks[i] = marks[s];
@@ -654,10 +654,10 @@ let util	= new function() {
 		case 'lotto953':
 		case 'lotto645':
 			table	+="<tr><td>Round</td><td>"+data[0]+" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
-			table	+="<tr><td>Price</td><td>"+wallet.web3.fromWei(data['cost'][1])+" ETH</td></tr>";
-			table	+="<tr><td>Balance</td><td>"+wallet.web3.fromWei(data['cost'][0])+" ETH</td></tr>";
-			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.fromWei(data['cost'][2])+" ETH</td></tr>";
-			table	+="<tr><td>Pending transfer</td><td>"+data['cost'][3]+" remains</td></tr>";
+			table	+="<tr><td>Price</td><td>"+wallet.web3.fromWei(data['info0'][1])+" ETH</td></tr>";
+			table	+="<tr><td>Balance</td><td>"+wallet.web3.fromWei(data['info0'][0])+" ETH</td></tr>";
+			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.fromWei(data['info0'][2])+" ETH</td></tr>";
+			table	+="<tr><td>Pending transfer</td><td>"+data['info0'][3]+" remains</td></tr>";
 			if(data[3].length>0) {
 				table	+="<tr><td colspan='2'>My tickets</td></tr>";
 				for(let i = 0 ; i < data[3].length ; i++) {
@@ -671,12 +671,12 @@ let util	= new function() {
 			break;
 		default:
 			table	+="<tr><td>Round</td><td>"+data[0][0] +"-" + data[0][1] +" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
-			table	+="<tr><td>Bet</td><td>"+wallet.web3.fromWei(data['cost'][1])+" ETH</td></tr>";
-			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.fromWei(data['cost'][2])+" ETH</td></tr>";
-			table	+="<tr><td>Pending transfer</td><td>"+data['cost'][3]+" remains</td></tr>";
+			table	+="<tr><td>Bet</td><td>"+wallet.web3.fromWei(data['info0'][1])+" ETH</td></tr>";
+			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.fromWei(data['info0'][2])+" ETH</td></tr>";
+			table	+="<tr><td>Pending transfer</td><td>"+data['info0'][3]+" remains</td></tr>";
 			break;
 		}
-		
+
 		table		+="</tbody></table></div>";
 		modal.update(CONFIG[game]['name'],table);
 	}

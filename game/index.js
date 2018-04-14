@@ -6,17 +6,17 @@ let page = new function() {
 	this.socketUrl	= 'https://nitro888main.herokuapp.com',
 	this.showInfo	= function () {
 		modal.update(CONFIG[page.game]['name'],'Now Loading...');
-		wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).information(storage.address,function(e,r){
+		wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).info1(storage.address,function(e,r){
 				if(!e){
 					page.information = r;
-					wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).cost(function(e,r){
+					wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).info0(function(e,r){
 						if(!e) {
-							page.information['cost'] = r;
+							page.information['info0'] = r;
 							util.updateInfo(page.game,page.address,page.information);
 						}
 					});
 				}
-			});				
+			});
 	},
 	this.history		= function() {
 		let body	= '';
@@ -32,7 +32,7 @@ let page = new function() {
 		}
 		body	+="</table></div>";
 		body	+='<div class="row"><div class="col-md-6"><small id="pot_'+page.game+'_'+page.address+'"></small></div><div class="col-md-6"><small style="float:right;" id="price_'+page.game+'_'+page.address+'"></small></div></div>';
-		
+
 		$("#gameHistory").html(body);
 	},
 	this.start		= function () {
@@ -42,7 +42,7 @@ let page = new function() {
 		page.address= url.searchParams.get("a");
 		page.history();
 		page.resize();
-		
+
 		$.getJSON('../config.json', function(data) {
 			if(data!=null) {
 				CONFIG	= data;
@@ -57,40 +57,40 @@ let page = new function() {
 					    cc.view.resizeWithBrowserSize(true);
 					    cc.LoaderScene.preload(g_resources, function () {
 				    		cc.spriteFrameCache.addSpriteFrames(g_resources[0].src,g_resources[1].src);
-				    		page.scene = new gameScene(page.game,page.address); 
+				    		page.scene = new gameScene(page.game,page.address);
 				    		cc.director.runScene(page.scene);
 
 				    		wallet.start(page.update);
 				    		socket.start('#chatmessage','#chatInput',page.socketUrl,page.updateSchedule,storage.address);
-				    		
+
 				    		setInterval(function(){page.scene.onUpdateInformation();},1000);
 					    }, cc.game);
 					};
 					cc.game.run();
 				}
-			}				
+			}
 		});
-		
+
 		$(window).focus(function(){socket.schedule(page.address);page.scene.onFocus();});
 	},
 	this.update		= function () {
 		if(wallet.state()!=2)
 			location.href=location.origin;
 		else
-			wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).information(storage.address,
+			wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).info1(storage.address,
 				function(e,r){
 					if (!e){
 						page.information = r;
-						wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).cost(function(e,r){
+						wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).info0(function(e,r){
 							if(!e) {
-								page.information['cost'] = r;
+								page.information['info0'] = r;
 								util.updateCasino(page.game,page.address,page.information);
 								$('#gameRound').html('<strong>Round '+page.information[0][0]+'-'+page.information[0][1]+'</strong><small> ('+util.getGameState(parseInt(page.information[1]))+')</small>');
-								$('#price').html("Bet : "+wallet.web3.fromWei(page.information['cost'][1].toNumber(),'ether')+" E");
-								if(page.scene.onUpdateGame(page.game,page.address,page.information)) 
+								$('#price').html("Bet : "+wallet.web3.fromWei(page.information['info0'][1].toNumber(),'ether')+" E");
+								if(page.scene.onUpdateGame(page.game,page.address,page.information))
 									socket.schedule(page.address);
 							}
-						})									
+						})
 					}});
 	},
 	this.resize		= function () {
@@ -114,5 +114,5 @@ let page = new function() {
 			}
 		}
 	}
-}		
+}
 function UPDATE() {}

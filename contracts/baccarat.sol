@@ -24,7 +24,8 @@ contract baccarat is casino {
     }
 
     function gameRoundEnd(uint _seed) internal {
-		uint8[] memory draws    = drawCardsFromShoe(4,getSeed(_seed));	    // player, bunker
+		uint8[] memory draws    = drawCardsFromShoe(4,_seed);	    // player, bunker
+
 		uint8 p         = 0;
 		uint8 b         = 0;
 		uint8 player	= cutOver10(cards.getCardPoint(draws[0]))+cutOver10(cards.getCardPoint(draws[2]));
@@ -34,10 +35,10 @@ contract baccarat is casino {
 		banker          = banker%10;
 
 		if ((player == 6 || player == 7) && (banker < 6)) {
-			b           = drawCardsFromShoe(1,_seed*draws[2])[0];
+			b           = drawOneCardFromShoe();
 			banker  	= (banker+cutOver10(cards.getCardPoint(b)))%10;
 		} else if (player <= 5 && (banker < 8)){
-			p           = drawCardsFromShoe(1,_seed*draws[1])[0];
+			p           = drawOneCardFromShoe();
 			uint8 temp	= cutOver10(cards.getCardPoint(p));
 			player		= (player+temp)%10;
 
@@ -46,7 +47,7 @@ contract baccarat is casino {
 				(banker==4 && (temp>=2 && temp<=7)) ||
 				(banker==5 && (temp>=4 && temp<=7)) ||
 				(banker==6 && (temp==6 || temp==7))) {
-					b       = drawCardsFromShoe(1,_seed*draws[2])[0];
+					b       = drawOneCardFromShoe();
 					banker	= (banker+cutOver10(cards.getCardPoint(b)))%10;
 				}
 		}

@@ -20,16 +20,16 @@ contract highLow is casino {
     }
 
     function gameBet(uint _seed) internal returns(bool) {
-        uint8 card  = drawCardsFromShoe(1,getSeed(_seed))[0];
-        openCards   = uint64(card);
-        uint8 temp  = cards.getCardPoint(card);
+        uint8 card      = drawCardsFromShoe(1,_seed)[0];
+        openCards       = uint64(card);
+        uint8 temp      = cards.getCardPoint(card);
         if((temp==1)||(temp==13))
                 return false;
         return true;
     }
 
 	function gameRoundEnd(uint _seed) internal {
-	    uint8 card      = drawCardsFromShoe(1,_seed)[0];
+        uint8 card      = drawCardsFromShoe(1,_seed)[0];
 	    uint8 first     = cards.getCardPoint(uint8(openCards&255));
         uint8 second    = cards.getCardPoint(card);
 	    openCards       |=uint64(card)<<32;

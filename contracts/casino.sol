@@ -7,12 +7,22 @@ library cards{
 		return uint8((_card-1)%13)+1;
 	}
 
-	function shoe(uint _repeat, uint8 dropCnt, address _a, address _b, uint _c) internal pure returns (uint8[]) {
+	function makeShoe(uint _repeat, uint8 dropCnt, address _a, address _b, uint _c) internal pure returns (uint8[]) {
 		uint8[] memory card	= new uint8[](52*_repeat);
 		for(uint i = 0 ; i < card.length ; i++)
 			card[i] = uint8(i%52+1);
 		return shuffle(card,dropCnt,_a,_b,_c);
 	}
+
+    function drawCardsFromShoe(uint8[] _shoe, uint8 _count, address _a, address _b, uint _c) internal pure returns(uint8[] shoe,uint8[] draw) {
+        shoe   = shuffle(_shoe,_count+2,_a,_b,_c);
+        draw    = new uint8[](_count);
+
+        for(uint i = 0 ; i < _count ; i++)
+            draw[i] = shoe[shoe.length-1-i];
+
+        return (shoe,draw);
+    }
 
 	function shuffle(uint8[] _cards, uint8 shuffleLength, address _a, address _b, uint _c) internal pure returns (uint8[]) {
 	    uint[] memory rnds  = utils.RNG(_cards.length,uint8(shuffleLength*(_c%3+3)), _a, _b, _c);
@@ -90,20 +100,20 @@ contract casino is ownership {
             round[0]++;
             round[1]        = 1;
     		history.length  = 0;
-    		shoe            = cards.shoe(getShoeDeckCount(),9, _a, _b, _c);
-    		drawCardsFromShoe(9,_c|uint(shoe[0])<<64|(uint(shoe[1])<<128)|(uint(shoe[2])<<192)|(uint(shoe[3])<<248));// delete cards
+    		shoe            = cards.makeShoe(getShoeDeckCount(),9, _a, _b, _c);
+            drawCardsFromShoe(9, _c);
         }
     }
 
-    function drawCardsFromShoe(uint8 _count, uint _seed) internal returns(uint8[]) {
-        shoe                    = cards.shuffle(shoe,_count,block.coinbase,lastUser,_seed);
-        uint8[] memory temp     = new uint8[](_count);
-
-        for(uint i = 0 ; i < _count ; i++)
-            temp[i] = shoe[shoe.length-1-i];
-        shoe.length   -=_count;
-
-        return temp;
+    function drawCardsFromShoe(uint8 _count, uint _seed) internal returns(uint8[] _draw) {
+        (shoe,_draw)    =cards.drawCardsFromShoe(shoe,_count,block.coinbase,lastUser,getSeed(_seed));
+        shoe.length     -= _count;
+        return _draw;
+    }
+    function drawOneCardFromShoe() internal returns(uint8 card) {
+        card = shoe[shoe.length-1];
+        shoe.length--;
+        return card;
     }
 
     event eventUpdate(uint[2],STATE,uint64[],uint64,uint,uint,uint,uint8[]);

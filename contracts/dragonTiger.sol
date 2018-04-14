@@ -24,7 +24,7 @@ contract dragonTiger is casino {
     }
 
 	function gameRoundEnd(uint _seed) internal {
-	    uint8[] memory draws= drawCardsFromShoe(2,getSeed(_seed));
+	    uint8[] memory draws= drawCardsFromShoe(2,_seed);
 
 		uint8 dragon	    = cards.getCardPoint(draws[0]);
 		uint8 tiger         = cards.getCardPoint(draws[1]);

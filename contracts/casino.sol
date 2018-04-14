@@ -15,8 +15,8 @@ library cards{
 	}
 
 	function shuffle(uint8[] _cards, uint8 shuffleLength, address _a, address _b, uint _c) internal pure returns (uint8[]) {
-	    uint[] memory rnds  = utils.RNG(_cards.length,uint8(shuffleLength*(_c%3+1)), _a, _b, _c);
-	    
+	    uint[] memory rnds  = utils.RNG(_cards.length,uint8(shuffleLength*(_c%3+3)), _a, _b, _c);
+
         for(uint i = 0 ; i < rnds.length ; i++) {
             uint pos1       = (_cards.length-shuffleLength) + i%shuffleLength;
 		    uint pos2       = rnds[i];
@@ -42,30 +42,30 @@ contract casino is ownership {
     uint64[]						        history;			// [records]
 
     uint8[]						            shoe;				// [cards]
-	uint64 public						    openCards;			// 3*8 + 3*8 + 8
+	uint64 internal						    openCards;			// 3*8 + 3*8 + 8
 
 	mapping(address=>uint8[]) internal      userSlots;
 	mapping(uint8=>address[])               slots;
 
-    function getBetPrice() public constant returns (uint);
-    function getSlotMax() public constant returns (uint8);
-    function getShoeDeckCount() public constant returns (uint);
+    function getBetPrice() internal constant returns (uint);
+    function getSlotMax() internal constant returns (uint8);
+    function getShoeDeckCount() internal constant returns (uint);
 
-	function information(address player) public constant returns (uint[2],STATE,uint64[],uint64,uint8[]){
-		return (round,state,history,openCards,userSlots[player]);
-	}
-	function cost() public constant returns (uint,uint,uint,uint) {
+	function info0() public constant returns (uint,uint,uint,uint) {
 	    return (address(this).balance,getBetPrice(),getFee(),pendings.length);
+	}
+	function info1(address player) public constant returns (uint[2],STATE,uint64[],uint64,uint8[]){
+		return (round,state,history,openCards,userSlots[player]);
 	}
     function terminate() onlyOwner public {
         state       = STATE.DISABLE;
         uint8 max   = getSlotMax();
-        
+
         uint totalTransfer  = 0;
 		for(uint8 i=0 ; i<max ; i++)
 		    for(uint j=0 ; j < slots[i].length ; j++ )
 		        totalTransfer   +=transfer(pending(slots[i][j], getBetPrice()), address(this).balance-totalTransfer);
-		        
+
         reset();
 
         if(pendings.length==0)
@@ -82,7 +82,7 @@ contract casino is ownership {
 
 	function resetShoe(address _a, address _b, uint _c, bool _d) private {
         openCards   = 0;
-	    			
+
         if(shoe.length > 30) {
             if(_d)
                 round[1]++;
@@ -98,18 +98,13 @@ contract casino is ownership {
     function drawCardsFromShoe(uint8 _count, uint _seed) internal returns(uint8[]) {
         shoe                    = cards.shuffle(shoe,_count,block.coinbase,lastUser,_seed);
         uint8[] memory temp     = new uint8[](_count);
-        
+
         for(uint i = 0 ; i < _count ; i++)
             temp[i] = shoe[shoe.length-1-i];
         shoe.length   -=_count;
 
         return temp;
     }
-
-	function casino() public {
-		state       = STATE.PLAY;
-        round[0]   = 1;
-	}
 
     event eventUpdate(uint[2],STATE,uint64[],uint64,uint,uint,uint,uint8[]);
 
@@ -132,7 +127,7 @@ contract casino is ownership {
 		}
 		emit eventUpdate(round,state,history,openCards,getBetPrice(),getFee(),pendings.length,userSlots[msg.sender]);
 	}
-	
+
     function gameBet(uint _seed) internal returns (bool);
     function gameRoundEnd(uint _seed) internal;
 
@@ -144,7 +139,7 @@ contract casino is ownership {
 	    uint betPrice           = getBetPrice();
 	    uint fee                = getFee();
 	    uint totalTransfer	    = 0;
-	    
+
 	    uint8 max               = getSlotMax();
 		for(uint8 i = 0 ; i < max ; i++) {
 		    for(uint j=0 ; j < slots[i].length ; j++ ) {

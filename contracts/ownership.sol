@@ -4,7 +4,7 @@ library utils{
 	function RNG(uint _max, uint8 length, address _a, address _b, uint _c) internal pure returns (uint[]) {
 	    // 0~_max-1
 	    uint[] memory	r = new uint[](length%256+1);
-	    uint			seed= uint(keccak256(_c,_a,_b)); 
+	    uint			seed= uint(keccak256(_c,_a,_b));
 	    for(uint i = 0 ; i < r.length ; i++) {
 	        r[i]	= seed%_max;
             seed    = seed&1==1?(seed>>1)|2**255:seed>>1;
@@ -23,28 +23,28 @@ contract ownership {
     }
 
 	enum STATE              { READY, OPEN, CLOSE, PLAY, DISABLE }
-	
+
 	pending[]               pendings;
 
-	address public          owner;
+	address internal        owner;
     address	internal		lastUser;   // for rnd seed
-    STATE public	        state;
+    STATE internal	        state   = STATE.PLAY;
 
 	function ownership() public { owner = msg.sender; lastUser = this;}
-    
+
     modifier onlyOwner {
         require(msg.sender == owner);
         _;
     }
-    
+
     function terminate() onlyOwner public;
-    function getFee() public constant returns (uint);
+    function getFee() internal constant returns (uint);
 
     function withdrawal(uint _value) onlyOwner payable public {
         require(_value<=address(this).balance);
         owner.transfer(_value);
     }
-    
+
     function transfer(pending _pending, uint _lessThen) internal returns (uint) {
         if(_pending.value<=_lessThen) {
             uint value  = _pending.value;
@@ -56,7 +56,7 @@ contract ownership {
         pendings.push(_pending);
         return 0;
     }
-    
+
 	function updatePending() internal {
 	    uint totalTransfer = 0;
 	    for(int i = int(pendings.length)-1 ; i >=0 ; i--) {

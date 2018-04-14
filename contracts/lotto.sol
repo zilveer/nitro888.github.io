@@ -18,8 +18,8 @@ library machine {
 	}
 	function lotto(uint8 _ballCount, uint8 _drawCount, address _a, address _b, uint _c) internal pure returns (uint64,uint64) {
 		uint64[] memory b	= balls(_ballCount);
-		uint[] memory rnds  = utils.RNG(_ballCount,uint8(_drawCount*(_c%3+1)), _a, _b, _c);
-		
+		uint[] memory rnds  = utils.RNG(_ballCount,uint8(_drawCount*(_c%3+3)), _a, _b, _c);
+
 		for(uint i = 0 ; i < rnds.length ; i++) {
 		    uint pos1       = i%_drawCount;
 		    uint pos2       = rnds[i];
@@ -45,14 +45,14 @@ library machine {
 					count++;
 			result	= result && (count == _drawCount);
 		}
-        
+
         return result&&_tickets.length>0;
     }
 }
 
 contract lotto is ownership {
 
-    uint                                    round           = 1;
+    uint                                    round;
     uint constant                           historySize     = 100;
     uint128[]                               history;
 
@@ -60,11 +60,11 @@ contract lotto is ownership {
 	mapping(address=>uint64[]) internal     userTickets;
 	mapping(uint64=>address[])              tickets;
 
-	function information(address player) public constant returns (uint,STATE,uint128[],uint64[]) {
-		return (round,state,history,userTickets[player]);
-	}
-	function cost() public constant returns (uint,uint,uint,uint) {
+	function info0() public constant returns (uint,uint,uint,uint) {
 	    return (address(this).balance,getTicketPrice(),getFee(),pendings.length);
+	}
+	function info1(address player) public constant returns (uint,STATE,uint128[],uint64[]) {
+		return (round,state,history,userTickets[player]);
 	}
     function terminate() onlyOwner public {
         state               = STATE.DISABLE;
@@ -87,9 +87,9 @@ contract lotto is ownership {
 		}
 		ticketsIndex.length	= 0;
 	}
-	
+
     event eventUpdate(uint,STATE, uint128[],uint,uint,uint,uint64[]);
-    
+
     function update(uint _seed) onlyOwner public {
 		if(state==STATE.READY) {
 			state	= STATE.OPEN;
@@ -139,7 +139,7 @@ contract lotto is ownership {
     			    if(machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount-1)&&(ticketsIndex[i]&_bonusNumber>0))
                         givePrize(ticketsIndex[i],prize);
         }
-        
+
         return (winners>0);
 	}
 
@@ -150,13 +150,13 @@ contract lotto is ownership {
 		return totalTransfer;
 	}
 
-	function buy(uint64[] _tickets) payable public {
+	function bet(uint64[] _tickets) payable public {
 	    require((msg.value == getTicketPrice()*_tickets.length) && state==STATE.OPEN);
         require(machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
 
 		for(uint i = 0 ; i <  _tickets.length ; i++) {
 			if(tickets[_tickets[i]].length==0)
-				ticketsIndex.push(_tickets[i]);		
+				ticketsIndex.push(_tickets[i]);
 			tickets[_tickets[i]].push(msg.sender);
 			userTickets[msg.sender].push(_tickets[i]);
 		}
@@ -164,8 +164,8 @@ contract lotto is ownership {
 		lastUser	= msg.sender;
 	}
 
-    function getTicketPrice() public constant returns (uint);
-    function getBallCount() public constant returns (uint8);
-    function getMatchCount() public constant returns (uint8);
+    function getTicketPrice() internal constant returns (uint);
+    function getBallCount() internal constant returns (uint8);
+    function getMatchCount() internal constant returns (uint8);
     function roundEnd(uint _seed) internal ;
 }

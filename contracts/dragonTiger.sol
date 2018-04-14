@@ -3,22 +3,22 @@ pragma solidity ^0.4.21;
 import "./casino.sol";
 
 contract dragonTiger is casino {
-    uint constant public        fee                 = 100000000000000;  // fee for transfer - 0.0001E (1,000,000,000,000,000,000 = 1eth)
-    uint constant public        betPrice            = 1000000000000000; // 0.001E (1,000,000,000,000,000,000 = 1eth)
-    
-    function getFee() public constant returns (uint) {
+    uint constant   fee                 = 100000000000000;  // fee for transfer - 0.0001E (1,000,000,000,000,000,000 = 1eth)
+    uint constant   betPrice            = 1000000000000000; // 0.001E (1,000,000,000,000,000,000 = 1eth)
+
+    function getFee() internal constant returns (uint) {
         return fee;
     }
-    function getBetPrice() public constant returns (uint) {
+    function getBetPrice() internal constant returns (uint) {
         return betPrice;
     }
-    function getSlotMax() public constant returns (uint8) {
+    function getSlotMax() internal constant returns (uint8) {
         return 3;
     }
-    function getShoeDeckCount() public constant returns (uint) {
+    function getShoeDeckCount() internal constant returns (uint) {
         return 6;
     }
-    
+
     function gameBet(uint _seed) internal returns(bool) {
         return true;
     }

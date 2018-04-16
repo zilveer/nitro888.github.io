@@ -1,10 +1,10 @@
 let CONFIG	= {};
 
 let storage	= new function() {
-	this.wallet		= '';
-	this.address	= '';
-	this.tx			= '';
-	this.time		= 0;
+	this.wallet		= '',
+	this.address	= '',
+	this.tx			= '',
+	this.time		= 0,
 	this.load		= function() {
 		if(!storage.hasData())
 			return;
@@ -35,10 +35,10 @@ let storage	= new function() {
 }
 
 let wallet	= new function() {
-	this.web3			= null;
-	this.balance		= -2;
-	this.stateBackup	= -1;
-	this.timer			= 1800000;
+	this.web3				= null,
+	this.balance		= -2,
+	this.stateBackup= -1,
+	this.timer			= 1800000,
 	this.showEthNetwork	= function() {
 		wallet.web3.version.getNetwork((e, r) => {
 			  switch (r) {
@@ -212,7 +212,7 @@ let wallet	= new function() {
 			else
 				modal.alert('<div class="alert alert-warning" role="alert">Password is empty</div>');
 		}
-	}
+	},
 	this.loginWithPK		= function() {
 		wallet.web3.version.getNetwork((e, r) => {
 				let data	= JSON.parse(storage.wallet);
@@ -477,7 +477,7 @@ let util	= new function() {
 	this.historyRow			= 6,
 	this.historyCol			= 140,
 	this.win				= function(game,openCards) {
-		let win		= 0;
+		let win			= 0;
 		let toolTip	= '';
 
 		switch(game){
@@ -563,7 +563,7 @@ let util	= new function() {
 			if(CONFIG[game]['address'][i]==address)
 				return true;
 		return false;
-	}
+	},
 	this.ticketLottoMark	= function (ticket,max,mark) {
 		if(util.ticketLottoMarkCount(ticket,max)>mark)
 			return false;

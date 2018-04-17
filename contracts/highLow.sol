@@ -24,15 +24,15 @@ contract highLow is casino {
         openCards       = uint64(card);
         uint8 temp      = cards.getCardPoint(card);
         if((temp==1)||(temp==13))
-                return false;
+            return false;
         return true;
     }
 
-	function gameRoundEnd(uint _seed) internal {
+    function gameRoundEnd(uint _seed) internal {
         uint8 card      = drawCardsFromShoe(1,_seed)[0];
-	    uint8 first     = cards.getCardPoint(uint8(openCards&255));
+        uint8 first     = cards.getCardPoint(uint8(openCards&255));
         uint8 second    = cards.getCardPoint(card);
-	    openCards       |=uint64(card)<<32;
+        openCards       |=uint64(card)<<32;
 
         if(second==first) {
             gameResult(2,0,true);
@@ -61,5 +61,5 @@ contract highLow is casino {
         } else if(first==7) {
             gameResult(second>first?0:1,170,false);
         }
-	}
+    }
 }

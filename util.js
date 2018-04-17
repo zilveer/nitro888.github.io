@@ -679,5 +679,13 @@ let util	= new function() {
 
 		table		+="</tbody></table></div>";
 		modal.update(CONFIG[game]['name'],table);
+	},
+	this.parseLog	= function(txid,callback) {
+		wallet.web3.eth.getTransactionReceipt(txid,abi,function(e,r){
+			if(e!=null&&r.logs.length>0)
+				callback(wallet.web3.eth.abi.decodeLog(abi,r.logs[0].data,r.logs[0].topics));
+			else
+				callback(null);
+    });
 	}
 }

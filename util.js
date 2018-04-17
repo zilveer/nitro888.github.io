@@ -680,12 +680,10 @@ let util	= new function() {
 		table		+="</tbody></table></div>";
 		modal.update(CONFIG[game]['name'],table);
 	},
-	this.parseLog	= function(txid,abi,callback) {
-		wallet.web3.eth.getTransactionReceipt(txid,abi,function(e,r){
-			if(e!=null&&r.logs.length>0)
-				callback(wallet.web3.eth.abi.decodeLog(abi,r.logs[0].data,r.logs[0].topics));
-			else
-				callback(null);
-    });
+	this.getLogs	= function(address,abi,callback) {
+		$.getJSON(CONFIG['network']['api']+'/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address='+address,function(data) {
+			for(let i = 0 ; i < data.result.length ; i++)
+				callback(wallet.web3.eth.abi.decodeLog(abi,data.result[i].data,data.result[i].topics));
+		}
 	}
 }

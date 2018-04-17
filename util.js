@@ -424,7 +424,7 @@ let wallet	= new function() {
 		modal.update('Transaction History',"Now Loading");
 
 		let jsonUrl	= CONFIG['network']['api']+"/api?module=account&action=txlist&address="+storage.address+"&startblock=0&endblock=latest&sort=desc";
-		$.getJSON(jsonUrl,function(data) {
+		wallet.getNormalTransactions(storage.address,function(data) {
 			if(data["result"].length==0)
 				modal.update('Transaction History',data["message"]);
 			else {
@@ -456,8 +456,23 @@ let wallet	= new function() {
 					modal.update('Transaction History',table);
 				}
 			});
-	}
+	},
 	// history
+	this.getNormalTransactions = function(address,callback) {
+		let jsonUrl	= CONFIG['network']['api']+"/api?module=account&action=txlist&address="+address+"&startblock=0&endblock=latest&sort=desc";
+		$.getJSON(jsonUrl,callback);
+	},
+	this.getInternalTransactions = function(address,callback) {
+		let jsonUrl	= CONFIG['network']['api']+"/api?module=account&action=txlistinternal&address="+address+"&startblock=0&endblock=latest&sort=desc";
+		$.getJSON(jsonUrl,callback);
+	},
+	this.getLogs	= function(address,abi,callback) {
+		let jsonUrl	= CONFIG['network']['api']+'/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address='+address;
+		$.getJSON(jsonUrl,function(data) {
+			for(let i = 0 ; i < data.result.length ; i++)
+				callback(wallet.web3.eth.abi.decodeLog(abi,data.result[i].data,data.result[i].topics));
+		});
+	}
 }
 
 let modal	= new function() {
@@ -679,11 +694,5 @@ let util	= new function() {
 
 		table		+="</tbody></table></div>";
 		modal.update(CONFIG[game]['name'],table);
-	},
-	this.getLogs	= function(address,abi,callback) {
-		$.getJSON(CONFIG['network']['api']+'/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address='+address,function(data) {
-			for(let i = 0 ; i < data.result.length ; i++)
-				callback(wallet.web3.eth.abi.decodeLog(abi,data.result[i].data,data.result[i].topics));
-		}
 	}
 }

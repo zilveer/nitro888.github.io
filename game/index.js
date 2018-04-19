@@ -52,7 +52,13 @@ let page = new function() {
 
 		$.getJSON('../config.json', (data)=>{
 			if(data!=null) {
-				CONFIG	= data;
+				CONFIG							= data;
+				CONFIG['_name']			= CONFIG['networks']['selected'][0];
+				CONFIG['_type']			= CONFIG['networks']['selected'][1];
+				CONFIG['_provider']	= CONFIG['networks'][CONFIG['_name']][CONFIG['_type']];
+				CONFIG['_api']			= CONFIG['networks'][CONFIG['_name']]['api'];
+				CONFIG['_href']			= CONFIG['networks'][CONFIG['_name']]['href'];
+
 				if(!page.game || !page.address || !CONFIG[page.game] || !util.isGameAddress(page.game,page.address))
 					location.href=location.origin;
 				else {
@@ -71,8 +77,12 @@ let page = new function() {
 				    		//socket.start('#chatmessage','#chatInput',page.socketUrl,page.updateSchedule,storage.address);
 
 								page.contract	= new wallet.web3.eth.Contract(CONFIG[page.game]['abi'],page.address);
+								if(CONFIG['_type']=="http")
+									setInterval(page.scene.onUpdateInformation,1000);
+								else
+				    			page.contract.events.allEvents(console.log);	// todo : test
+								page.update();
 
-				    		setInterval(function(){page.scene.onUpdateInformation();},1000);
 					    }, cc.game);
 					};
 					cc.game.run();

@@ -7,8 +7,11 @@ let contracts	= new function() {
 		contracts.create('highLow');
 	},
 	this.create		= function(game) {
-		for(let i=0;i<CONFIG[game]['address'].length;i++)
+		for(let i=0;i<CONFIG[game]['address'].length;i++) {
 			CONFIG[game]['contracts'][CONFIG[game]['address'][i]]	= new wallet.web3.eth.Contract(CONFIG[game]['abi'],CONFIG[game]['address'][i]);
+			if(CONFIG['_type']!="http")
+				CONFIG[game]['contracts'][CONFIG[game]['address'][i]].events.allEvents(console.log); // todo : test
+		}
 	},
 	this.info		= function(game,address,callback) {
 		if(CONFIG[game]['contracts'][address]!=null)
@@ -288,10 +291,17 @@ let UPDATE = function () {
 }
 $.getJSON('config.json', (data)=>{
 	if(data!=null) {
-		CONFIG	= data;
+		CONFIG							= data;
+		CONFIG['_name']			= CONFIG['networks']['selected'][0];
+		CONFIG['_type']			= CONFIG['networks']['selected'][1];
+		CONFIG['_provider']	= CONFIG['networks'][CONFIG['_name']][CONFIG['_type']];
+		CONFIG['_api']			= CONFIG['networks'][CONFIG['_name']]['api'];
+		CONFIG['_href']			= CONFIG['networks'][CONFIG['_name']]['href'];
+
 		page.start();
 		wallet.start(UPDATE);
 		contracts.start();
+		UPDATE();
 	}
 });
 //main

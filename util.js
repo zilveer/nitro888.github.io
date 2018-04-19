@@ -8,16 +8,16 @@ let storage	= new function() {
 	this.load		= function() {
 		if(!storage.hasData())
 			return;
-		let data	= JSON.parse(localStorage[CONFIG['network']['provider']]);
+		let data				= JSON.parse(localStorage[CONFIG['_name']]);
 		storage.wallet	= data.wallet;
 		storage.address	= data.address;
 		storage.time		= data.time;
 	},
 	this.save		= function() {
-		localStorage[CONFIG['network']['provider']] = storage.wallet!=''?JSON.stringify({'wallet':storage.wallet,'address':storage.address,'tx':storage.tx,'time':storage.time}):'';
+		localStorage[CONFIG['_name']] = storage.wallet!=''?JSON.stringify({'wallet':storage.wallet,'address':storage.address,'tx':storage.tx,'time':storage.time}):'';
 	},
 	this.hasData		= function() {
-		return (typeof localStorage[CONFIG['network']['provider']] !== 'undefined' && localStorage[CONFIG['network']['provider']] != '');
+		return (typeof localStorage[CONFIG['_name']] !== 'undefined' && localStorage[CONFIG['_name']] != '');
 	},
 	this.hasStorage	= function() {
 		return (typeof(Storage) !== "undefined");
@@ -26,7 +26,7 @@ let storage	= new function() {
 		storage.wallet	= '';
 		storage.address	= '';
 		storage.tx			= '';
-		localStorage.removeItem(CONFIG['network']['provider']);
+		localStorage.removeItem(CONFIG['_name']);
 	},
 	this.reset		= function() {
 		storage.address	= '';
@@ -39,17 +39,7 @@ let wallet	= new function() {
 	this.balance			= -2,
 	this.stateBackup	= -1,
 	this.timer				= 1800000,
-	this.showEthNetwork	= function() {
-		wallet.web3.eth.net.getNetworkType((e, r) => {
-			  switch (r) {
-			    case "main":		console.log('This is mainnet');															break;
-			    case "morden":	console.log('This is the deprecated Morden test network.');	break;
-			    case "ropsten":	console.log('This is the ropsten test network.');						break;
-			    default:				console.log('This is an unknown network.('+r+')');					break;
-			  }
-			});
-	},
-	this.state			= function() {
+	this.state				= function() {
 		if (storage.hasStorage() && storage.hasData() && storage.wallet != '') {
 			if(storage.address!=='')
 				return 2;
@@ -58,7 +48,7 @@ let wallet	= new function() {
 		}
 		return 0;
 	},
-	this.start			= function(update) {
+	this.start			= function(mainUpdate) {
 		if(!storage.hasStorage())
 			$('#top-alert').html('<div class="alert alert-warning" role="alert">This browser is not support storage!</div>');
 		else if(!storage.hasData()) {
@@ -68,10 +58,22 @@ let wallet	= new function() {
 			wallet.updateTimer(true);
 		}
 
-		wallet.web3		= new Web3(new Web3.providers.HttpProvider(CONFIG['network']['provider']));
-		wallet.showEthNetwork();
+		if(CONFIG['_type']=="http") {
+			wallet.web3		= new Web3(new Web3.providers.HttpProvider(CONFIG['_provider']));
+			setInterval(()=>{wallet.update();mainUpdate();},2000);
+		} else {
+			wallet.web3		= new Web3(new Web3.providers.WebsocketProvider(CONFIG['_provider']));
+			wallet.web3.eth.subscribe('newBlockHeaders',wallet.update);
+		}
+	},
+	this.update					= function(){
+		wallet.updateTimer(false);
+		wallet.updateNavAccount();
 
-		setInterval(()=>{wallet.updateTimer(false);wallet.updateNavAccount();if(wallet.state()==2)wallet.updateBalance(()=>{/*todo*/});else wallet.balance=-1;update();},2000);
+		if(wallet.state()==2)
+			wallet.updateBalance(()=>{/*todo*/});
+		else
+			wallet.balance=-1;
 	},
 	this.updateTimer		= function(update) {
 		let time = new Date().getTime();
@@ -135,7 +137,7 @@ let wallet	= new function() {
 		}
 
 		let body	=		'<div style="overflow-x:auto;">' +
-									'<center>Create wallet from <b>' + CONFIG['network']['name'] + '</b></center>' +
+									'<center>Create wallet from <b>' + CONFIG['_name'] + '</b></center>' +
 									'<center>Wallet data in your computer only.</center>' +
 									'<center>If you clean up your browser. Be removed wallet data permanently too.</center><br/>' +
 									'<div class="input-group mb-3"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="pass1" type="password" class="form-control" placeholder="Password (Over 8 letters)" aria-label="Password (Over 8 letters)"></div>' +
@@ -171,7 +173,7 @@ let wallet	= new function() {
 			let dk				= keythereum.create();
 			let keyObject	= keythereum.dump(p1, dk.privateKey, dk.salt, dk.iv);
 
-			keyObject.isMainNet	= CONFIG['network']['isMainNet'];
+			keyObject.isMainNet	= CONFIG['_name']=='main';
 			storage.wallet			= JSON.stringify(keyObject);
 			storage.reset();
 			storage.save();
@@ -328,9 +330,9 @@ let wallet	= new function() {
 	// deposit & withdrawal
 	this.deposit			= function() {
 		wallet.updateTimer(true);
-		let body	= '<div align="center"><p class="text-warning">!! WARNING! THIS NETWORK IS '+CONFIG['network']['name']+' !!</p></div>';
+		let body	= '<div align="center"><p class="text-warning">!! WARNING! THIS NETWORK IS '+CONFIG['_name']+' !!</p></div>';
 		body		+="<div align='center'><img src='https://api.qrserver.com/v1/create-qr-code/?data="+storage.address+"&size=256x256 alt='' width='256' height='256'/></div><br/>";
-		body		+="<div align='center'><a class='text-primary' target='_blank' href='"+CONFIG['network']['href']+"/address/"+storage.address+"'>"+storage.address+"</a></div>";
+		body		+="<div align='center'><a class='text-primary' target='_blank' href='"+CONFIG['_href']+"/address/"+storage.address+"'>"+storage.address+"</a></div>";
 		modal.update('Deposit',body);
 	},
 	this.withrawal		= function() {
@@ -361,7 +363,7 @@ let wallet	= new function() {
 						wallet.web3.eth.getTransaction(storage.tx,function(e,r){
 							if(!e)
 								if(r.blockNumber==null || parseInt(r.blockHash) == 0)
-									modal.alert('<div class="alert alert-warning" role="alert">Transaction is pending : <br/><small><a target="_blank" href="'+CONFIG['network']['href']+'/tx/'+storage.tx+'">'+storage.tx+'</a></small></div>');
+									modal.alert('<div class="alert alert-warning" role="alert">Transaction is pending : <br/><small><a target="_blank" href="'+CONFIG['_href']+'/tx/'+storage.tx+'">'+storage.tx+'</a></small></div>');
 								else {
 									storage.tx	= '';
 									storage.save();
@@ -400,7 +402,7 @@ let wallet	= new function() {
 						wallet.web3.eth.accounts.privateKeyToAccount('0x'+privateKey).signTransaction(tx).then((r)=>{
 							wallet.web3.eth.sendSignedTransaction(r.rawTransaction)
 								.on('transactionHash',(r)=>{
-									modal.alert('<div class="alert alert-warning" role="alert">Success <small>(<a target="_blank" href="'+CONFIG['network']['href']+'/tx/'+r+'">'+r+'</a>)</small><div>');
+									modal.alert('<div class="alert alert-warning" role="alert">Success <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r+'">'+r+'</a>)</small><div>');
 									storage.tx=r;
 								})
 								.then(console.log)		// todo : check
@@ -420,7 +422,7 @@ let wallet	= new function() {
 		wallet.updateTimer(true);
 		modal.update('Transaction History',"Now Loading");
 
-		let jsonUrl	= CONFIG['network']['api']+"/api?module=account&action=txlist&address="+storage.address+"&startblock=0&endblock=latest&sort=desc";
+		let jsonUrl	= CONFIG['_api']+"/api?module=account&action=txlist&address="+storage.address+"&startblock=0&endblock=latest&sort=desc";
 		wallet.getNormalTransactions(storage.address,(data)=>{
 			if(data["result"].length==0)
 				modal.update('Transaction History',data["message"]);
@@ -429,9 +431,9 @@ let wallet	= new function() {
 
 					for(i=0;i<data["result"].length;i++){
 						let date	= new Date(data["result"][i]["timeStamp"]*1000);
-						let tx		= '<a target="_blank" href="'+CONFIG['network']['href']+'/tx/' + data["result"][i]["hash"] + '">'+data["result"][i]["hash"]+'</a>';
-						let from	= '<a target="_blank" href="'+CONFIG['network']['href']+'/address/' + data["result"][i]["from"] + '">'+data["result"][i]["from"]+'</a>';
-						let to		= '<a target="_blank" href="'+CONFIG['network']['href']+'/address/' + data["result"][i]["to"] + '">'+data["result"][i]["to"]+'</a>';
+						let tx		= '<a target="_blank" href="'+CONFIG['_href']+'/tx/' + data["result"][i]["hash"] + '">'+data["result"][i]["hash"]+'</a>';
+						let from	= '<a target="_blank" href="'+CONFIG['_href']+'/address/' + data["result"][i]["from"] + '">'+data["result"][i]["from"]+'</a>';
+						let to		= '<a target="_blank" href="'+CONFIG['_href']+'/address/' + data["result"][i]["to"] + '">'+data["result"][i]["to"]+'</a>';
 						let value	= wallet.web3.utils.fromWei(data["result"][i]["value"],'ether');
 						let status= data["result"][i]["txreceipt_status"]==0?"<div class='text-danger'><small>[CANCELLED]</small></div>":"";
 
@@ -456,15 +458,15 @@ let wallet	= new function() {
 	},
 	// history
 	this.getNormalTransactions = function(address,callback) {
-		let jsonUrl	= CONFIG['network']['api']+"/api?module=account&action=txlist&address="+address+"&startblock=0&endblock=latest&sort=desc";
+		let jsonUrl	= CONFIG['_api']+"/api?module=account&action=txlist&address="+address+"&startblock=0&endblock=latest&sort=desc";
 		$.getJSON(jsonUrl,callback);
 	},
 	this.getInternalTransactions = function(address,callback) {
-		let jsonUrl	= CONFIG['network']['api']+"/api?module=account&action=txlistinternal&address="+address+"&startblock=0&endblock=latest&sort=desc";
+		let jsonUrl	= CONFIG['_api']+"/api?module=account&action=txlistinternal&address="+address+"&startblock=0&endblock=latest&sort=desc";
 		$.getJSON(jsonUrl,callback);
 	},
 	this.getLogs	= function(address,callback) {
-		let jsonUrl	= CONFIG['network']['api']+'/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address='+address;
+		let jsonUrl	= CONFIG['_api']+'/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address='+address;
 		$.getJSON(jsonUrl,(data)=>{callback(data.result);});
 	}
 }
@@ -660,7 +662,7 @@ let util	= new function() {
 
 		let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
 
-		table		+='<tr><td>Contract</td><td><a style="cursor:hand" onClick="window.open(\''+CONFIG['network']['href']+'/address/'+address+'\',\'_blank\')"><small>'+address+"</small></td></tr>";
+		table		+='<tr><td>Contract</td><td><a style="cursor:hand" onClick="window.open(\''+CONFIG['_href']+'/address/'+address+'\',\'_blank\')"><small>'+address+"</small></td></tr>";
 
 		switch(game){
 		case 'lotto953':

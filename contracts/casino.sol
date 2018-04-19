@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.22;
 
 import "./ownership.sol";
 
@@ -7,11 +7,11 @@ library cards{
 		return uint8((_card-1)%13)+1;
 	}
 
-	function makeShoe(uint _repeat, uint8 dropCnt, address _a, address _b, uint _c) internal pure returns (uint8[]) {
+	function makeShoe(uint _repeat, uint8 _shuffleLength, address _a, address _b, uint _c) internal pure returns (uint8[]) {
 		uint8[] memory card	= new uint8[](52*_repeat);
 		for(uint i = 0 ; i < card.length ; i++)
 			card[i] = uint8(i%52+1);
-		return shuffle(card,dropCnt,_a,_b,_c);
+		return shuffle(card,_shuffleLength,_a,_b,_c);
 	}
 
 	function drawCardsFromShoe(uint8[] _shoe, uint8 _count, address _a, address _b, uint _c) internal pure returns(uint8[] shoe,uint8[] draw) {
@@ -24,11 +24,11 @@ library cards{
 		return (shoe,draw);
 	}
 
-	function shuffle(uint8[] _cards, uint8 shuffleLength, address _a, address _b, uint _c) internal pure returns (uint8[]) {
-		uint[] memory rnds  = utils.RNG(_cards.length,uint8(shuffleLength*(_c%3+3)), _a, _b, _c);
+	function shuffle(uint8[] _cards, uint8 _shuffleLength, address _a, address _b, uint _c) internal pure returns (uint8[]) {
+		uint[] memory rnds  = utils.RNG(_cards.length,uint8(_shuffleLength*(_c%3+3)), _a, _b, _c);
 
 		for(uint i = 0 ; i < rnds.length ; i++) {
-			uint pos1       = (_cards.length-shuffleLength) + i%shuffleLength;
+			uint pos1       = (_cards.length-_shuffleLength) + i%_shuffleLength;
 			uint pos2       = rnds[i];
 
 			uint8 temp	    = _cards[pos1];
@@ -59,7 +59,8 @@ contract casino is ownership {
 
 	function getBetPrice() internal constant returns (uint);
 	function getSlotMax() internal constant returns (uint8);
-	function getShoeDeckCount() internal constant returns (uint);
+    function getShoeDeckCount() internal constant returns (uint);
+    function isNotShoeChange(uint _round, address _a, address _b, uint _c) internal constant returns (bool);
 
 	function info0() public constant returns (uint,uint,uint,uint) {
 	    return (address(this).balance,getBetPrice(),getFee(),pendings.length);
@@ -93,15 +94,15 @@ contract casino is ownership {
 	function resetShoe(address _a, address _b, uint _c, bool _d) private returns (bool) {
     	openCards   = 0;
 
-    	if(shoe.length > 30) {
+    	if(round[0]>0 && isNotShoeChange(round[1],_a,_b,_c)) {
         	if(_d)
         	    round[1]++;
         } else {
         	round[0]++;
         	round[1]        = 1;
         	history.length  = 0;
-        	shoe            = cards.makeShoe(getShoeDeckCount(),9, _a, _b, _c);
-        	drawCardsFromShoe(9, _c);
+        	shoe            = cards.makeShoe(getShoeDeckCount(), 6, _a, _b, _c);
+        	drawCardsFromShoe(3, _c);
 
         	return true;
     	}

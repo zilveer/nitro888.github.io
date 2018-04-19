@@ -76,7 +76,7 @@ let playingcards = cc.Sprite.extend({
 			this.front.visible	= false;
 			this.front.setScale(0.8);
 			this.addChild(this.front);
-			
+
 			let moveTo	= cc.MoveTo.create(0.2, to);
 			let flipB	= cc.ScaleTo.create(0.1, 0, 1);
 			let flipF	= cc.ScaleTo.create(0.1, 1, 1);
@@ -92,26 +92,26 @@ let playingcards = cc.Sprite.extend({
 								cc.DelayTime.create(0.1),
 								cc.CallFunc.create(function(){that.callbackAfterOpen(that.index);}));
 
-			this.runAction(action);					
+			this.runAction(action);
 		} else if(this.front==null && this.onTable) {
 			this.back.visible	= false;
 			this.front			= cc.Sprite.createWithSpriteFrameName(this.cards[card-1]);
 			this.front.visible	= true;
 			this.front.setScale(0.8);
 			this.addChild(this.front);
-			
+
 			this.setPosition(to);
 		}
 
-		this.onTable			= true;    	
+		this.onTable			= true;
     },
     close:function(to) {
     	if(this.onTable) {
 			let moveTo	= cc.MoveTo.create(0.2, to);
-			
+
 			let that		= this;
 			let action	= cc.Sequence.create(cc.Spawn.create(cc.CallFunc.create(function(){that.cardSlideFX();}),moveTo),cc.CallFunc.create(function(){if(that.front!=null){that.removeChild(that.front);that.front	= null;}}));
-			this.runAction(action);    			
+			this.runAction(action);
 		} else {
 			if(this.front!=null) {
 				this.removeChild(this.front);
@@ -134,7 +134,7 @@ let messageBox = cc.Layer.extend({
 	boxBG:null,
     ctor:function () {
 		this._super();
-		
+
 		let line		= cc.Sprite.createWithSpriteFrameName("#box.png");
 		line.setPosition(cc.winSize.width/2,cc.winSize.height/2+70+210);
 		line.setScale(48,1);
@@ -207,10 +207,10 @@ let gameScene = cc.Scene.extend({
 		if(game!=this.game||address!=this.address)
 			return false;
 
-		if(this.state!=data[1].toNumber()) {
-    		this.state		= data[1].toNumber();
+		if(this.state!=parseInt(data[1])) {
+    		this.state		= parseInt(data[1]);
     		this.updateCards(data);
-    		
+
 			if(this.next==-1||(this.next-this.time)<0)
 				return true;
 		}
@@ -233,7 +233,7 @@ let gameScene = cc.Scene.extend({
 		}
     },
     onFocus:function() {
-    		// todo : 
+    		// todo :
     },
     updateUI:function() {
 		for(let i = 0 ; i < this.fxUI.length ; i++)
@@ -256,10 +256,10 @@ let gameScene = cc.Scene.extend({
 		    		let location			= touch.getLocation();
 		    		location.x			*=scale;
 		    		location.y			*=scale;
-		    		let locationInNode	= target.convertToNodeSpace(location);	
+		    		let locationInNode	= target.convertToNodeSpace(location);
 			    let s				= target.getContentSize();
 			    let rect				= cc.rect(0, 0, s.width, s.height);
-			        			    
+
 			    if (cc.rectContainsPoint(rect, locationInNode)) {
 				    target.opacity = 180;
 				    	this.eventSelector(that,slot,multi);
@@ -268,14 +268,14 @@ let gameScene = cc.Scene.extend({
 			    }
 			    return false;
 		    },
-		    onTouchEnded: function (touch, event) {			
-			    let target = event.getCurrentTarget();			    
+		    onTouchEnded: function (touch, event) {
+			    let target = event.getCurrentTarget();
 			    	target.setOpacity(255);
 		    }
-	    });    		
-		
+	    });
+
 		cc.eventManager.addListener(listener, btn);
-		
+
 		return btn;
     },
     initGeneral:function () {
@@ -293,12 +293,12 @@ let gameScene = cc.Scene.extend({
 	    label.setPosition(posX,posY+55);
 		this.addChild(label);
 		this.fxUI.push(label);
-		
+
 	    let odd = cc.LabelTTF.create("x "+odds, "Montserrat", 20);
 	    odd.setPosition(posX,posY-60);
 		this.addChild(odd);
 		this.fxUI.push(odd);
-		
+
 		this.fxUI.push(this.initBetButtons(pot,33,-12,eventBet,slot,1,'btnBetx1'));
 		this.fxUI.push(this.initBetButtons(pot,99.5,-12,eventBet,slot,2,'btnBetx2'));
 		this.fxUI.push(this.initBetButtons(pot,166,-12,eventBet,slot,3,'btnBetx3'));
@@ -316,52 +316,52 @@ let gameScene = cc.Scene.extend({
     },
     initBaccarat:function () {
 		this.initLogo('baccarat');
-	
+
 		this.oddUI['bet0']['odd']	= this.initBetPot(cc.winSize.width/2-218,cc.winSize.height/5+20,"BANKER","1.95",this.clickBet,0);
 		this.oddUI['bet1']['odd']	= this.initBetPot(cc.winSize.width/2+218,cc.winSize.height/5+20,"PLAYER","2",this.clickBet,1);
 		this.oddUI['bet2']['odd']	= this.initBetPot(cc.winSize.width/2,	cc.winSize.height/5+20,"TIE","9",this.clickBet,2);
-		
+
 		this.oddUI['bet0']['point']	= cc.LabelTTF.create("", "Montserrat", 30);
 		this.oddUI['bet0']['point'].setPosition(cc.winSize.width/2-50,cc.winSize.height/2-30);
 		this.addChild(this.oddUI['bet0']['point']);
-		
+
 		this.oddUI['bet1']['point']	= cc.LabelTTF.create("", "Montserrat", 30);
 		this.oddUI['bet1']['point'].setPosition(cc.winSize.width/2+50,cc.winSize.height/2-30);
 		this.addChild(this.oddUI['bet1']['point']);
-		
+
 		// banker
 		let sprite = cc.Sprite.createWithSpriteFrameName("#cardposition.png");
 	    sprite.setPosition(cc.winSize.width/2-258,cc.winSize.height/2-55);
 	    this.addChild(sprite);
-	
+
 	    sprite = cc.Sprite.createWithSpriteFrameName("#cardposition.png");
 	    sprite.setPosition(cc.winSize.width/2-128,cc.winSize.height/2-55);
 	    this.addChild(sprite);
-	    
+
 	    // player
 	    sprite = cc.Sprite.createWithSpriteFrameName("#cardposition.png");
 	    sprite.setPosition(cc.winSize.width/2+258,cc.winSize.height/2-55);
 	    this.addChild(sprite);
-	    
+
 	    // tie
 	    sprite = cc.Sprite.createWithSpriteFrameName("#cardposition.png");
 	    sprite.setPosition(cc.winSize.width/2+128,cc.winSize.height/2-55);
 	    this.addChild(sprite);
-	    
+
 	    // cards openCards
 	    this.initCards(6);
     },
     initDragonTiger:function () {
     		this.initLogo('dragontiger');
-    	
+
 		this.oddUI['bet0']['odd']	= this.initBetPot(cc.winSize.width/2-218,cc.winSize.height/5+20,"DRAGON","2",this.clickBet,0);
 		this.oddUI['bet1']['odd']	= this.initBetPot(cc.winSize.width/2+218,cc.winSize.height/5+20,"TIGER","2",this.clickBet,1);
 		this.oddUI['bet2']['odd']	= this.initBetPot(cc.winSize.width/2,	cc.winSize.height/5+20,"TIE","9",this.clickBet,2);
-		
+
 		this.oddUI['bet0']['point']	= cc.LabelTTF.create("", "Montserrat", 30);
 		this.oddUI['bet0']['point'].setPosition(cc.winSize.width/2-50,cc.winSize.height/2-30);
 		this.addChild(this.oddUI['bet0']['point']);
-		
+
 		this.oddUI['bet1']['point']	= cc.LabelTTF.create("", "Montserrat", 30);
 		this.oddUI['bet1']['point'].setPosition(cc.winSize.width/2+50,cc.winSize.height/2-30);
 		this.addChild(this.oddUI['bet1']['point']);
@@ -375,16 +375,16 @@ let gameScene = cc.Scene.extend({
         sprite = cc.Sprite.createWithSpriteFrameName("#cardposition.png");
         sprite.setPosition(new cc.Point(cc.winSize.width/2+109,cc.winSize.height/2-55));
         this.addChild(sprite);
-        
+
 	    // cards openCards
         this.initCards(2);
     },
     initHighLow:function () {
     		this.initLogo('highlow');
-    	
+
 		this.oddUI['bet0']['odd']	= this.initBetPot(cc.winSize.width/2-125,cc.winSize.height/5+20,"HIGH","?",this.clickBet,0);
 		this.oddUI['bet1']['odd']	= this.initBetPot(cc.winSize.width/2+125,cc.winSize.height/5+20,"LOW","?",this.clickBet,1);
-		
+
 		// 1st
         let sprite = cc.Sprite.createWithSpriteFrameName("#cardposition.png");
         sprite.setPosition(new cc.Point(cc.winSize.width/2-109,cc.winSize.height/2-55));
@@ -394,7 +394,7 @@ let gameScene = cc.Scene.extend({
         sprite = cc.Sprite.createWithSpriteFrameName("#cardposition.png");
         sprite.setPosition(new cc.Point(cc.winSize.width/2+109,cc.winSize.height/2-55));
         this.addChild(sprite);
-        
+
 	    // cards openCards
         this.initCards(2);
     },
@@ -404,14 +404,14 @@ let gameScene = cc.Scene.extend({
 	    		openCard.setPosition(cc.winSize.width/2,cc.winSize.height*1.5);
 	    		this.openCards.push(openCard);
 	    		this.addChild(openCard);
-	    }    	
+	    }
     },
     randomPosition:function(pos) {
-    		return new cc.Point(pos.x + Math.floor(Math.random() * 8) + 1 ,pos.y + Math.floor(Math.random() * 6) + 1 ) 
+    		return new cc.Point(pos.x + Math.floor(Math.random() * 8) + 1 ,pos.y + Math.floor(Math.random() * 6) + 1 )
     },
     updateCards:function(data) {
-    		let openCards	= util.openCards(data[3].toNumber());
-    		let win			= util.win(this.game,openCards)['win'];
+    		let openCards	= util.openCards(parseInt(data[3]));
+    		let win				= util.win(this.game,openCards)['win'];
     		let from			= new cc.Point(cc.winSize.width/2,cc.winSize.height*1.5);
 
     		switch(this.game) {
@@ -433,7 +433,7 @@ let gameScene = cc.Scene.extend({
     					this.openCards[1].open(from,pos12,openCards['1st'][1],1.5);
     					this.openCards[2].setRotation(90);
     					this.openCards[2].open(from,pos13,openCards['1st'][2],openCards['2nd'][2]==0?2:2.5);
-    					
+
     					let that		= this;
     					let mssage	= win==1?'Banker Win':win==2?'Player Win':win==3?'Tie Win':'error';
     					setTimeout(function() { that.messageBox.showMessage(true,that.state,mssage); }, 5000);
@@ -448,7 +448,7 @@ let gameScene = cc.Scene.extend({
     					let pos2			= this.randomPosition(new cc.Point(cc.winSize.width/2+109 ,cc.winSize.height/2+10));
     					this.openCards[0].open(from,pos1,openCards['1st'][0]);
     					this.openCards[1].open(from,pos2,openCards['2nd'][0],1);
-    					
+
     					let that		= this;
     					let mssage	= win==1?'Dragon Win':win==2?'Tiger Win':win==3?'Tie Win':'error';
     					setTimeout(function() { that.messageBox.showMessage(true,that.state,mssage); }, 5000);
@@ -466,7 +466,7 @@ let gameScene = cc.Scene.extend({
     				} else if(this.state==3) {
     					this.openCards[0].onTable	= true;
     					let pos1			= this.randomPosition(new cc.Point(cc.winSize.width/2-109 ,cc.winSize.height/2+10));
-    					this.openCards[0].open(from,pos1,openCards['1st'][0]);	    					
+    					this.openCards[0].open(from,pos1,openCards['1st'][0]);
     					let pos2			= this.randomPosition(new cc.Point(cc.winSize.width/2+109 ,cc.winSize.height/2+10));
     					this.openCards[1].open(from,pos2,openCards['2nd'][0],1);
     					this.showHighLowOdds(openCards['1st'][0]);
@@ -485,10 +485,10 @@ let gameScene = cc.Scene.extend({
     showHighLowOdds:function(card) {
 		const odds	= [[10.7,1.1],[5.3,1.1],[3.5,1.1],[2.6,1.3],[2.1,1.5],[1.87,1.87],[1.5,2.1],[1.3,2.6],[1.1,3.5],[1.1,5.3],[1.1,10.7]];
 		if(card!=0) {
-			this.oddUI['bet0']['odd'].string	= "x "+odds[util.card(card)-2][1]; 
+			this.oddUI['bet0']['odd'].string	= "x "+odds[util.card(card)-2][1];
 			this.oddUI['bet1']['odd'].string = "x "+odds[util.card(card)-2][0];
 		} else {
-			this.oddUI['bet0']['odd'].string	= "x ?"; 
+			this.oddUI['bet0']['odd'].string	= "x ?";
 			this.oddUI['bet1']['odd'].string = "x ?";
 		}
     },

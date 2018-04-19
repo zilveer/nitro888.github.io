@@ -85,7 +85,7 @@
 			<h2 class="text-center text-uppercase" id="gameTitle"></h2>
 	      	<div class="row" id="gameTop">
 				<div class="col-md-6 panel" id="gameFrame">
-					<table style="width:100%"><tr><td id="gameRound" class="text-uppercase h6"></td><td style="float:right;"><small><button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.showInfo()"><i class="material-icons" style="font-size:20px;">announcement</i></button></small></td></tr></table>
+					<table style="width:100%"><tr><td id="gameRound" class="text-uppercase h6"></td><td style="float:right;"><small><button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.openInfo()"><i class="material-icons" style="font-size:20px;">announcement</i></button></small></td></tr></table>
 					<canvas id="gameCanvas" width=720 height=720 style="background:linear-gradient(to bottom, #33cc33 0%, #006600 100%)"></canvas>
 					<div><small style="float:right;" id="price"></small></div>
 				</div>
@@ -138,10 +138,8 @@
     	<!-- nitro888.com -->
 	<script src="../nitro888.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
-	<script src="https://cdn.rawgit.com/ethereum/web3.js/develop/dist/web3.js"></script>
-	<script src="https://cdn.rawgit.com/MetaMask/provider-engine/master/dist/ZeroClientProvider.js"></script>
+	<script src="https://cdn.rawgit.com/ethereum/web3.js/1.0/dist/web3.min.js"></script>
 	<script src="https://cdn.rawgit.com/ethereumjs/keythereum/master/dist/keythereum.min.js"></script>
-	<script src="https://cdn.rawgit.com/ethereumjs/browser-builds/master/dist/ethereumjs-vm/ethereumjs-vm-2.3.1.min.js"></script>
 
 	<script src="cocos2d-js-v3.13-lite.js"></script>
 	<script src="../util.min.js"></script>

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.22;
 
 import "./casino.sol";
 
@@ -16,13 +16,15 @@ contract baccarat is casino {
         return 3;
     }
     function getShoeDeckCount() internal constant returns (uint) {
-        return 6;
+        return 8;
+    }
+    function isNotShoeChange(uint _round, address _a, address _b, uint _c) internal constant returns (bool) {
+        return (_round < 61);
     }
 
     function gameBet(uint _seed) internal returns(bool) {
         return true;
     }
-
     function gameRoundEnd(uint _seed) internal {
         uint8[] memory draws    = drawCardsFromShoe(4,_seed);	    // player, bunker
 

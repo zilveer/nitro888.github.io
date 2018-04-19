@@ -3,8 +3,8 @@ let CONFIG	= {};
 let storage	= new function() {
 	this.wallet		= '',
 	this.address	= '',
-	this.tx			= '',
-	this.time		= 0,
+	this.tx				= '',
+	this.time			= 0,
 	this.load		= function() {
 		if(!storage.hasData())
 			return;
@@ -25,7 +25,7 @@ let storage	= new function() {
 	this.remove		= function() {
 		storage.wallet	= '';
 		storage.address	= '';
-		storage.tx		= '';
+		storage.tx			= '';
 		localStorage.removeItem(CONFIG['network']['provider']);
 	},
 	this.reset		= function() {
@@ -35,17 +35,17 @@ let storage	= new function() {
 }
 
 let wallet	= new function() {
-	this.web3				= null,
-	this.balance		= -2,
-	this.stateBackup= -1,
-	this.timer			= 1800000,
+	this.web3					= null,
+	this.balance			= -2,
+	this.stateBackup	= -1,
+	this.timer				= 1800000,
 	this.showEthNetwork	= function() {
-		wallet.web3.version.getNetwork((e, r) => {
+		wallet.web3.eth.net.getNetworkType((e, r) => {
 			  switch (r) {
-			    case "1":	console.log('This is mainnet');								break;
-			    case "2":	console.log('This is the deprecated Morden test network.');	break;
-			    case "3":	console.log('This is the ropsten test network.');			break;
-			    default:	console.log('This is an unknown network.('+r+')');
+			    case "main":		console.log('This is mainnet');															break;
+			    case "morden":	console.log('This is the deprecated Morden test network.');	break;
+			    case "ropsten":	console.log('This is the ropsten test network.');						break;
+			    default:				console.log('This is an unknown network.('+r+')');					break;
 			  }
 			});
 	},
@@ -71,7 +71,7 @@ let wallet	= new function() {
 		wallet.web3		= new Web3(new Web3.providers.HttpProvider(CONFIG['network']['provider']));
 		wallet.showEthNetwork();
 
-		setInterval(function(){wallet.updateTimer(false);wallet.updateNavAccount();if(wallet.state()==2)wallet.updateBalance(function(){/*todo*/});else wallet.balance=-1;update();},2000);
+		setInterval(()=>{wallet.updateTimer(false);wallet.updateNavAccount();if(wallet.state()==2)wallet.updateBalance(()=>{/*todo*/});else wallet.balance=-1;update();},2000);
 	},
 	this.updateTimer		= function(update) {
 		let time = new Date().getTime();
@@ -86,8 +86,8 @@ let wallet	= new function() {
 		storage.save();
 	},
 	this.updateBalance			= function(callback) {
-		wallet.web3.eth.getBalance(storage.address, function(e,r){if (!e) {
-			wallet.balance=r.toNumber();
+		wallet.web3.eth.getBalance(storage.address,(e,r)=>{if (!e) {
+			wallet.balance=parseInt(r);
 			/*
 			// todo : show balance
 			if(wallet.state()==2&&wallet.balance>=0)
@@ -104,25 +104,23 @@ let wallet	= new function() {
 		if(temp==wallet.stateBackup)
 			return;
 
-		switch(temp)
-		{
+		switch (temp) {
 			case 0:
 				$('#navAccount').html(	'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.create()">Create</a>'+
-										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.restore()">Restore</a>' );
+																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.restore()">Restore</a>' );
 				break;
 			case 1:
 				$('#navAccount').html(	'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.logIn()">Login</a>' );
 				break;
 			case 2:
-				$('#navAccount').html(
-										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.deposit()">Deposit</a>' +
-										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.withrawal()">Withrawal</a>' +
-										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.history()">History</a>' +
-										'<div class="dropdown-divider"></div>' +
-										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.export()">Export</a>' +
-										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.destory()">Destroy</a>' +
-										'<div class="dropdown-divider"></div>' +
-										'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.logOut()">Logout</a>' );
+				$('#navAccount').html(	'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.deposit()">Deposit</a>' +
+																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.withrawal()">Withrawal</a>' +
+																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.history()">History</a>' +
+																'<div class="dropdown-divider"></div>' +
+																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.export()">Export</a>' +
+																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.destory()">Destroy</a>' +
+																'<div class="dropdown-divider"></div>' +
+																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.logOut()">Logout</a>' );
 				break;
 		}
 
@@ -136,15 +134,15 @@ let wallet	= new function() {
 			return;
 		}
 
-		let body			=	'<div style="overflow-x:auto;">' +
-							'<center>Create wallet from <b>' + CONFIG['network']['name'] + '</b></center>' +
-							'<center>Wallet data in your computer only.</center>' +
-							'<center>If you clean up your browser. Be removed wallet data permanently too.</center><br/>' +
-							'<div class="input-group mb-3"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="pass1" type="password" class="form-control" placeholder="Password (Over 8 letters)" aria-label="Password (Over 8 letters)"></div>' +
-							'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="pass2" type="password" class="form-control" placeholder="Password retype" aria-label="Password retype">' +
-							'</div></div>';
-		modal.update('Create wallet',body,'wallet.createOK()');
-		modal.alert('<div class="alert alert-danger font-weight-bold" role="alert"><center>Don\'t forget your password. And MUST backup your wallet.</center></div>');
+		let body	=		'<div style="overflow-x:auto;">' +
+									'<center>Create wallet from <b>' + CONFIG['network']['name'] + '</b></center>' +
+									'<center>Wallet data in your computer only.</center>' +
+									'<center>If you clean up your browser. Be removed wallet data permanently too.</center><br/>' +
+									'<div class="input-group mb-3"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="pass1" type="password" class="form-control" placeholder="Password (Over 8 letters)" aria-label="Password (Over 8 letters)"></div>' +
+									'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="pass2" type="password" class="form-control" placeholder="Password retype" aria-label="Password retype">' +
+									'</div></div>';
+		modal.update(	'Create wallet',body,'wallet.createOK()');
+		modal.alert(	'<div class="alert alert-danger font-weight-bold" role="alert"><center>Don\'t forget your password. And MUST backup your wallet.</center></div>');
 	},
 	this.getPrivateKeyString	= function(password) {
 		let privateKey	= null;
@@ -171,10 +169,10 @@ let wallet	= new function() {
 
 		if(p1===p2 && p1.length > 7) {
 			let dk				= keythereum.create();
-			let keyObject		= keythereum.dump(p1, dk.privateKey, dk.salt, dk.iv);
+			let keyObject	= keythereum.dump(p1, dk.privateKey, dk.salt, dk.iv);
 
 			keyObject.isMainNet	= CONFIG['network']['isMainNet'];
-			storage.wallet		= JSON.stringify(keyObject);
+			storage.wallet			= JSON.stringify(keyObject);
 			storage.reset();
 			storage.save();
 
@@ -200,7 +198,7 @@ let wallet	= new function() {
 							'</div>';
 		modal.update('Login',body,'wallet.logInOK()');
 	},
-	this.logInOK			= function() {
+	this.logInOK		= function() {
 		let password		= $('#loginPass').val();
 
 		try {
@@ -214,12 +212,10 @@ let wallet	= new function() {
 		}
 	},
 	this.loginWithPK		= function() {
-		wallet.web3.version.getNetwork((e, r) => {
+		wallet.web3.eth.net.getNetworkType((e, r) => {
 				let data	= JSON.parse(storage.wallet);
-				if((r==1&&data.isMainNet)||(r==3&&!data.isMainNet)) {
-					wallet.web3.eth.defaultAccount			= '0x'+data.address;
-					wallet.web3.settings.defaultAccount		= '0x'+data.address;
 
+				if((r=='main'&&data.isMainNet)||(r!='main'&&!data.isMainNet)) {
 					storage.address	= '0x'+data.address;
 					storage.time		= new Date().getTime();
 					storage.save();
@@ -352,15 +348,15 @@ let wallet	= new function() {
 		let password	= $('#withrawalPass').val();
 		modal.alert('');
 
-		if(address==''||amount==0||amount==''||password==''||!wallet.web3.isAddress(address)||address==storage.address) {
-			if(!wallet.web3.isAddress(address))	modal.alert('<div class="alert alert-warning" role="alert">Address is wrong</div>');
-			else if(address=='')				modal.alert('<div class="alert alert-warning" role="alert">Address is empty</div>');
-			else if(amount==0||amount=='')		modal.alert('<div class="alert alert-warning" role="alert">Withrawal is zero</div>');
-			else if(password=='')				modal.alert('<div class="alert alert-warning" role="alert">Passward is empty</div>');
-			else if(address==storage.address)	modal.alert('<div class="alert alert-warning" role="alert">This is your address</div>');
+		if(address==''||amount==0||amount==''||password==''||!wallet.web3.utils.isAddress(address)||address==storage.address) {
+			if(!wallet.web3.utils.isAddress(address))	modal.alert('<div class="alert alert-warning" role="alert">Address is wrong</div>');
+			else if(address=='')											modal.alert('<div class="alert alert-warning" role="alert">Address is empty</div>');
+			else if(amount==0||amount=='')						modal.alert('<div class="alert alert-warning" role="alert">Withrawal is zero</div>');
+			else if(password=='')											modal.alert('<div class="alert alert-warning" role="alert">Passward is empty</div>');
+			else if(address==storage.address)					modal.alert('<div class="alert alert-warning" role="alert">This is your address</div>');
 		} else {
-			wallet.updateBalance(function(){
-				if(wallet.balance>wallet.web3.toWei(amount,'ether')) {
+			wallet.updateBalance(()=>{
+				if(wallet.balance>wallet.web3.utils.toWei(amount,'ether')) {
 					if(storage.tx != '') {
 						wallet.web3.eth.getTransaction(storage.tx,function(e,r){
 							if(!e)
@@ -380,7 +376,7 @@ let wallet	= new function() {
 							modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');
 					}
 				} else {
-					modal.alert('<div class="alert alert-warning" role="alert">Amount is too big. Less then '+wallet.web3.toWei(wallet.balance,'ether')+' Eth</div>');
+					modal.alert('<div class="alert alert-warning" role="alert">Amount is too big. Less then '+wallet.web3.utils.fromWei(wallet.balance.toString(),'ether')+' Eth</div>');
 				}
 			});
 		}
@@ -388,27 +384,28 @@ let wallet	= new function() {
 	this.sendTransaction		= function(address,password,amount,data=null,gasLimit=4700000) {
 		let privateKey	= wallet.getPrivateKeyString(password);
 
-		if(privateKey!=null) {
-			wallet.web3.eth.getGasPrice(function(e,r){
+		if(privateKey!=null&&wallet.web3.utils.isAddress(address)) {
+			wallet.web3.eth.getGasPrice((e,r)=>{
 				if(e!=null) {
 					modal.alert('<div class="alert alert-warning" role="alert">Network error - getGasPrice</div>');
 				} else {
-					let gasPrice = wallet.web3.toHex(r.toNumber());
-					wallet.web3.eth.getTransactionCount(storage.address,function(e,t){
-						if(e!=null) {
-							modal.alert('<div class="alert alert-warning" role="alert">Network error - getTransactionCount</div>');
-						} else {
-							let txParams	= {	'nonce'		:	wallet.web3.toHex(parseInt(t)),
-												'gasPrice'	:	gasPrice,
-												'gasLimit'	:	wallet.web3.toHex(gasLimit),
-												'to'		:	address,
-												'value'		:	wallet.web3.toHex(wallet.web3.toWei(amount, 'ether'))};
-							if(data!=null)
-								txParams['data']	= data;
-							let tx	= new ethereumjs.Tx(txParams);
-							tx.sign(new ethereumjs.Buffer.Buffer(privateKey, 'hex'));
-							wallet.web3.eth.sendRawTransaction('0x' + tx.serialize().toString('hex'), function(e,r) {if(e) modal.alert('<div class="alert alert-warning" role="alert">Transaction Fail ('+e.message+')</div>'); else {modal.alert('<div class="alert alert-warning" role="alert">Success <small>(<a target="_blank" href="'+CONFIG['network']['href']+'/tx/'+r+'">'+r+'</a>)</small><div>');storage.tx=r;}});
-						}
+					wallet.web3.eth.getTransactionCount(storage.address,(e,t)=>{
+						let tx	= {	'gasPrice':	wallet.web3.utils.toHex(parseInt(r)),
+												'gasLimit':	wallet.web3.utils.toHex(gasLimit),
+												'to'			:	address,
+												'value'		:	wallet.web3.utils.toHex(wallet.web3.utils.toWei(amount, 'ether'))};
+						if(data!=null)
+							tx['data']	= data;
+
+						wallet.web3.eth.accounts.privateKeyToAccount('0x'+privateKey).signTransaction(tx).then((r)=>{
+							wallet.web3.eth.sendSignedTransaction(r.rawTransaction)
+								.on('transactionHash',(r)=>{
+									modal.alert('<div class="alert alert-warning" role="alert">Success <small>(<a target="_blank" href="'+CONFIG['network']['href']+'/tx/'+r+'">'+r+'</a>)</small><div>');
+									storage.tx=r;
+								})
+								.then(console.log)		// todo : check
+								.catch(console.log);	// todo : check
+						});
 					});
 				}
 			});
@@ -424,7 +421,7 @@ let wallet	= new function() {
 		modal.update('Transaction History',"Now Loading");
 
 		let jsonUrl	= CONFIG['network']['api']+"/api?module=account&action=txlist&address="+storage.address+"&startblock=0&endblock=latest&sort=desc";
-		wallet.getNormalTransactions(storage.address,function(data) {
+		wallet.getNormalTransactions(storage.address,(data)=>{
 			if(data["result"].length==0)
 				modal.update('Transaction History',data["message"]);
 			else {
@@ -435,8 +432,8 @@ let wallet	= new function() {
 						let tx		= '<a target="_blank" href="'+CONFIG['network']['href']+'/tx/' + data["result"][i]["hash"] + '">'+data["result"][i]["hash"]+'</a>';
 						let from	= '<a target="_blank" href="'+CONFIG['network']['href']+'/address/' + data["result"][i]["from"] + '">'+data["result"][i]["from"]+'</a>';
 						let to		= '<a target="_blank" href="'+CONFIG['network']['href']+'/address/' + data["result"][i]["to"] + '">'+data["result"][i]["to"]+'</a>';
-						let value	= wallet.web3.fromWei(data["result"][i]["value"],'ether');
-						let status	= data["result"][i]["txreceipt_status"]==0?"<div class='text-danger'><small>[CANCELLED]</small></div>":"";
+						let value	= wallet.web3.utils.fromWei(data["result"][i]["value"],'ether');
+						let status= data["result"][i]["txreceipt_status"]==0?"<div class='text-danger'><small>[CANCELLED]</small></div>":"";
 
 						//let gas		= data["result"][i]["gas"];
 						//let gasPrice	= data["result"][i]["gasPrice"];
@@ -466,12 +463,9 @@ let wallet	= new function() {
 		let jsonUrl	= CONFIG['network']['api']+"/api?module=account&action=txlistinternal&address="+address+"&startblock=0&endblock=latest&sort=desc";
 		$.getJSON(jsonUrl,callback);
 	},
-	this.getLogs	= function(address,abi,callback) {
+	this.getLogs	= function(address,callback) {
 		let jsonUrl	= CONFIG['network']['api']+'/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address='+address;
-		$.getJSON(jsonUrl,function(data) {
-			for(let i = 0 ; i < data.result.length ; i++)
-				callback(wallet.web3.eth.abi.decodeLog(abi,data.result[i].data,data.result[i].topics));
-		});
+		$.getJSON(jsonUrl,(data)=>{callback(data.result);});
 	}
 }
 
@@ -490,7 +484,7 @@ let modal	= new function() {
 
 let util	= new function() {
 	this.historyRow			= 6,
-	this.historyCol			= 140,
+	this.historyCol			= 90,
 	this.win				= function(game,openCards) {
 		let win			= 0;
 		let toolTip	= '';
@@ -529,14 +523,13 @@ let util	= new function() {
 	this.openCards		= function(raw) {
 		return {'1st':[util.bitwise(raw,0),util.bitwise(raw,8),util.bitwise(raw,16),util.bitwise(raw,24)],'2nd':[util.bitwise(raw,32),util.bitwise(raw,40),util.bitwise(raw,48),util.bitwise(raw,56)]};
 	},
-	this.bitwise			= function(num, from, size=8) {
-		let length	= 64;
-		let str		= num.toString(2);
+	this.bitwise			= function(num, from, size=8, length=64) {
+		let str			= (new wallet.web3.utils.BN(num)).toString(2);
 		if (str.length < length) str = Array(length - str.length + 1).join("0") + str;
 		return parseInt( str.slice(length-from-size,str.length-from), 2 );
 	},
 	this.binaryString	= function(num,length=64) {
-		let str		= num.toString(2);
+		let str			= (new wallet.web3.utils.BN(num)).toString(2);
 		if (str.length < length) str = Array(length - str.length + 1).join("0") + str;
 		return str;
 	},
@@ -563,8 +556,8 @@ let util	= new function() {
 		let mark	= 0;
 		let col		= 0;
 		switch(game) {
-		case 'lotto953': max=9;	mark=5;col=6;break;
-		case 'lotto645': max=45;mark=6;col=3;break;
+			case 'lotto953': max=9;	mark=5;col=6;break;
+			case 'lotto645': max=45;mark=6;col=3;break;
 		}
 		return {'max':max,'mark':mark,'col':col};
 	},
@@ -610,10 +603,14 @@ let util	= new function() {
 			$('#t'+ticket+'_'+marks[j]).prop('checked',true);
 	},
 	this.updateCasino	= function(game,address,data) {
+
+		if(data.lastState&&(parseInt(data.lastState[0][0])==parseInt(data[0][0]))&&(parseInt(data.lastState[0][1])==parseInt(data[0][1])))
+			return;
+
 		let history = new Array();
 
 		for(let i = 0 ; i < data[2].length ; i++)
-			history.push(util.openCards(data[2][i].toNumber()));
+			history.push(util.openCards(parseInt(data[2][i])));
 
 		for(let i = 0 ; i < util.historyRow ; i ++)
 			for(let j = 0 ; j < util.historyCol ; j++)
@@ -625,15 +622,15 @@ let util	= new function() {
 
 		let x1		= 0;
 		let x2		= 0;
-		let y		= 0;
-		let b		= -1;
+		let y			= 0;
+		let b			= -1;
 
-		$('#rnd_'+game+'_'+address).html("Round "+data[0][0].toNumber()+"-"+data[0][1].toNumber()+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
+		$('#rnd_'+game+'_'+address).html("Round "+parseInt(data[0][0])+"-"+parseInt(data[0][1])+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
 
 		for(let i = 0 ; i < history.length ; i++){
-			let 	temp		= util.win(game,history[i]);
-			let win		= temp['win'];
-			let toolTip	= temp['toolTip'];
+			let temp		= util.win(game,history[i]);
+			let win			= temp['win'];
+			let	toolTip	= temp['toolTip'];
 
 			if(b==win) {
 				if(y == (util.historyRow-1) || $('#history_'+game+'_'+address+'_'+x1+'_'+(y+1)).html()!='&nbsp;' ) {
@@ -643,13 +640,13 @@ let util	= new function() {
 				}
 			} else if(b!=-1) {
 				x1++;
-				x2	= 0;
+				x2= 0;
 				y	= 0;
 			}
 
-			let marker		= '!';
+			let marker	= '!';
 
-			if(win==1)		marker = red;	// banker, dragon, high
+			if(win==1)			marker = red;		// banker, dragon, high
 			else if(win==2)	marker = blue;	// player, tigher, low
 			else if(win==3)	marker = green;	// tie
 
@@ -658,7 +655,7 @@ let util	= new function() {
 			b = win;
 		}
 	},
-	this.updateInfo		= function(game,address,data) {
+	this.updateInformationModal		= function(game,address,data) {
 		wallet.updateTimer(true);
 
 		let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
@@ -669,25 +666,25 @@ let util	= new function() {
 		case 'lotto953':
 		case 'lotto645':
 			table	+="<tr><td>Round</td><td>"+data[0]+" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
-			table	+="<tr><td>Price</td><td>"+wallet.web3.fromWei(data['info0'][1])+" ETH</td></tr>";
-			table	+="<tr><td>Balance</td><td>"+wallet.web3.fromWei(data['info0'][0])+" ETH</td></tr>";
-			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.fromWei(data['info0'][2])+" ETH</td></tr>";
+			table	+="<tr><td>Price</td><td>"+wallet.web3.utils.fromWei(data['info0'][1]).toString()+" ETH</td></tr>";
+			table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data['info0'][0]).toString()+" ETH</td></tr>";
+			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.utils.fromWei(data['info0'][2]).toString()+" ETH</td></tr>";
 			table	+="<tr><td>Pending transfer</td><td>"+data['info0'][3]+" remains</td></tr>";
-			if(data[3].length>0) {
+			if(data[2].length>0) {
 				table	+="<tr><td colspan='2'>My tickets</td></tr>";
-				for(let i = 0 ; i < data[3].length ; i++) {
-					let num		= data[3][i].toString(2);
+				for(let i = 0 ; i < data[2].length ; i++) {
+					let temp		= (new wallet.web3.utils.BN(data[2][i])).toString(2);
 					let ticket	='';
-					for(let j=num.length-1,k=1;j>=0;j--,k++)
-						ticket	+= num[j]=='1'?'<a class="numberCircle1">'+k+'</a>':'';
+					for(let j=temp.length-1,k=1;j>=0;j--,k++)
+						ticket	+= temp[j]=='1'?'<a class="numberCircle1">'+k+'</a>':'';
 					table	+="<tr><td colspan='2'>"+ticket+"</td></tr>";
 				}
 			}
 			break;
 		default:
 			table	+="<tr><td>Round</td><td>"+data[0][0] +"-" + data[0][1] +" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
-			table	+="<tr><td>Bet</td><td>"+wallet.web3.fromWei(data['info0'][1])+" ETH</td></tr>";
-			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.fromWei(data['info0'][2])+" ETH</td></tr>";
+			table	+="<tr><td>Bet</td><td>"+wallet.web3.utils.fromWei(data['info0'][1])+" ETH</td></tr>";
+			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.utils.fromWei(data['info0'][2])+" ETH</td></tr>";
 			table	+="<tr><td>Pending transfer</td><td>"+data['info0'][3]+" remains</td></tr>";
 			break;
 		}

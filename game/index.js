@@ -1,18 +1,25 @@
 let page = new function() {
-	this.game		= '',
-	this.address	= '',
+	this.contract		= null;
+	this.game				= '',
+	this.address		= '',
 	this.information= {};
-	this.scene		= null,
+	this.scene			= null,
 	this.socketUrl	= 'https://nitro888main.herokuapp.com',
-	this.showInfo	= function () {
+	this.saveInfo = function(data) {
+		let lastState									= page.information['lastState']?[page.information[0],page.information[1]]:null;
+		page.information							= data;
+		page.information['lastState']	= lastState;
+	},
+	this.openInfo	= function () {
 		modal.update(CONFIG[page.game]['name'],'Now Loading...');
-		wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).info1(storage.address,function(e,r){
+		page.contract.methods.info1(storage.address).call(
+			(e,r)=>{
 				if(!e){
-					page.information = r;
-					wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).info0(function(e,r){
+					page.saveInfo(r);
+					page.contract.methods.info0().call((e,r)=>{
 						if(!e) {
 							page.information['info0'] = r;
-							util.updateInfo(page.game,page.address,page.information);
+							util.updateInformationModal(page.game,page.address,page.information);
 						}
 					});
 				}
@@ -36,14 +43,14 @@ let page = new function() {
 		$("#gameHistory").html(body);
 	},
 	this.start		= function () {
-		let url		= new URL(location.href);
+		let url			= new URL(location.href);
 
-		page.game	= url.searchParams.get("g");
+		page.game		= url.searchParams.get("g");
 		page.address= url.searchParams.get("a");
 		page.history();
 		page.resize();
 
-		$.getJSON('../config.json', function(data) {
+		$.getJSON('../config.json', (data)=>{
 			if(data!=null) {
 				CONFIG	= data;
 				if(!page.game || !page.address || !CONFIG[page.game] || !util.isGameAddress(page.game,page.address))
@@ -61,7 +68,9 @@ let page = new function() {
 				    		cc.director.runScene(page.scene);
 
 				    		wallet.start(page.update);
-				    		socket.start('#chatmessage','#chatInput',page.socketUrl,page.updateSchedule,storage.address);
+				    		//socket.start('#chatmessage','#chatInput',page.socketUrl,page.updateSchedule,storage.address);
+
+								page.contract	= new wallet.web3.eth.Contract(CONFIG[page.game]['abi'],page.address);
 
 				    		setInterval(function(){page.scene.onUpdateInformation();},1000);
 					    }, cc.game);
@@ -77,16 +86,15 @@ let page = new function() {
 		if(wallet.state()!=2)
 			location.href=location.origin;
 		else
-			wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).info1(storage.address,
-				function(e,r){
+			page.contract.methods.info1(storage.address).call((e,r)=>{
 					if (!e){
-						page.information = r;
-						wallet.web3.eth.contract(CONFIG[page.game]['abi']).at(page.address).info0(function(e,r){
+						page.saveInfo(r);
+						page.contract.methods.info0().call((e,r)=>{
 							if(!e) {
 								page.information['info0'] = r;
 								util.updateCasino(page.game,page.address,page.information);
 								$('#gameRound').html('<strong>Round '+page.information[0][0]+'-'+page.information[0][1]+'</strong><small> ('+util.getGameState(parseInt(page.information[1]))+')</small>');
-								$('#price').html("Bet : "+wallet.web3.fromWei(page.information['info0'][1].toNumber(),'ether')+" E");
+								$('#price').html("Bet : "+wallet.web3.utils.fromWei(parseInt(page.information['info0'][1]).toString(),'ether')+" E");
 								if(page.scene.onUpdateGame(page.game,page.address,page.information))
 									socket.schedule(page.address);
 							}

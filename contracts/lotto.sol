@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.22;
 
 import "./ownership.sol";
 
@@ -52,18 +52,15 @@ library machine {
 
 contract lotto is ownership {
 	uint                                    round;
-	uint constant                           historySize     = 50;
-	uint128[]                               history;
-
-	uint64[]					            					ticketsIndex;
+	uint64[]					            ticketsIndex;
 	mapping(address=>uint64[]) internal     userTickets;
 	mapping(uint64=>address[])              tickets;
 
 	function info0() public constant returns (uint,uint,uint,uint) {
 		return (address(this).balance,getTicketPrice(),getFee(),pendings.length);
 	}
-	function info1(address player) public constant returns (uint,STATE,uint128[],uint64[]) {
-		return (round,state,history,userTickets[player]);
+	function info1(address player) public constant returns (uint,STATE,uint64[]) {
+		return (round,state,userTickets[player]);
 	}
 	function terminate() onlyOwner public {
 		state               = STATE.DISABLE;
@@ -102,22 +99,11 @@ contract lotto is ownership {
 			uint64  prizeNumbers= 0;
 			uint64  bonusNumber = 0;
 			(prizeNumbers,bonusNumber)  = roundEnd(_seed);
-			updateHistory((uint128(prizeNumbers)<<64)|uint128(bonusNumber));
+			emit eventUpdate(round,(uint128(prizeNumbers)<<64)|uint128(bonusNumber));
 		} else if(state==STATE.PLAY) {
 			round++;
 			state	= STATE.READY;
 			reset();
-			emit eventUpdate(round-1,history[history.length-1]);
-		}
-	}
-
-	function updateHistory(uint128 _history) internal {
-		if(history.length<historySize)
-			history.push(_history);
-		else {
-			for(uint i = 0 ; i < (history.length-1) ; i++)
-				history[i] = history[i+1];
-			history[history.length-1] = _history;
 		}
 	}
 

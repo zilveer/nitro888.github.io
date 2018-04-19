@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.22;
 
 import "./casino.sol";
 
@@ -18,6 +18,9 @@ contract highLow is casino {
     function getShoeDeckCount() internal constant returns (uint) {
         return 6;
     }
+    function isNotShoeChange(uint _round, address _a, address _b, uint _c) internal constant returns (bool) {
+        return (_round < 67);
+    }
 
     function gameBet(uint _seed) internal returns(bool) {
         uint8 card      = drawCardsFromShoe(1,_seed)[0];
@@ -27,7 +30,6 @@ contract highLow is casino {
             return false;
         return true;
     }
-
     function gameRoundEnd(uint _seed) internal {
         uint8 card      = drawCardsFromShoe(1,_seed)[0];
         uint8 first     = cards.getCardPoint(uint8(openCards&255));

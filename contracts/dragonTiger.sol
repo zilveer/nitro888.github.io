@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.22;
 
 import "./casino.sol";
 
@@ -18,11 +18,13 @@ contract dragonTiger is casino {
     function getShoeDeckCount() internal constant returns (uint) {
         return 6;
     }
+    function isNotShoeChange(uint _round, address _a, address _b, uint _c) internal constant returns (bool) {
+        return (_round < 52 || _round < utils.RNG(28,1, _a, _b, _c)[0]);
+    }
 
     function gameBet(uint _seed) internal returns(bool) {
         return true;
     }
-
     function gameRoundEnd(uint _seed) internal {
         uint8[] memory draws  = drawCardsFromShoe(2,_seed);
 

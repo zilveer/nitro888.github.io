@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.22;
 
 import "./lotto.sol";
 
@@ -28,11 +28,10 @@ contract lotto953 is lotto {
     }
 
     function roundEnd(uint _seed) internal returns (uint64, uint64) {
-        uint64[] memory balls   = machine.balls(ballCount);
-        uint64 prizeNumbers     = 0;
-        uint64 bonusNumber      = 0;
-
-        (prizeNumbers,bonusNumber)= machine.lotto(ballCount,matchCount+1,block.coinbase,lastUser,_seed|(history.length>0?history[history.length-1]>>128:ballCount));
+        uint64[] memory balls       = machine.balls(ballCount);
+        uint64 prizeNumbers         = 0;
+        uint64 bonusNumber          = 0;
+        (prizeNumbers,bonusNumber)  = machine.lotto(ballCount,matchCount+1,block.coinbase,lastUser,_seed);
 
         bool result = true;
         result = result && prize1(prizeNumbers, utils.PERCENT(address(this).balance, percent1stPrize));                    // 1st	- match all numbers

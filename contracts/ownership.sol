@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.22;
 
 library utils {
 	function RNG(uint _max, uint8 length, address _a, address _b, uint _c) internal pure returns (uint[]) {

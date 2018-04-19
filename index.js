@@ -8,33 +8,31 @@ let contracts	= new function() {
 	},
 	this.create		= function(game) {
 		for(let i=0;i<CONFIG[game]['address'].length;i++)
-			CONFIG[game]['contracts'][CONFIG[game]['address'][i]]	= wallet.web3.eth.contract(CONFIG[game]['abi']).at(CONFIG[game]['address'][i]);
+			CONFIG[game]['contracts'][CONFIG[game]['address'][i]]	= new wallet.web3.eth.Contract(CONFIG[game]['abi'],CONFIG[game]['address'][i]);
 	},
 	this.info		= function(game,address,callback) {
 		if(CONFIG[game]['contracts'][address]!=null)
-			CONFIG[game]['contracts'][address].info1(storage.address,
-					function(e,r){
-						if (!e){
-							CONFIG[game]['informations'][address]=r;
-							CONFIG[game]['contracts'][address].info0(function(e,r){if(!e){CONFIG[game]['informations'][address]['info0']=r;callback(game,address,CONFIG[game]['informations'][address]);}})
-						}});
+			CONFIG[game]['contracts'][address].methods.info1(storage.address).call((e,r)=>{
+				if (!e){
+					let lastState																			= CONFIG[game]['informations'][address]?[CONFIG[game]['informations'][address][0],CONFIG[game]['informations'][address][1]]:null;
+					CONFIG[game]['informations'][address]							= r;
+					CONFIG[game]['informations'][address]['lastState']= lastState;
+					CONFIG[game]['contracts'][address].methods.info0().call((e,r)=>{if(!e){CONFIG[game]['informations'][address]['info0']=r;callback(game,address,CONFIG[game]['informations'][address]);}})
+				}
+			});
 	},
 	this.infoArray	= function(game,address,callback) {
 		for(let i=0;i<address.length;i++)
 			contracts.info(game,address[i],callback);
 	},
-	this.betTicket	= function(game,address,tickets,password,callback) {
-		// fix it : "bet(uint64[])"
-		contracts.bet(game,address,slots,password,ethereumjs.Util.bufferToHex(ethereumjs.ABI.simpleEncode("bet(uint64[])", slots)),callback);
-	},
-	this.betSlot	= function(game,address,slots,password,callback) {
-		// fix it : "bet(uint8[])"
-		contracts.bet(game,address,slots,password,ethereumjs.Util.bufferToHex(ethereumjs.ABI.simpleEncode("bet(uint8[])", slots)),callback);
-	},
-	this.bet	= function(game,address,slots,password,abi,callback) {
+	this.bet	= function(game,address,slots,password,callback) {
 		if(CONFIG[game]['contracts'][address]!=null) {
-			if(!wallet.sendTransaction(address,password,parseFloat(wallet.web3.fromWei(CONFIG[game]['informations'][address]['info0'][1].toNumber()*tickets.length,'ether')),abi))
-				callback('<div class="alert alert-warning" role="alert">Password is wrong</div>');
+			let amount= wallet.web3.utils.fromWei((parseInt(CONFIG[game]['informations'][address]['info0'][1])*slots.length).toString(),'ether');
+			let data	= CONFIG[game]['contracts'][address].methods.bet(slots).encodeABI();
+			if(!wallet.sendTransaction(address,password,amount,data)) {
+				callback();
+				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');
+			}
 		}
 	}
 }
@@ -68,7 +66,7 @@ let page		= new function() {
 			body	+='</table></div></div>';
 		}
 		body	+='</div>';
-		body	+='<div class="row"><div class="col-md-6"><small id="pot_'+game+'_'+address+'"></small></div><div class="col-md-6"><small style="float:right;" id="price_'+game+'_'+address+'"></small></div></div>';
+		body	+='<div><table style="width:100%"><tr><td><small id="bal_'+game+'_'+address+'"></small></td><td style="float:right;"><small style="float:right;" id="price_'+game+'_'+address+'"></small></td></tr></table></div>';
 
 		$(id).html(body);
 	},
@@ -90,20 +88,20 @@ let page		= new function() {
 				body	+="</tr>";
 			}
 			body	+="</table></div>";
-			body	+='<div class="row"><div class="col-md-6"><small id="pot_'+game+'_'+address+'"></small></div><div class="col-md-6"><small style="float:right;" id="price_'+game+'_'+address+'"></small></div></div>';
+			body	+='<div><table style="width:100%"><tr><td><small id="bal_'+game+'_'+address+'"></small></td><td style="float:right;"><small style="float:right;" id="price_'+game+'_'+address+'"></small></td></tr></table></div>';
 		}
 
 		$(id).html(body);
 	},
 	this.updateBtn			= function(game,address) {
-		let btn		= '<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.showInfo(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">announcement</i></button>';
+		let btn		= '<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.openInfo(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">announcement</i></button>';
 
-		// todo : 4 more lotto
+		// todo : for more lotto
 		switch(game) {
 		case 'lotto953':
 		case 'lotto645':
 			let maxMark = util.getLottoMaxMarkCol(game);
-			btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.showHistory(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">history</i></button>'+btn;
+			btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.showLottoHistory(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">history</i></button>'+btn;
 			if(wallet.state()==2)
 				btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.ticket(\''+game+'\',\''+address+'\','+maxMark.max+','+maxMark.mark+')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;
 			break;
@@ -112,76 +110,92 @@ let page		= new function() {
 				btn	='<button type="button" class="btn btn-link btn-sm text-secondary" onClick="page.play(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;
 			break;
 		}
-		// todo : 4 more lotto
+		// todo : for more lotto
 
 		return	btn;
 	},
-	this.showInfo		= function(game,address) {
+	this.openInfo		= function(game,address) {
 		modal.update(CONFIG[game]['name'],'Now Loading...');
-		contracts.info(game,address,util.updateInfo);
+		contracts.info(game,address,util.updateInformationModal);
 	},
-	this.showHistory= function (game,address) {
-		if(CONFIG[game]['informations'][address][2].length==0) {
-			modal.update('History','History is empty...');
-			return;
-		}
+	this.updateLottoHistory	= function(game,address,callback) {
+		wallet.getLogs(address,(logs)=>{
+			let list = new Array();
+			for(let i=0;i<logs.length;i++)
+				list.push(wallet.web3.eth.abi.decodeLog(CONFIG[game]['abi'][6]['inputs'],logs[i].data,logs[i].topics));
+			callback(list);
+		});
+	},
+	this.splitLottoNumber	= function (number) {
+		let temp0	= (new wallet.web3.utils.BN(number)).toString(2);
+		let temp1	= temp0.substring(0,temp0.length-64);
+		let temp2	= temp0.substring(temp0.length-64,temp0.length);
+		return [temp1,temp2];
+	},
+	this.showLottoHistory	= function (game,address) {
+		page.updateLottoHistory(game,address,(logs)=>{
+			if(logs.length==0) {
+				modal.update('History','History is empty...');
+			} else {
+				let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
 
-		let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
+				for(let i = logs.length-1; i >-1  ;i--) {
 
-		for(let i = CONFIG[game]['informations'][address][2].length-1, k = CONFIG[game]['informations'][address][0].toNumber()-1 ; i > -1 ; i--, k--) {
-			let temp	= CONFIG[game]['informations'][address][2][i].toString(2);
-			let temp1	= temp.substring(0,temp.length-64);
-			let temp2	= temp.substring(temp.length-64,temp.length);
-			let prize	= '';
-			let bonus	= '';
+					let temp	= page.splitLottoNumber(logs[i][1]);
+					let prize	= '';
+					let bonus	= '';
 
-			for(let j = temp1.length-1,k=1 ; j >=0  ; j--,k++ )
-				prize += temp1[j]=='1'?util.getNumCircle(k):'';
-			for(let j = temp2.length-1,k=1 ; j >=0  ; j--,k++ )
-				bonus += temp2[j]=='1'?util.getNumCircle(k,1,true):'';
+					for(let j = temp[0].length-1,k=1 ; j >=0 ; j--,k++ )
+						prize += temp[0][j]=='1'?util.getNumCircle(k):'';
+					for(let j = temp[1].length-1,k=1 ; j >=0 ; j--,k++ )
+						bonus += temp[1][j]=='1'?util.getNumCircle(k,1,true):'';
 
-			table	+="<tr><td><div><center><small>R."+k+"</small></center></div><div><td>"+prize+"&nbsp"+bonus+"</td></tr>";
-		}
-
-		table		+= "</tbody></table></div>";
-		modal.update('History',table);
+					table	+="<tr><td><div><center><small>R."+parseInt(logs[i][0])+"</small></center></div><div><td>"+prize+"&nbsp"+bonus+"</td></tr>";
+				}
+				table		+= "</tbody></table></div>";
+				modal.update('History',table);
+			}
+		});
 		wallet.updateTimer(true);
 	},
 	this.updateLotto		= function(game,address,data) {
-		$('#rnd_'+game+'_'+address).html("Round "+data[0].toNumber()+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
+		$('#rnd_'+game+'_'+address).html("Round "+parseInt(data[0])+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
 		$('#btn_'+game+'_'+address).html(page.updateBtn(game,address));
-		$('#price_'+game+'_'+address).html("Ticket : "+wallet.web3.fromWei(data['info0'][1].toNumber(),'ether')+" E");
-		$('#pot_'+game+'_'+address).html("Pot : "+wallet.web3.fromWei(data['info0'][0].toNumber(),'ether')+" E");
+		$('#price_'+game+'_'+address).html("Ticket : "+wallet.web3.utils.fromWei(parseInt(data['info0'][1]).toString(),'ether')+" E");
+		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data['info0'][0]).toString(),'ether')+" E");
 
-		let maxCol		= util.getLottoMaxMarkCol(game);
+		if(data.lastState&&(parseInt(data.lastState[0])==parseInt(data[0])))
+			return;
 
-		for(let i = (data[2].length>maxCol.col ? data[2].length-maxCol.col : 0), k = 0 ; i < data[2].length ; i++,k++)  {
-			let temp	= data[2][i].toString(2);
-			let temp1	= temp.substring(0,temp.length-64);
-			let temp2	= temp.substring(temp.length-64,temp.length);
+		page.updateLottoHistory(game,address,(logs)=>{
 
-			if(data[2].length<maxCol.col)
-				$('#round_'+game+'_'+address+'_'+k).html("Round "+(i+1));
-			else
-				$('#round_'+game+'_'+address+'_'+k).html("Round "+(data[0].toNumber()-maxCol.col+k));
+			let maxCol		= util.getLottoMaxMarkCol(game);
 
-			for(let j = 0 ; j < maxCol.max ; j++)
-				$('#'+game+'_'+address+'_'+k+'_'+j).html(util.getNumCircle(1+j,0.2));
-			for(let j = temp1.length-1,l=0 ; j >=0  ; j--,l++ )
-				temp1[j]=='1'?$('#'+game+'_'+address+'_'+k+'_'+l).html(util.getNumCircle(1+l)):'';
-			for(let j = temp2.length-1,l=0 ; j >=0  ; j--,l++ )
-				temp2[j]=='1'?$('#'+game+'_'+address+'_'+k+'_'+l).html(util.getNumCircle(1+l,1,true)):'';
-		}
+			for(let i = (logs.length>maxCol.col ? logs.length-maxCol.col : 0), k = 0 ; i < logs.length ; i++,k++)  {
+
+				$('#round_'+game+'_'+address+'_'+k).html("Round "+logs[i][0]);
+
+				let temp	= page.splitLottoNumber(logs[i][1]);
+
+				for(let j = 0 ; j < maxCol.max ; j++)
+					$('#'+game+'_'+address+'_'+k+'_'+j).html(util.getNumCircle(1+j,0.2));
+				for(let j = temp[0].length-1,l=0 ; j >=0  ; j--,l++ )
+					temp[0][j]=='1'?$('#'+game+'_'+address+'_'+k+'_'+l).html(util.getNumCircle(1+l)):'';
+				for(let j = temp[1].length-1,l=0 ; j >=0  ; j--,l++ )
+					temp[1][j]=='1'?$('#'+game+'_'+address+'_'+k+'_'+l).html(util.getNumCircle(1+l,1,true)):'';
+			}
+		});
 	},
 	this.updateCasino	= function(game,address,data) {
 		$('#btn_'+game+'_'+address).html(page.updateBtn(game,address));
-		$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.fromWei(data['info0'][1].toNumber(),'ether')+" E");
+		$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data['info0'][1]).toString(),'ether')+" E");
+		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data['info0'][0]).toString(),'ether')+" E");
 		util.updateCasino(game,address,data);
 	},
 	this.ticket	= function (game,address,max,mark) {
 		let col			= 4;
 
-		let tickets		= '<table class="table">';
+		let tickets	= '<table class="table">';
 		tickets			+='<thead><tr>';
 		for(let i=0;i<col;i++)
 			tickets		+='<th scope="col"><center>Ticket '+(i+1)+'</center></th>';
@@ -231,16 +245,16 @@ let page		= new function() {
 			let privateKey	= wallet.getPrivateKeyString(password);
 			if(privateKey==null)
 				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');
-			{
-				wallet.updateBalance(function(){
+			else {
+				wallet.updateBalance(()=>{
 
 					let address	= CONFIG[game]['address'][0];
-					let price 	= CONFIG[game]['informations'][address]['info0'][1].toNumber();
+					let price 	= parseInt(CONFIG[game]['informations'][address]['info0'][1]);
 
 					if(wallet.balance<(buyTicket.length*price))
 						modal.alert('<div class="alert alert-warning" role="alert">Balance is too low</div>');
 					else
-						contracts.info(game,address,function(_game,_address,_data){
+						contracts.info(game,address,(_game,_address,_data)=>{
 							if((parseInt(_data[1])!=1)) {
 								modal.alert('<div class="alert alert-warning" role="alert">Counter is not open!</div>');
 							} else {
@@ -251,7 +265,7 @@ let page		= new function() {
 										t	+= (1<<buyTicket[i][j]);
 									tickets.push(t);
 								}
-								contracts.betTicket(_game,_address,tickets,password,modal.alert);
+								contracts.bet(_game,_address,tickets,password,()=>{});
 							}
 						});
 				});
@@ -266,13 +280,13 @@ let page		= new function() {
 
 // main
 let UPDATE = function () {
-	contracts.infoArray('lotto953',		CONFIG['lotto953']['address'],	function(_game,_contract,_data){page.updateLotto(_game,_contract,_data);});
-	contracts.infoArray('lotto645',		CONFIG['lotto645']['address'],	function(_game,_contract,_data){page.updateLotto(_game,_contract,_data);});
-	contracts.infoArray('baccarat',		CONFIG['baccarat']['address'],	function(_game,_contract,_data){page.updateCasino(_game,_contract,_data);});
-	contracts.infoArray('dragonTiger',	CONFIG['dragonTiger']['address'],function(_game,_contract,_data){page.updateCasino(_game,_contract,_data);});
-	contracts.infoArray('highLow',		CONFIG['highLow']['address'],	function(_game,_contract,_data){page.updateCasino(_game,_contract,_data);});
+	contracts.infoArray('lotto953',		CONFIG['lotto953']['address'],	(_game,_contract,_data)=>{page.updateLotto(_game,_contract,_data);});
+	contracts.infoArray('lotto645',		CONFIG['lotto645']['address'],	(_game,_contract,_data)=>{page.updateLotto(_game,_contract,_data);});
+	contracts.infoArray('baccarat',		CONFIG['baccarat']['address'],	(_game,_contract,_data)=>{page.updateCasino(_game,_contract,_data);});
+	contracts.infoArray('dragonTiger',CONFIG['dragonTiger']['address'],(_game,_contract,_data)=>{page.updateCasino(_game,_contract,_data);});
+	contracts.infoArray('highLow',		CONFIG['highLow']['address'],		(_game,_contract,_data)=>{page.updateCasino(_game,_contract,_data);});
 }
-$.getJSON('config.json', function(data) {
+$.getJSON('config.json', (data)=>{
 	if(data!=null) {
 		CONFIG	= data;
 		page.start();

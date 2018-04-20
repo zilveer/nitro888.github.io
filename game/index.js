@@ -110,12 +110,13 @@ $.getJSON('../config.json', (data)=>{
 						//socket.start('#chatmessage','#chatInput',page.socketUrl,page.updateSchedule,storage.address);	// temp : server down now
 
 						page.contract	= new wallet.web3.eth.Contract(CONFIG[page.game]['abi'],page.address);
-						page.openInfo();
 
 						if(CONFIG['_type']=="http")
 							setInterval(page.scene.onUpdateInformation,1000);
 						else
 							page.contract.events.allEvents(console.log);	// todo : test
+
+						page.openInfo();
 						page.update();
 
 					}, cc.game);

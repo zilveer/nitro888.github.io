@@ -295,7 +295,7 @@ let wallet	= new function() {
 	},
 	this.restore	= function() {
 		if(!storage.hasStorage()) {
-			page.modalUpdate('Restore Fail','This browser is not support storage!');
+			modal.update('Restore Fail','This browser is not support storage!');
 			return;
 		}
 
@@ -315,7 +315,7 @@ let wallet	= new function() {
 			storage.wallet		= JSON.stringify(keyObject);
 			storage.reset();
 			storage.save();
-			page.modalUpdate('Restore','Restore wallet complete');
+			modal.update('Restore','Restore wallet complete');
 		} catch (e) {
 			if(password!=''&&restore!='')
 				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong.</div>');

@@ -279,7 +279,7 @@ let UPDATE = function () {
 	for(let i = 0 ; i < CONFIG['dragonTiger']['address'].length;i++)	page.updateCasinoHistory('dragonTiger',CONFIG['dragonTiger']['address'][i]);
 	for(let i = 0 ; i < CONFIG['highLow']['address'].length ; i++)		page.updateCasinoHistory('highLow',CONFIG['highLow']['address'][i]);
 }
-let INFORMATION = function (game,address,data) {
+let INIT = function (game,address,data) {
 	$('#btn_'+game+'_'+address).html(page.updateBtn(game,address));
 	$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[2]).toString(),'ether')+" E");
 	$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
@@ -297,11 +297,11 @@ $.getJSON('config.json', (data)=>{
 		page.start();
 		contracts.start();
 
-		for(let i = 0 ; i < CONFIG['lotto953']['address'].length ; i++)		contracts.information('lotto953',CONFIG['lotto953']['address'][i],INFORMATION);
-		for(let i = 0 ; i < CONFIG['lotto645']['address'].length ; i++)		contracts.information('lotto645',CONFIG['lotto645']['address'][i],INFORMATION);
-		for(let i = 0 ; i < CONFIG['baccarat']['address'].length ; i++)		contracts.information('baccarat',CONFIG['baccarat']['address'][i],INFORMATION);
-		for(let i = 0 ; i < CONFIG['dragonTiger']['address'].length;i++)	contracts.information('dragonTiger',CONFIG['dragonTiger']['address'][i],INFORMATION);
-		for(let i = 0 ; i < CONFIG['highLow']['address'].length ; i++)		contracts.information('highLow',CONFIG['highLow']['address'][i],INFORMATION);
+		for(let i = 0 ; i < CONFIG['lotto953']['address'].length ; i++)		contracts.information('lotto953',CONFIG['lotto953']['address'][i],INIT);
+		for(let i = 0 ; i < CONFIG['lotto645']['address'].length ; i++)		contracts.information('lotto645',CONFIG['lotto645']['address'][i],INIT);
+		for(let i = 0 ; i < CONFIG['baccarat']['address'].length ; i++)		contracts.information('baccarat',CONFIG['baccarat']['address'][i],INIT);
+		for(let i = 0 ; i < CONFIG['dragonTiger']['address'].length;i++)	contracts.information('dragonTiger',CONFIG['dragonTiger']['address'][i],INIT);
+		for(let i = 0 ; i < CONFIG['highLow']['address'].length ; i++)		contracts.information('highLow',CONFIG['highLow']['address'][i],INIT);
 	}
 });
 //main

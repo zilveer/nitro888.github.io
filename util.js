@@ -587,7 +587,7 @@ let util	= new function() {
 			result = "Close";
 			break;
 		case 3:
-			result = "Game";
+			result = "Done";
 			break;
 		}
 		return result;

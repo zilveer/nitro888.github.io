@@ -33,7 +33,7 @@ let contracts	= new function() {
 		wallet.getLogs(address,(logs)=>{
 			let list = new Array();
 			for(let i=0;i<logs.length;i++)
-				list.push(wallet.web3.eth.abi.decodeLog(CONFIG[game]['abi'][6]['inputs'],logs[i].data,logs[i].topics));
+				list.push(wallet.web3.eth.abi.decodeLog(CONFIG[game]['abi'][5]['inputs'],logs[i].data,logs[i].topics));
 			callback(list);
 		});
 	},

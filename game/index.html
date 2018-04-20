@@ -85,9 +85,9 @@
 			<h2 class="text-center text-uppercase" id="gameTitle"></h2>
 	      	<div class="row" id="gameTop">
 				<div class="col-md-6 panel" id="gameFrame">
-					<table style="width:100%"><tr><td id="gameRound" class="text-uppercase h6"></td><td style="float:right;"><small><button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.openInfo()"><i class="material-icons" style="font-size:20px;">announcement</i></button></small></td></tr></table>
+          <div id="gameRound"></div>
 					<canvas id="gameCanvas" width=720 height=720 style="background:linear-gradient(to bottom, #33cc33 0%, #006600 100%)"></canvas>
-					<div><small style="float:right;" id="price"></small></div>
+          <div><table style="width:100%"><tr><td><small id="balance"></small></td><td style="float:right;"><small style="float:right;" id="price"></small></td></tr></table></div>
 				</div>
 				<div class="col-md-6 panel">
 					<div id="line"><h6>HISTORY</h6></div>
@@ -142,10 +142,10 @@
 	<script src="https://cdn.rawgit.com/ethereumjs/keythereum/master/dist/keythereum.min.js"></script>
 
 	<script src="cocos2d-js-v3.13-lite.js"></script>
-	<script src="../util.min.js"></script>
+	<script src="../util.js"></script>
 	<script src="../socket.min.js"></script>
-	<script src="index.min.js"></script>
-	<script src="game.min.js"></script>
+	<script src="index.js"></script>
+	<script src="game.js"></script>
     <script>
 		$(document).ready(page.start);
 		window.addEventListener("resize",page.resize,true);

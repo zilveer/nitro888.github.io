@@ -481,8 +481,47 @@ let modal	= new function() {
 	},
 	this.alert	= function(alert=''){
 		$('#modalAlert').html(alert);
+	},
+	this.updateInformation		= function(game,address,data) {
+		wallet.updateTimer(true);
+
+		let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
+
+		table		+='<tr><td>Contract</td><td><a style="cursor:hand" onClick="window.open(\''+CONFIG['_href']+'/address/'+address+'\',\'_blank\')"><small>'+address+"</small></td></tr>";
+
+		switch(game){
+		case 'lotto953':
+		case 'lotto645':
+			table	+="<tr><td>Round</td><td>"+data[0]+" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
+			table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[2]).toString()+" ETH</td></tr>";
+			table	+="<tr><td>Price</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+" ETH</td></tr>";
+			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.utils.fromWei(data[4]).toString()+" ETH</td></tr>";
+			table	+="<tr><td>Pending transfer</td><td>"+data[5]+" remains</td></tr>";
+			if(data[6].length>0) {
+				table	+="<tr><td colspan='2'>My tickets</td></tr>";
+				for(let i = 0 ; i < data[6].length ; i++) {
+					let temp		= (new wallet.web3.utils.BN(data[6][i])).toString(2);
+					let ticket	='';
+					for(let j=temp.length-1,k=1;j>=0;j--,k++)
+						ticket	+= temp[j]=='1'?'<a class="numberCircle1">'+k+'</a>':'';
+					table	+="<tr><td colspan='2'>"+ticket+"</td></tr>";
+				}
+			}
+			break;
+		default:
+			table	+="<tr><td>Round</td><td>"+data[0][0] +"-" + data[0][1] +" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
+			table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[2]).toString()+" ETH</td></tr>";
+			table	+="<tr><td>Bet</td><td>"+wallet.web3.utils.fromWei(data[3])+" ETH</td></tr>";
+			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.utils.fromWei(data[4])+" ETH</td></tr>";
+			table	+="<tr><td>Pending transfer</td><td>"+data[5]+" remains</td></tr>";
+			break;
+		}
+
+		table		+="</tbody></table></div>";
+		modal.update(CONFIG[game]['name'],table);
 	}
 }
+$('#modlg').on('hidden.bs.modal', ()=>{modal.update('','')});
 
 let util	= new function() {
 	this.historyRow			= 6,
@@ -606,13 +645,15 @@ let util	= new function() {
 	},
 	this.updateCasino	= function(game,address,data) {
 
-		if(data.lastState&&(parseInt(data.lastState[0][0])==parseInt(data[0][0]))&&(parseInt(data.lastState[0][1])==parseInt(data[0][1])))
-			return;
+		$('#rnd_'+game+'_'+address).html("Round "+parseInt(data[0][0])+"-"+parseInt(data[0][1])+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
+
+		//if(data.lastState&&(parseInt(data.lastState[0][0])==parseInt(data[0][0]))&&(parseInt(data.lastState[0][1])==parseInt(data[0][1])))
+		//	return;
 
 		let history = new Array();
 
-		for(let i = 0 ; i < data[2].length ; i++)
-			history.push(util.openCards(parseInt(data[2][i])));
+		for(let i = 0 ; i < data[3].length ; i++)
+			history.push(util.openCards(parseInt(data[3][i])));
 
 		for(let i = 0 ; i < util.historyRow ; i ++)
 			for(let j = 0 ; j < util.historyCol ; j++)
@@ -626,8 +667,6 @@ let util	= new function() {
 		let x2		= 0;
 		let y			= 0;
 		let b			= -1;
-
-		$('#rnd_'+game+'_'+address).html("Round "+parseInt(data[0][0])+"-"+parseInt(data[0][1])+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
 
 		for(let i = 0 ; i < history.length ; i++){
 			let temp		= util.win(game,history[i]);
@@ -656,42 +695,5 @@ let util	= new function() {
 
 			b = win;
 		}
-	},
-	this.updateInformationModal		= function(game,address,data) {
-		wallet.updateTimer(true);
-
-		let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
-
-		table		+='<tr><td>Contract</td><td><a style="cursor:hand" onClick="window.open(\''+CONFIG['_href']+'/address/'+address+'\',\'_blank\')"><small>'+address+"</small></td></tr>";
-
-		switch(game){
-		case 'lotto953':
-		case 'lotto645':
-			table	+="<tr><td>Round</td><td>"+data[0]+" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
-			table	+="<tr><td>Price</td><td>"+wallet.web3.utils.fromWei(data['info0'][1]).toString()+" ETH</td></tr>";
-			table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data['info0'][0]).toString()+" ETH</td></tr>";
-			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.utils.fromWei(data['info0'][2]).toString()+" ETH</td></tr>";
-			table	+="<tr><td>Pending transfer</td><td>"+data['info0'][3]+" remains</td></tr>";
-			if(data[2].length>0) {
-				table	+="<tr><td colspan='2'>My tickets</td></tr>";
-				for(let i = 0 ; i < data[2].length ; i++) {
-					let temp		= (new wallet.web3.utils.BN(data[2][i])).toString(2);
-					let ticket	='';
-					for(let j=temp.length-1,k=1;j>=0;j--,k++)
-						ticket	+= temp[j]=='1'?'<a class="numberCircle1">'+k+'</a>':'';
-					table	+="<tr><td colspan='2'>"+ticket+"</td></tr>";
-				}
-			}
-			break;
-		default:
-			table	+="<tr><td>Round</td><td>"+data[0][0] +"-" + data[0][1] +" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
-			table	+="<tr><td>Bet</td><td>"+wallet.web3.utils.fromWei(data['info0'][1])+" ETH</td></tr>";
-			table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.utils.fromWei(data['info0'][2])+" ETH</td></tr>";
-			table	+="<tr><td>Pending transfer</td><td>"+data['info0'][3]+" remains</td></tr>";
-			break;
-		}
-
-		table		+="</tbody></table></div>";
-		modal.update(CONFIG[game]['name'],table);
 	}
 }

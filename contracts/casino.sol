@@ -49,7 +49,7 @@ library cards{
 
 contract casino is ownership {
 	uint[2]						            round;              // shoe-game
-	uint64[]						        history;			// [records]
+	uint64[]						        records;			// [records]
 
 	uint8[]						            shoe;				// [cards]
 	uint64 internal						    openCards;			// 3*8 + 3*8 + 8
@@ -62,11 +62,11 @@ contract casino is ownership {
     function getShoeDeckCount() internal constant returns (uint);
     function isNotShoeChange(uint _round, address _a, address _b, uint _c) internal constant returns (bool);
 
-	function info0() public constant returns (uint,uint,uint,uint) {
-	    return (address(this).balance,getBetPrice(),getFee(),pendings.length);
+	function information(address player) public constant returns (uint[2],STATE,uint,uint,uint,uint,uint8[]) {
+		return (round,state,address(this).balance,getBetPrice(),getFee(),pendings.length,userSlots[player]);
 	}
-	function info1(address player) public constant returns (uint[2],STATE,uint64[],uint64,uint8[]){
-	    return (round,state,history,openCards,userSlots[player]);
+	function history() public constant returns (uint[2],STATE,uint,uint64[],uint64){
+	    return (round,state,address(this).balance,records,openCards);
 	}
 	function terminate() onlyOwner public {
     	state       = STATE.DISABLE;
@@ -100,7 +100,7 @@ contract casino is ownership {
         } else {
         	round[0]++;
         	round[1]        = 1;
-        	history.length  = 0;
+        	records.length  = 0;
         	shoe            = cards.makeShoe(getShoeDeckCount(), 6, _a, _b, _c);
         	drawCardsFromShoe(3, _c);
 
@@ -139,7 +139,7 @@ contract casino is ownership {
     	} else if(state==STATE.PLAY) {
         	state       = STATE.READY;
         	if(resetShoe(block.coinbase,lastUser,_seed,true))
-        	    emit eventUpdate(round[0]-1,history);
+        	    emit eventUpdate(round[0]-1,records);
     	}
 	}
 
@@ -147,7 +147,7 @@ contract casino is ownership {
 	function gameRoundEnd(uint _seed) internal;
 
 	function getSeed(uint _seed) internal constant returns (uint) {
-	    return  block.number|(_seed|(history.length>0?uint(history[history.length-1])<<128:block.number));
+	    return  block.number|(_seed|(records.length>0?uint(records[records.length-1])<<128:block.number));
 	}
 
 	function gameResult(uint8 _win, uint _rate, bool _pushBack) internal {
@@ -165,7 +165,7 @@ contract casino is ownership {
 
     	reset();
 
-    	history.push(openCards);
+    	records.push(openCards);
 	}
 
 	function bet(uint8[] _slots) payable public{

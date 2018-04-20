@@ -56,11 +56,8 @@ contract lotto is ownership {
 	mapping(address=>uint64[]) internal     userTickets;
 	mapping(uint64=>address[])              tickets;
 
-	function info0() public constant returns (uint,uint,uint,uint) {
-		return (address(this).balance,getTicketPrice(),getFee(),pendings.length);
-	}
-	function info1(address player) public constant returns (uint,STATE,uint64[]) {
-		return (round,state,userTickets[player]);
+	function information(address player) public constant returns (uint,STATE,uint,uint,uint,uint,uint64[]) {
+		return (round,state,address(this).balance,getTicketPrice(),getFee(),pendings.length,userTickets[player]);
 	}
 	function terminate() onlyOwner public {
 		state               = STATE.DISABLE;

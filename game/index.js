@@ -1,29 +1,26 @@
 let page = new function() {
-	this.contract		= null;
 	this.game				= '',
 	this.address		= '',
-	this.information= {};
+	this.price			= -1,
+	this.contract		= null;
 	this.scene			= null,
 	this.socketUrl	= 'https://nitro888main.herokuapp.com',
-	this.saveInfo = function(data) {
-		let lastState									= page.information['lastState']?[page.information[0],page.information[1]]:null;
-		page.information							= data;
-		page.information['lastState']	= lastState;
-	},
 	this.openInfo	= function () {
 		modal.update(CONFIG[page.game]['name'],'Now Loading...');
-		page.contract.methods.info1(storage.address).call(
+		page.contract.methods.information(storage.address).call(
 			(e,r)=>{
 				if(!e){
-					page.saveInfo(r);
-					page.contract.methods.info0().call((e,r)=>{
-						if(!e) {
-							page.information['info0'] = r;
-							util.updateInformationModal(page.game,page.address,page.information);
-						}
-					});
+					page.price	= parseInt(r[3]);
+					$('#rnd_'+page.game+'_'+page.address).html("Round "+parseInt(r[0][0])+"-"+parseInt(r[0][1])+'<small> ('+util.getGameState(parseInt(r[1]))+')</small>');
+					$('#price').html("Bet : "+wallet.web3.utils.fromWei((page.price).toString(),'ether')+" E");
+					$('#balance').html("Balance : "+wallet.web3.utils.fromWei(parseInt(r[2]).toString(),'ether')+" E");
+					modal.updateInformation(page.game,page.address,r);
 				}
 			});
+	},
+	this.roundAndState = function() {
+		let body = '<table style="width:100%"><tr><td id="rnd_'+page.game+'_'+page.address+'" class="text-uppercase h6"></td><td style="float:right;"><small><button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.openInfo()"><i class="material-icons" style="font-size:20px;">announcement</i></button></small></td></tr></table>';
+		$("#gameRound").html(body);
 	},
 	this.history		= function() {
 		let body	= '';
@@ -47,6 +44,7 @@ let page = new function() {
 
 		page.game		= url.searchParams.get("g");
 		page.address= url.searchParams.get("a");
+		page.roundAndState();
 		page.history();
 		page.resize();
 
@@ -74,9 +72,11 @@ let page = new function() {
 				    		cc.director.runScene(page.scene);
 
 				    		wallet.start(page.update);
-				    		//socket.start('#chatmessage','#chatInput',page.socketUrl,page.updateSchedule,storage.address);
+				    		//socket.start('#chatmessage','#chatInput',page.socketUrl,page.updateSchedule,storage.address);	// temp : server down now
 
 								page.contract	= new wallet.web3.eth.Contract(CONFIG[page.game]['abi'],page.address);
+								page.openInfo();
+
 								if(CONFIG['_type']=="http")
 									setInterval(page.scene.onUpdateInformation,1000);
 								else
@@ -96,20 +96,13 @@ let page = new function() {
 		if(wallet.state()!=2)
 			location.href=location.origin;
 		else
-			page.contract.methods.info1(storage.address).call((e,r)=>{
-					if (!e){
-						page.saveInfo(r);
-						page.contract.methods.info0().call((e,r)=>{
-							if(!e) {
-								page.information['info0'] = r;
-								util.updateCasino(page.game,page.address,page.information);
-								$('#gameRound').html('<strong>Round '+page.information[0][0]+'-'+page.information[0][1]+'</strong><small> ('+util.getGameState(parseInt(page.information[1]))+')</small>');
-								$('#price').html("Bet : "+wallet.web3.utils.fromWei(parseInt(page.information['info0'][1]).toString(),'ether')+" E");
-								if(page.scene.onUpdateGame(page.game,page.address,page.information))
-									socket.schedule(page.address);
-							}
-						})
-					}});
+			page.contract.methods.history().call((e,r)=>{
+				if (!e){
+					util.updateCasino(page.game,page.address,r);
+					if(page.scene.onUpdateGame(page.game,page.address,r))
+						socket.schedule(page.address);
+				}
+			});
 	},
 	this.resize		= function () {
         $("#gameCanvas").width($("#gameFrame").innerWidth()-30);
@@ -118,12 +111,11 @@ let page = new function() {
             $("#chatmessage").height($("#chatmessage").width());
             $('#line').html('<br/><h6>HISTORY</h6>');
         } else {
-    		$("#chatmessage").height($("#gameCanvas").height()-$("#gameHistory").height()-$("#chatInput").height()-20);
-    		$('#line').html('<h6>HISTORY</h6>');
+	    		$("#chatmessage").height($("#gameCanvas").height()-$("#gameHistory").height()-$("#chatInput").height()-20);
+	    		$('#line').html('<h6>HISTORY</h6>');
         }
 	},
 	this.updateSchedule	= function(data) {
-		console.log(data);
 		page.scene.time=data['time'];
 		for(let i=0;i<data['schedule'].length;i++) {
 			if(data['schedule'][i]['address']==page.address) {

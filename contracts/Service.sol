@@ -47,7 +47,7 @@ contract Service is Ownable {
 	function transfer(PENDING _pending, uint _lessThen) internal returns (uint) {
 		if(_pending.value<=_lessThen) {
 			uint value	= _pending.value;
-			uint fee	= getFee();
+			uint fee		= getFee();
 			value       = value>fee ? value-fee : value;
 			_pending.player.transfer(value);
 			return value;

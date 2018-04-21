@@ -18,7 +18,7 @@ library Machine {
 	}
 	function lotto(uint8 _ballCount, uint8 _drawCount, address _a, address _b, uint _c) internal pure returns (uint64,uint64) {
 		uint64[] memory b		= balls(_ballCount);
-		uint[] memory rnds      = Utils.RNG(_ballCount,uint8(_drawCount*(_c%3+3)), _a, _b, _c);
+		uint[] memory rnds	= Utils.RNG(_ballCount,uint8(_drawCount*(_c%3+3)), _a, _b, _c);
 
 		for(uint i = 0 ; i < rnds.length ; i++) {
 			uint pos1       = i%_drawCount;
@@ -52,9 +52,10 @@ library Machine {
 
 contract Lotto is Service {
 	uint                                    round;
-	uint64[]					            ticketsIndex;
+	uint64[]					            					ticketsIndex;
 	mapping(address=>uint64[]) internal     userTickets;
 	mapping(uint64=>address[])              tickets;
+	uint internal														autoWithdrawal				= 1000000000000000000;	// 1 Eth
 
 	function information(address player) public constant returns (uint,STATE,uint,uint,uint,uint,uint64[]) {
 		return (round,state,address(this).balance,getTicketPrice(),getFee(),pendings.length,userTickets[player]);
@@ -113,21 +114,39 @@ contract Lotto is Service {
 	}
 	function prize2(uint64 _prizeNumbers, uint _amount, uint64 _bonusNumber, uint64[] _balls) internal returns (bool) {
 		uint winners        = 0;
-		uint8 matchCount    = getMatchCount();
+		uint8 matchCount    = getMatchCount()-1;
 
 		for(uint i=0 ; i<ticketsIndex.length ; i++)
-			if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount-1)&&(ticketsIndex[i]&_bonusNumber>0))
+			if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount)&&(ticketsIndex[i]&_bonusNumber>0))
 				winners +=tickets[ticketsIndex[i]].length;
 
 		if(winners>0) {
 			uint prize  = _amount / winners;
 			if(prize>0)
 				for(i=0 ; i<ticketsIndex.length ; i++)
-					if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount-1)&&(ticketsIndex[i]&_bonusNumber>0))
+					if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount)&&(ticketsIndex[i]&_bonusNumber>0))
 						givePrize(ticketsIndex[i],prize);
 		}
 
 		return (winners>0);
+	}
+	function prize3(uint64 _prizeNumbers, uint _amount, uint64[] _balls) internal returns (bool) {
+			uint winners				= 0;
+			uint8 matchCount    = getMatchCount()-2;
+
+			for(uint i=0 ; i<ticketsIndex.length ; i++)
+					if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount))
+							winners +=tickets[ticketsIndex[i]].length;
+
+			if(winners>0) {
+					uint prize  = _amount / winners;
+					if(prize>0)
+							for(i=0 ; i<ticketsIndex.length ; i++)
+									if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount))
+											givePrize(ticketsIndex[i],prize);
+			}
+
+			return (winners>0);
 	}
 
 	function givePrize(uint64 _prizeNumbers, uint _value) internal returns (uint) {
@@ -137,23 +156,9 @@ contract Lotto is Service {
 		return totalTransfer;
 	}
 
-	function bet(uint64[] _tickets) payable public {
-		require((msg.value == getTicketPrice()*_tickets.length) && state==STATE.OPEN);
-		require(Machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
-
-		for(uint i = 0 ; i <  _tickets.length ; i++) {
-			if(tickets[_tickets[i]].length==0)
-				ticketsIndex.push(_tickets[i]);
-			tickets[_tickets[i]].push(msg.sender);
-			userTickets[msg.sender].push(_tickets[i]);
-		}
-
-		lastUser	= msg.sender;
-		token.mileage(getTicketPrice()*_tickets.length);
-	}
-
 	function getTicketPrice() internal constant returns (uint);
 	function getBallCount() internal constant returns (uint8);
 	function getMatchCount() internal constant returns (uint8);
 	function roundEnd(uint _seed) internal returns (uint64, uint64);
+	function bet(uint64[] _tickets) public;
 }

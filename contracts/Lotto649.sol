@@ -2,12 +2,12 @@ pragma solidity ^0.4.22;
 
 import "./Lotto.sol";
 
-contract Lotto645 is Lotto {
-    uint constant fee                   = 100000000000000;  // fee for transfer - 0.0001E (1,000,000,000,000,000,000 = 1eth)
-    uint constant ticketPrice           = 5000000000000000; // 0.005E (1,000,000,000,000,000,000 = 1eth)
+contract Lotto649 is Lotto {
+    uint constant fee                   = 100000000000000;      // fee for transfer - 0.0001E (1,000,000,000,000,000,000 = 1eth)
+    uint constant ticketPrice           = 1000000000000000000;  // 1 service token
 
-    uint8 constant ballCount            = 45;   // must be under 64
     uint8 constant matchCount           = 6;    // match 6 & bonus 1
+    uint8 constant ballCount            = 49;   // must be under 64
 
     uint constant percentMaintenance    = 5;    // 20%
     uint constant percent1stPrize       = 25;   // 25%
@@ -36,33 +36,31 @@ contract Lotto645 is Lotto {
         bool result = true;
         result = result && prize1(prizeNumbers, Utils.PERCENT(address(this).balance, percent1stPrize));                    // 1st	- match all numbers
         result = result && prize2(prizeNumbers, Utils.PERCENT(address(this).balance, percent2ndPrize), bonusNumber, balls);// 2nd	- match all-1 numbers + 1 bonus number;
-        result = result && prize3(prizeNumbers, Utils.PERCENT(address(this).balance, percent3rdPrize),5,balls);
-        result = result && prize45(prizeNumbers,ticketPrice*10,4,balls);
-        result = result && prize45(prizeNumbers,ticketPrice,3,balls);
+        result = result && prize3(prizeNumbers, Utils.PERCENT(address(this).balance, percent3rdPrize), balls);
+        result = result && prize45(prizeNumbers,ticketPrice*10, matchCount-2, balls);
+        result = result && prize45(prizeNumbers,ticketPrice, matchCount-3, balls);
 
-        if(result&&(address(this).balance>1000000000000000000))
+        if(result&&(address(this).balance>autoWithdrawal))
             owner.transfer(Utils.PERCENT(address(this).balance, percentMaintenance));
 
         return (prizeNumbers,bonusNumber);
     }
 
-    function prize3(uint64 _prizeNumbers, uint _amount, uint8 _compairCount, uint64[] _balls) private returns (bool) {
-        uint winners  = 0;
+    function bet(uint64[] _tickets) public {
+  		require((token.balanceOf(msg.sender) == getTicketPrice()*_tickets.length) && state==STATE.OPEN);
+  		require(Machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
 
-        for(uint i=0 ; i<ticketsIndex.length ; i++)
-            if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,_compairCount))
-                winners +=tickets[ticketsIndex[i]].length;
+  		for(uint i = 0 ; i <  _tickets.length ; i++) {
+  			if(tickets[_tickets[i]].length==0)
+  				ticketsIndex.push(_tickets[i]);
+  			tickets[_tickets[i]].push(msg.sender);
+  			userTickets[msg.sender].push(_tickets[i]);
+  		}
 
-        if(winners>0) {
-            uint prize  = _amount / winners;
-            if(prize>0)
-                for(i=0 ; i<ticketsIndex.length ; i++)
-                    if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,_compairCount))
-                        givePrize(ticketsIndex[i],prize);
-        }
+  		lastUser	= msg.sender;
+  		token.burn(getTicketPrice()*_tickets.length);
+  	}
 
-        return (winners>0);
-    }
     function prize45(uint64 _prizeNumbers, uint _prize, uint8 _compairCount, uint64[] _balls) private returns (bool) {
         bool result = false;
         for(uint i=0 ; i<ticketsIndex.length ; i++) {

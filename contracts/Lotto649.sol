@@ -46,8 +46,8 @@ contract Lotto649 is Lotto {
         return (prizeNumbers,bonusNumber);
     }
 
-    function bet(uint64[] _tickets) public {
-  		require((token.balanceOf(msg.sender) == getTicketPrice()*_tickets.length) && state==STATE.OPEN);
+    function bet(uint64[] _tickets) payable public {
+  		require(msg.value == 0 && (token.balanceOf(msg.sender) == getTicketPrice()*_tickets.length) && state==STATE.OPEN);
   		require(Machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
 
   		for(uint i = 0 ; i <  _tickets.length ; i++) {

@@ -160,5 +160,5 @@ contract Lotto is Service {
 	function getBallCount() internal constant returns (uint8);
 	function getMatchCount() internal constant returns (uint8);
 	function roundEnd(uint _seed) internal returns (uint64, uint64);
-	function bet(uint64[] _tickets) public;
+	function bet(uint64[] _tickets) payable public;
 }

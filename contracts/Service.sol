@@ -1,6 +1,6 @@
 pragma solidity ^0.4.22;
 
-import "./MileageToken.sol";
+import "./ServiceToken.sol";
 
 library Utils {
 	function RNG(uint _max, uint8 length, address _a, address _b, uint _c) internal pure returns (uint[]) {
@@ -28,12 +28,12 @@ contract Service is Ownable {
 	enum			        		STATE	{ READY, OPEN, CLOSE, PLAY, DISABLE }
 	STATE internal		    state   = STATE.PLAY;
 
-	MileageToken internal	token;
+	ServiceToken internal	token;
 	address	internal	    lastUser;   // for rnd seed
 
 	constructor(address _token) public {
 	    lastUser    = msg.sender;
-	    token       = MileageToken(_token);
+	    token       = ServiceToken(_token);
 	}
 
 	function terminate() public;

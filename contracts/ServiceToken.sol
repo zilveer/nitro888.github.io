@@ -3,7 +3,7 @@ pragma solidity ^0.4.22;
 import "./zeppelin-solidity/token/ERC20/BurnableToken.sol";
 import "./zeppelin-solidity/ownership/Ownable.sol";
 
-contract MileageToken is BurnableToken, Ownable {
+contract ServiceToken is BurnableToken, Ownable {
   struct SERVICE  {
 		bool		enable;
 		uint		amount;

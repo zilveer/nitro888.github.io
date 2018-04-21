@@ -2,7 +2,7 @@ pragma solidity ^0.4.22;
 
 import "./Lotto.sol";
 
-contract Lotto649 is Lotto {
+contract Lotto649 is Lotto, ServiceToken {
     uint constant fee                   = 100000000000000;      // fee for transfer - 0.0001E (1,000,000,000,000,000,000 = 1eth)
     uint constant ticketPrice           = 1000000000000000000;  // 1 service token
 
@@ -43,7 +43,7 @@ contract Lotto649 is Lotto {
     }
 
     function bet(uint64[] _tickets) payable public {
-  		require(msg.value == 0 && (token.balanceOf(msg.sender) >= getTicketPrice()*_tickets.length) && state==STATE.OPEN);
+  		require(msg.value == 0 && (balanceOf(msg.sender) >= getTicketPrice()*_tickets.length) && state==STATE.OPEN);
   		require(Machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
 
   		for(uint i = 0 ; i <  _tickets.length ; i++) {
@@ -54,6 +54,11 @@ contract Lotto649 is Lotto {
   		}
 
   		lastUser	= msg.sender;
-  		token.burn(getTicketPrice()*_tickets.length);
+  		burn(getTicketPrice()*_tickets.length);
   	}
+
+    constructor() public {
+        lastUser    = msg.sender;
+        token       = ServiceToken(address(this));
+    }
 }

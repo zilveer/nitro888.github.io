@@ -125,31 +125,37 @@ contract Lotto is Service {
 
 		if(winners>0) {
 			uint prize  = _amount / winners;
-			if(prize>0)
-				for(i=0 ; i<ticketsIndex.length ; i++)
-					if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount)&&(ticketsIndex[i]&_bonusNumber>0))
-						givePrize(ticketsIndex[i],prize);
+				if(prize>0)
+					for(i=0 ; i<ticketsIndex.length ; i++)
+						if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount)&&(ticketsIndex[i]&_bonusNumber>0))
+							givePrize(ticketsIndex[i],prize);
 		}
 
 		return (winners>0);
 	}
 	function prize3(uint64 _prizeNumbers, uint _amount, uint64[] _balls) internal returns (bool) {
-			uint winners				= 0;
-			uint8 matchCount    = getMatchCount()-2;
+		uint winners				= 0;
+		uint8 matchCount    = getMatchCount()-2;
 
-			for(uint i=0 ; i<ticketsIndex.length ; i++)
-					if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount))
-							winners +=tickets[ticketsIndex[i]].length;
+		for(uint i=0 ; i<ticketsIndex.length ; i++)
+			if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount))
+				winners +=tickets[ticketsIndex[i]].length;
 
-			if(winners>0) {
-					uint prize  = _amount / winners;
-					if(prize>0)
-							for(i=0 ; i<ticketsIndex.length ; i++)
-									if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,matchCount))
-											givePrize(ticketsIndex[i],prize);
+		if(winners>0)
+			prize_(_prizeNumbers, _amount / winners, matchCount, _balls);
+
+		return (winners>0);
+	}
+	function prize_(uint64 _prizeNumbers, uint _prize, uint8 _compairCount, uint64[] _balls) internal returns (bool) {
+		bool result = false;
+		if(_prize>0)
+			for(uint i=0 ; i<ticketsIndex.length ; i++) {
+				if(Machine.compaire(ticketsIndex[i]&_prizeNumbers,_balls,_compairCount)) {
+					givePrize(ticketsIndex[i],_prize);
+					result  = true;
+				}
 			}
-
-			return (winners>0);
+		return result;
 	}
 
 	function givePrize(uint64 _prizeNumbers, uint _value) internal returns (uint) {

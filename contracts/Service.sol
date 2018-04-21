@@ -29,16 +29,16 @@ contract Service is Ownable {
 	STATE internal		    	state   					= STATE.DONE;
 
 	ServiceToken internal		token;
-	address internal				jackpot;
+	//address internal				jackpot;
 	address	internal	    	lastUser;   // for rnd seed
 
 	uint internal constant	jackpotWithdrawalStart		= 1000000000000000000;	// 1 Eth
 	uint internal constant	jackpotWithdrawalPercent	= 5;    // 5%
 
-	constructor(address _token, address _jackpot) public {
+	constructor(address _token/*, address _jackpot*/) public {
 	    lastUser    = msg.sender;
 	    token       = ServiceToken(_token);
-			jackpot			= _jackpot;
+			//jackpot			= _jackpot;
 	}
 
 	function terminate() public;
@@ -49,8 +49,12 @@ contract Service is Ownable {
 		owner.transfer(_value);
 	}
 	function withdrawal2Jackpot(bool _jackPotEnable) internal {
-		if((jackpot!=address(0))&&_jackPotEnable&&(address(this).balance>=jackpotWithdrawalStart))
+		/*
+		if(_jackPotEnable&&&&(jackpot!=address(0))&&(address(this).balance>=jackpotWithdrawalStart))
 			jackpot.transfer(Utils.PERCENT(address(this).balance, jackpotWithdrawalPercent));
+		*/
+		if(_jackPotEnable&&(address(this)!=address(token))&&(address(this).balance>=jackpotWithdrawalStart))
+			address(token).transfer(Utils.PERCENT(address(this).balance, jackpotWithdrawalPercent));
 	}
 
 	function transfer(PENDING _pending, uint _lessThen) internal returns (uint) {

@@ -135,7 +135,7 @@ contract Casino is Service {
         	updatePending();
     	} else if(state==STATE.CLOSE) {
         	state       = STATE.DONE;
-        	gameRoundEnd(_seed);
+					withdrawal2Jackpot(gameRoundEnd(_seed));
     	} else if(state==STATE.DONE) {
         	state       = STATE.READY;
         	if(resetShoe(block.coinbase,lastUser,_seed,true))
@@ -144,19 +144,21 @@ contract Casino is Service {
 	}
 
 	function gameBet(uint _seed) internal returns (bool);
-	function gameRoundEnd(uint _seed) internal;
+	function gameRoundEnd(uint _seed) internal returns (bool);
 
 	function getSeed(uint _seed) internal constant returns (uint) {
 	    return  block.number|(_seed|(records.length>0?uint(records[records.length-1])<<128:block.number));
 	}
 
-	function gameResult(uint8 _win, uint _rate, bool _pushBack) internal {
+	function gameResult(uint8 _win, uint _rate, bool _pushBack) internal returns (bool) {
+			uint totalPlayer				= 0;
     	uint betPrice           = getBetPrice();
     	uint fee                = getFee();
     	uint totalTransfer	    = 0;
 
     	uint8 max               = getSlotMax();
     	for(uint8 i = 0 ; i < max ; i++) {
+					totalPlayer = SafeMath.add(totalPlayer,slots[i].length);
         	for(uint j=0 ; j < slots[i].length ; j++ ) {
         	    if(_pushBack)   totalTransfer   +=transfer(PENDING(slots[i][j], betPrice+fee), address(this).balance-totalTransfer);
         	    else if(i==_win)totalTransfer   +=transfer(PENDING(slots[i][j], Utils.PERCENT(betPrice,_rate)), address(this).balance-totalTransfer);
@@ -166,6 +168,8 @@ contract Casino is Service {
     	reset();
 
     	records.push(openCards);
+
+			return (totalPlayer>0);
 	}
 
 	function bet(uint8[] _slots) payable public{

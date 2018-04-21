@@ -25,7 +25,8 @@ contract Baccarat is Casino {
     function gameBet(uint _seed) internal returns(bool) {
         return true;
     }
-    function gameRoundEnd(uint _seed) internal {
+    function gameRoundEnd(uint _seed) internal returns (bool) {
+        bool result     = false;
         uint8[] memory draws    = drawCardsFromShoe(4,_seed);	    // player, bunker
 
         uint8 p         = 0;
@@ -56,9 +57,11 @@ contract Baccarat is Casino {
 
         openCards   = (uint64(p)<<48) | (uint64(draws[2])<<40) | (uint64(draws[0])<<32) | (uint64(b)<<16) | (uint64(draws[3])<<8) | uint64(draws[1]);
 
-        if (banker>player)      gameResult(0,195,false);  // banker   195%
-        else if (banker<player) gameResult(1,200,false);  // player   200%
-        else                    gameResult(2,900,false);  // tie      900%
+        if (banker>player)      result = gameResult(0,195,false);  // banker   195%
+        else if (banker<player) result = gameResult(1,200,false);  // player   200%
+        else                    result = gameResult(2,900,false);  // tie      900%
+
+        return result;
     }
 
     function cutOver10(uint8 _point) private pure returns(uint8) {

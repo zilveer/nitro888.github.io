@@ -30,38 +30,41 @@ contract HighLow is Casino {
             return false;
         return true;
     }
-    function gameRoundEnd(uint _seed) internal {
+    function gameRoundEnd(uint _seed) internal returns (bool) {
+        bool result     = false;
         uint8 card      = drawCardsFromShoe(1,_seed)[0];
         uint8 first     = Cards.getCardPoint(uint8(openCards&255));
         uint8 second    = Cards.getCardPoint(card);
         openCards       |=uint64(card)<<32;
 
         if(second==first) {
-            gameResult(2,0,true);
+            result = gameResult(2,0,true);
         } else if(first>=10) {
-            if(second<first)    gameResult(1,110,false);
-            else if(first==10)  gameResult(0,350,false);
-            else if(first==11)  gameResult(0,530,false);
-            else                gameResult(0,1070,false);
+            if(second<first)    result = gameResult(1,110,false);
+            else if(first==10)  result = gameResult(0,350,false);
+            else if(first==11)  result = gameResult(0,530,false);
+            else                result = gameResult(0,1070,false);
         } else if(first<=4) {
-            if(second>first)    gameResult(0,110,false);
-            else if(first==4)   gameResult(1,350,false);
-            else if(first==3)   gameResult(1,530,false);
-            else                gameResult(1,1070,false);
+            if(second>first)    result = gameResult(0,110,false);
+            else if(first==4)   result = gameResult(1,350,false);
+            else if(first==3)   result = gameResult(1,530,false);
+            else                result = gameResult(1,1070,false);
         } else if(first==9) {
-            if(second>first)    gameResult(0,260,false);
-            else                gameResult(1,130,false);
+            if(second>first)    result = gameResult(0,260,false);
+            else                result = gameResult(1,130,false);
         } else if(first==5) {
-            if(second>first)    gameResult(0,130,false);
-            else                gameResult(1,260,false);
+            if(second>first)    result = gameResult(0,130,false);
+            else                result = gameResult(1,260,false);
         } else if(first==8) {
-            if(second>first)    gameResult(0,210,false);
-            else                gameResult(1,150,false);
+            if(second>first)    result = gameResult(0,210,false);
+            else                result = gameResult(1,150,false);
         } else if(first==6) {
-            if(second>first)    gameResult(0,150,false);
-            else                gameResult(1,210,false);
+            if(second>first)    result = gameResult(0,150,false);
+            else                result = gameResult(1,210,false);
         } else if(first==7) {
-            gameResult(second>first?0:1,170,false);
+            result = gameResult(second>first?0:1,170,false);
         }
+
+        return result;
     }
 }

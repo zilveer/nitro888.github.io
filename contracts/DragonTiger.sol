@@ -25,15 +25,18 @@ contract DragonTiger is Casino {
     function gameBet(uint _seed) internal returns(bool) {
         return true;
     }
-    function gameRoundEnd(uint _seed) internal {
+    function gameRoundEnd(uint _seed) internal returns (bool) {
+        bool result           = false;
         uint8[] memory draws  = drawCardsFromShoe(2,_seed);
 
         uint8 dragon          = Cards.getCardPoint(draws[0]);
         uint8 tiger           = Cards.getCardPoint(draws[1]);
         openCards             = (uint64(draws[1])<<32) | uint64(draws[0]);
 
-        if (dragon>tiger)       gameResult(0,200,false);  // dragon   200%
-        else if (dragon<tiger)  gameResult(1,200,false);  // tiger    200%
-        else                    gameResult(2,900,false);  // tie      900%
+        if (dragon>tiger)       result = gameResult(0,200,false);  // dragon   200%
+        else if (dragon<tiger)  result = gameResult(1,200,false);  // tiger    200%
+        else                    result = gameResult(2,900,false);  // tie      900%
+
+        return result;
     }
 }

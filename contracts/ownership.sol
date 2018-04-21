@@ -3,8 +3,8 @@ pragma solidity ^0.4.22;
 library utils {
 	function RNG(uint _max, uint8 length, address _a, address _b, uint _c) internal pure returns (uint[]) {
 		// 0~_max-1
-		uint[] memory	r	= new uint[](length%256+1);
-		uint	seed		= uint(keccak256(_c,_a,_b));
+		uint[] memory r = new uint[](length%256+1);
+		uint seed       = uint(keccak256(_c,_a,_b));
 		for(uint i = 0 ; i < r.length ; i++) {
 			r[i]	= seed%_max;
 			seed	= seed&1==1?(seed>>1)|2**255:seed>>1;
@@ -19,12 +19,12 @@ library utils {
 contract ownership {
 	struct pending  {
 		address		player;
-		uint			value;
+		uint		value;
 	}
 
-	enum				STATE	{ READY, OPEN, CLOSE, PLAY, DISABLE }
+	enum			    STATE	{ READY, OPEN, CLOSE, PLAY, DISABLE }
 
-	pending[]		pendings;
+	pending[]		    pendings;
 
 	address internal	owner;
 	address	internal	lastUser;   // for rnd seed
@@ -48,7 +48,7 @@ contract ownership {
 	function transfer(pending _pending, uint _lessThen) internal returns (uint) {
 		if(_pending.value<=_lessThen) {
 			uint value	= _pending.value;
-			uint fee		= getFee();
+			uint fee	= getFee();
 			value       = value>fee ? value-fee : value;
 			_pending.player.transfer(value);
 			return value;
@@ -58,6 +58,8 @@ contract ownership {
 	}
 
 	function updatePending() internal {
+	    if(pendings.length<1)
+	        return;
 		uint totalTransfer = 0;
 		for(int i = int(pendings.length)-1; i >= 0; i--) {
 			uint value  = pendings[uint(i)].value;

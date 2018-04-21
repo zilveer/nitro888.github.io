@@ -36,7 +36,7 @@ library machine {
 	}
 	function validateTicket(uint64[] _tickets, uint8 _ballCount, uint8 _drawCount) internal pure returns (bool) {
 		uint64[] memory b	= balls(_ballCount);
-		bool result				= true;
+		bool result			= true;
 
 		for(uint i = 0 ; i <  _tickets.length ; i++) {
 			uint count = 0;

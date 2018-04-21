@@ -23,17 +23,22 @@ contract Service is Ownable {
 		address		player;
 		uint			value;
 	}
-	PENDING[]		        	pendings;
+	PENDING[]		        		pendings;
 
-	enum			        		STATE	{ READY, OPEN, CLOSE, PLAY, DISABLE }
-	STATE internal		    state   = STATE.PLAY;
+	enum			        			STATE							{ READY, OPEN, CLOSE, DONE, DISABLE }
+	STATE internal		    	state   					= STATE.DONE;
 
-	ServiceToken internal	token;
-	address	internal	    lastUser;   // for rnd seed
+	ServiceToken internal		token;
+	address internal				jackpot;
+	address	internal	    	lastUser;   // for rnd seed
 
-	constructor(address _token) public {
+	uint internal constant	jackpotWithdrawalStart		= 1000000000000000000;	// 1 Eth
+	uint internal constant	jackpotWithdrawalPercent	= 5;    // 5%
+
+	constructor(address _token, address _jackpot) public {
 	    lastUser    = msg.sender;
 	    token       = ServiceToken(_token);
+			jackpot			= _jackpot;
 	}
 
 	function terminate() public;
@@ -42,6 +47,10 @@ contract Service is Ownable {
 	function withdrawal(uint _value) onlyOwner payable public {
 		require(_value<=address(this).balance);
 		owner.transfer(_value);
+	}
+	function withdrawal2Jackpot(bool _jackPotEnable) internal {
+		if((jackpot!=address(0))&&_jackPotEnable&&(address(this).balance>=jackpotWithdrawalStart))
+			jackpot.transfer(Utils.PERCENT(address(this).balance, jackpotWithdrawalPercent));
 	}
 
 	function transfer(PENDING _pending, uint _lessThen) internal returns (uint) {

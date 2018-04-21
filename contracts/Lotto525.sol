@@ -9,7 +9,6 @@ contract Lotto645 is Lotto {
     uint8 constant matchCount           = 5;    // match 5 & bonus 1
     uint8 constant ballCount            = 25;   // must be under 64
 
-    uint constant percentMaintenance    = 5;    // 20%
     uint constant percent1stPrize       = 25;   // 25%
     uint constant percent2ndPrize       = 20;   // 20%
     uint constant percent3rdPrize       = 20;   // 20%
@@ -27,7 +26,7 @@ contract Lotto645 is Lotto {
         return matchCount;
     }
 
-    function roundEnd(uint _seed) internal returns (uint64, uint64) {
+    function roundEnd(uint _seed) internal returns (bool, uint64, uint64) {
         uint64[] memory balls       = Machine.balls(ballCount);
         uint64 prizeNumbers         = 0;
         uint64 bonusNumber          = 0;
@@ -40,10 +39,7 @@ contract Lotto645 is Lotto {
 
 
 
-        if(result&&(address(this).balance>autoWithdrawal))
-            owner.transfer(Utils.PERCENT(address(this).balance, percentMaintenance));
-
-        return (prizeNumbers,bonusNumber);
+        return (result,prizeNumbers,bonusNumber);
     }
 
     function bet(uint64[] _tickets) payable public {

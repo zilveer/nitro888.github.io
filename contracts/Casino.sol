@@ -48,11 +48,11 @@ library Cards{
 }
 
 contract Casino is Service {
-	uint[2]						            round;              // shoe-game
-	uint64[]						        	records;			// [records]
+	uint[2]						            					round;			// shoe-game
+	uint64[]						        						records;		// [records]
 
-	uint8[]						            shoe;				// [cards]
-	uint64 internal						    openCards;			// 3*8 + 3*8 + 8
+	uint8[]						            					shoe;				// [cards]
+	uint64 internal						    					openCards;	// 3*8 + 3*8 + 8
 
 	mapping(address=>uint8[]) internal      userSlots;
 	mapping(uint8=>address[])               slots;
@@ -134,9 +134,9 @@ contract Casino is Service {
         	state	    = STATE.CLOSE;
         	updatePending();
     	} else if(state==STATE.CLOSE) {
-        	state       = STATE.PLAY;
+        	state       = STATE.DONE;
         	gameRoundEnd(_seed);
-    	} else if(state==STATE.PLAY) {
+    	} else if(state==STATE.DONE) {
         	state       = STATE.READY;
         	if(resetShoe(block.coinbase,lastUser,_seed,true))
         	    emit History(round[0]-1,records);

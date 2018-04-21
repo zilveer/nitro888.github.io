@@ -55,7 +55,6 @@ contract Lotto is Service {
 	uint64[]					            					ticketsIndex;
 	mapping(address=>uint64[]) internal     userTickets;
 	mapping(uint64=>address[])              tickets;
-	uint internal														autoWithdrawal				= 1000000000000000000;	// 1 Eth
 
 	function information(address player) public constant returns (uint,STATE,uint,uint,uint,uint,uint64[]) {
 		return (round,state,address(this).balance,getTicketPrice(),getFee(),pendings.length,userTickets[player]);
@@ -92,13 +91,17 @@ contract Lotto is Service {
 			state	= STATE.CLOSE;
 			updatePending();
 		} else if(state==STATE.CLOSE) {
-			state	= STATE.PLAY;
+			state	= STATE.DONE;
 
-			uint64  prizeNumbers= 0;
-			uint64  bonusNumber = 0;
-			(prizeNumbers,bonusNumber)  = roundEnd(_seed);
+			bool		jackPotEnable	= false;
+			uint64  prizeNumbers	= 0;
+			uint64  bonusNumber		= 0;
+
+			(jackPotEnable,prizeNumbers,bonusNumber)  = roundEnd(_seed);
+			withdrawal2Jackpot(jackPotEnable);
+
 			emit History(round,(uint128(prizeNumbers)<<64)|uint128(bonusNumber));
-		} else if(state==STATE.PLAY) {
+		} else if(state==STATE.DONE) {
 			round++;
 			state	= STATE.READY;
 			reset();
@@ -159,6 +162,6 @@ contract Lotto is Service {
 	function getTicketPrice() internal constant returns (uint);
 	function getBallCount() internal constant returns (uint8);
 	function getMatchCount() internal constant returns (uint8);
-	function roundEnd(uint _seed) internal returns (uint64, uint64);
+	function roundEnd(uint _seed) internal returns (bool, uint64, uint64);
 	function bet(uint64[] _tickets) payable public;
 }

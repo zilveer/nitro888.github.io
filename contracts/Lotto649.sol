@@ -9,7 +9,6 @@ contract Lotto649 is Lotto {
     uint8 constant matchCount           = 6;    // match 6 & bonus 1
     uint8 constant ballCount            = 49;   // must be under 64
 
-    uint constant percentMaintenance    = 5;    // 20%
     uint constant percent1stPrize       = 25;   // 25%
     uint constant percent2ndPrize       = 20;   // 20%
     uint constant percent3rdPrize       = 20;   // 20%
@@ -27,7 +26,7 @@ contract Lotto649 is Lotto {
         return matchCount;
     }
 
-    function roundEnd(uint _seed) internal returns (uint64, uint64) {
+    function roundEnd(uint _seed) internal returns (bool, uint64, uint64) {
         uint64[] memory balls       = Machine.balls(ballCount);
         uint64 prizeNumbers         = 0;
         uint64 bonusNumber          = 0;
@@ -40,14 +39,11 @@ contract Lotto649 is Lotto {
         result = result && prize45(prizeNumbers,ticketPrice*10, matchCount-2, balls);
         result = result && prize45(prizeNumbers,ticketPrice, matchCount-3, balls);
 
-        if(result&&(address(this).balance>autoWithdrawal))
-            owner.transfer(Utils.PERCENT(address(this).balance, percentMaintenance));
-
-        return (prizeNumbers,bonusNumber);
+        return (result,prizeNumbers,bonusNumber);
     }
 
     function bet(uint64[] _tickets) payable public {
-  		require(msg.value == 0 && (token.balanceOf(msg.sender) == getTicketPrice()*_tickets.length) && state==STATE.OPEN);
+  		require(msg.value == 0 && (token.balanceOf(msg.sender) >= getTicketPrice()*_tickets.length) && state==STATE.OPEN);
   		require(Machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
 
   		for(uint i = 0 ; i <  _tickets.length ; i++) {

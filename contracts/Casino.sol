@@ -1,6 +1,6 @@
 pragma solidity ^0.4.22;
 
-import "./Ownable.sol";
+import "./Service.sol";
 
 library Cards{
 	function getCardPoint(uint8 _card) internal pure returns(uint8) {
@@ -47,7 +47,7 @@ library Cards{
 	}
 }
 
-contract Casino is Ownable {
+contract Casino is Service {
 	uint[2]						            round;              // shoe-game
 	uint64[]						        	records;			// [records]
 

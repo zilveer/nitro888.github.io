@@ -1,6 +1,6 @@
 pragma solidity ^0.4.22;
 
-import "./Ownable.sol";
+import "./Service.sol";
 
 library Machine {
 	function balls(uint8 _ballCount) internal pure returns (uint64[]) {
@@ -50,7 +50,7 @@ library Machine {
 	}
 }
 
-contract Lotto is Ownable {
+contract Lotto is Service {
 	uint                                    round;
 	uint64[]					            ticketsIndex;
 	mapping(address=>uint64[]) internal     userTickets;

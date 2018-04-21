@@ -18,7 +18,7 @@ library Utils {
 	}
 }
 
-contract Ownable {
+contract Service is Ownable {
 	struct PENDING  {
 		address		player;
 		uint			value;
@@ -29,18 +29,11 @@ contract Ownable {
 	STATE internal		    state   = STATE.PLAY;
 
 	MileageToken internal	token;
-	address internal	    owner;
 	address	internal	    lastUser;   // for rnd seed
 
 	constructor(address _token) public {
-	    owner       = msg.sender;
-	    lastUser    = this;
+	    lastUser    = msg.sender;
 	    token       = MileageToken(_token);
-	}
-
-	modifier onlyOwner {
-		require(msg.sender == owner);
-		_;
 	}
 
 	function terminate() public;

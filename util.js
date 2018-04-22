@@ -598,9 +598,9 @@ let util	= new function() {
 		let mark	= 0;
 		let col		= 0;
 		switch(game) {
-			case 'jackpot649':	max=49;	mark=6;col=6;break;
-			case 'lotto49':			max=9;	mark=4;col=6;break;
-			case 'lotto525':		max=25;	mark=5;col=3;break;
+			case 'jackpot649':	max=49;	mark=6;	col=3;	break;
+			case 'lotto49':			max=9;	mark=4;	col=6;	break;
+			case 'lotto525':		max=25;	mark=5;	col=3;	break;
 		}
 		return {'max':max,'mark':mark,'col':col};
 	},

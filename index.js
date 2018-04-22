@@ -1,7 +1,8 @@
 let contracts	= new function() {
 	this.start		= function() {
-		contracts.create('lotto953');
-		contracts.create('lotto645');
+		contracts.create('jackpot649');
+		contracts.create('lotto49');
+		contracts.create('lotto525');
 		contracts.create('baccarat');
 		contracts.create('dragonTiger');
 		contracts.create('highLow');
@@ -51,8 +52,9 @@ let contracts	= new function() {
 
 let page		= new function() {
 	this.start				= function() {
-		page.startLotto('lotto953','#historyLotto935',6,3,3);
-		page.startLotto('lotto645','#historyLotto645',3,7,7);
+		page.startLotto('jackpot649','#historyJackpot649',3,7,7);
+		page.startLotto('lotto49','#historyLotto49',6,3,3);
+		page.startLotto('lotto525','#historyLotto525',4,5,5);
 		page.startCasino('baccarat','#historyBaccarat');
 		page.startCasino('dragonTiger','#historyDragonTiger');
 		page.startCasino('highLow','#historyHighLow');
@@ -110,8 +112,9 @@ let page		= new function() {
 
 		// todo : for more lotto
 		switch(game) {
-		case 'lotto953':
-		case 'lotto645':
+		case 'jackpot649':
+		case 'lotto49':
+		case 'lotto525':
 			let maxMark = util.getLottoMaxMarkCol(game);
 			btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.openLottoHistory(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">history</i></button>'+btn;
 			if(wallet.state()==2)
@@ -273,8 +276,9 @@ let page		= new function() {
 
 // main
 let UPDATE = function () {
-	for(let i = 0 ; i < CONFIG['lotto953']['address'].length ; i++)		page.updateLottoHistory('lotto953',CONFIG['lotto953']['address'][i]);
-	for(let i = 0 ; i < CONFIG['lotto645']['address'].length ; i++)		page.updateLottoHistory('lotto645',CONFIG['lotto645']['address'][i]);
+	for(let i = 0 ; i < CONFIG['jackpot649']['address'].length ; i++)	page.updateLottoHistory('jackpot649',CONFIG['jackpot649']['address'][i]);
+	for(let i = 0 ; i < CONFIG['lotto49']['address'].length ; i++)		page.updateLottoHistory('lotto49',CONFIG['lotto49']['address'][i]);
+	for(let i = 0 ; i < CONFIG['lotto525']['address'].length ; i++)		page.updateLottoHistory('lotto525',CONFIG['lotto525']['address'][i]);
 	for(let i = 0 ; i < CONFIG['baccarat']['address'].length ; i++)		page.updateCasinoHistory('baccarat',CONFIG['baccarat']['address'][i]);
 	for(let i = 0 ; i < CONFIG['dragonTiger']['address'].length;i++)	page.updateCasinoHistory('dragonTiger',CONFIG['dragonTiger']['address'][i]);
 	for(let i = 0 ; i < CONFIG['highLow']['address'].length ; i++)		page.updateCasinoHistory('highLow',CONFIG['highLow']['address'][i]);
@@ -297,8 +301,9 @@ $.getJSON('config.json', (data)=>{
 		page.start();
 		contracts.start();
 
-		for(let i = 0 ; i < CONFIG['lotto953']['address'].length ; i++)		contracts.information('lotto953',CONFIG['lotto953']['address'][i],INIT);
-		for(let i = 0 ; i < CONFIG['lotto645']['address'].length ; i++)		contracts.information('lotto645',CONFIG['lotto645']['address'][i],INIT);
+		for(let i = 0 ; i < CONFIG['jackpot649']['address'].length ; i++)	contracts.information('jackpot649',CONFIG['jackpot649']['address'][i],INIT);
+		for(let i = 0 ; i < CONFIG['lotto49']['address'].length ; i++)		contracts.information('lotto49',CONFIG['lotto49']['address'][i],INIT);
+		for(let i = 0 ; i < CONFIG['lotto525']['address'].length ; i++)		contracts.information('lotto525',CONFIG['lotto525']['address'][i],INIT);
 		for(let i = 0 ; i < CONFIG['baccarat']['address'].length ; i++)		contracts.information('baccarat',CONFIG['baccarat']['address'][i],INIT);
 		for(let i = 0 ; i < CONFIG['dragonTiger']['address'].length;i++)	contracts.information('dragonTiger',CONFIG['dragonTiger']['address'][i],INIT);
 		for(let i = 0 ; i < CONFIG['highLow']['address'].length ; i++)		contracts.information('highLow',CONFIG['highLow']['address'][i],INIT);

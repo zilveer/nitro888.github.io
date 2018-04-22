@@ -14,15 +14,22 @@
 			"href"			: "https://ropsten.etherscan.io"
 		}
 	},
-	"lotto953" : {
-		"name"			:"Lotto 953",
+	"jackpot649" : {
+		"name"			:"Jackpot 6/49",
 		"abi"			:[{"constant":false,"inputs":[],"name":"terminate","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_seed","type":"uint256"}],"name":"update","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_value","type":"uint256"}],"name":"withdrawal","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"player","type":"address"}],"name":"information","outputs":[{"name":"","type":"uint256"},{"name":"","type":"uint8"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint64[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_tickets","type":"uint64[]"}],"name":"bet","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"","type":"uint256"},{"indexed":false,"name":"","type":"uint128"}],"name":"eventUpdate","type":"event"}],
 		"address"		:["0x921d561447fc945535d4529c49cc49860b864d78"],
 		"contracts"	:{},
 		"prices"		:{}
 	},
-	"lotto645" : {
-		"name"			:"Lotto 645",
+	"lotto49" : {
+		"name"			:"Lotto 4/9",
+		"abi"			:[{"constant":false,"inputs":[],"name":"terminate","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_seed","type":"uint256"}],"name":"update","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_value","type":"uint256"}],"name":"withdrawal","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"player","type":"address"}],"name":"information","outputs":[{"name":"","type":"uint256"},{"name":"","type":"uint8"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint64[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_tickets","type":"uint64[]"}],"name":"bet","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"","type":"uint256"},{"indexed":false,"name":"","type":"uint128"}],"name":"eventUpdate","type":"event"}],
+		"address"		:["0x921d561447fc945535d4529c49cc49860b864d78"],
+		"contracts"	:{},
+		"prices"		:{}
+	},
+	"lotto525" : {
+		"name"			:"Lotto 5/25",
 		"abi"			:[{"constant":false,"inputs":[],"name":"terminate","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_seed","type":"uint256"}],"name":"update","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_value","type":"uint256"}],"name":"withdrawal","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"player","type":"address"}],"name":"information","outputs":[{"name":"","type":"uint256"},{"name":"","type":"uint8"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"uint64[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_tickets","type":"uint64[]"}],"name":"bet","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"name":"","type":"uint256"},{"indexed":false,"name":"","type":"uint128"}],"name":"eventUpdate","type":"event"}],
 		"address"		:["0xd7418809b04ef5553f23d869806252bb52d9ed1f"],
 		"contracts"	:{},

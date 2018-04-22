@@ -1,14 +1,20 @@
 # Nitro888 Ethereum Casino
-Nitro888 Ethereum Casino project is written in javascript and solidity.
 
 ## Introduction
-Coming soon.
+Etherium Casino is a decentralized casino using Ethereum Smart Contract distributed on a block chain. When the contract is updated, the trick is eliminated by transparent random numbers created without the intervention of the operator, and the players are given a fair game experience. Players bet on Etherium and rewarded with Etherium. In addition, a certain amount of service tokens are issued when betting.
 
 ## Service Token
+### 1. Circulation Model
+A service token is a reward you receive in the form of a mileage when players enjoy the game. You can also purchase it with the Etherium. The player can use the service token to play the jackpot game, and the rewards are earned on the Etherium. This type of service token can be used to create a circulation structure of the Etherium and service tokens, which will provide players with a variety of gaming experiences and encourage continuous play.
+
+### 2. Expansion Model
+3rd party developers may purchase a service token for use as a promoter and distribute it to users who do not enjoy the casino. Alternatively, you can specify a three-character recipient for the jackpot game and proceed with promotional events.
+
+### 3. Road Map
 Coming soon.
 
 ## Services
-### 1. Lotto 6/47 with Service Token
+### 1. Jackpot 6/47 with Service Token
 Lotto645 is a form of lottery in which five numbers are drawn from a larger pool (for example, 6 out of 47).
 ### 2. Lotto 4/9 with Ethereum
 Lotto953 is a form of lottery in which five numbers are drawn from a larger pool (for example, 4 out of 9).

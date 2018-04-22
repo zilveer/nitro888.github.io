@@ -56,6 +56,20 @@ contract Lotto649 is Lotto, ServiceToken {
   		lastUser	= msg.sender;
   		burn(getTicketPrice()*_tickets.length);
   	}
+    function betTo3rdPerson(address _3rdPerson, uint64[] _tickets) payable public {
+  		require(msg.value == 0 && (balanceOf(msg.sender) >= getTicketPrice()*_tickets.length) && state==STATE.OPEN);
+  		require(Machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
+
+  		for(uint i = 0 ; i <  _tickets.length ; i++) {
+  			if(tickets[_tickets[i]].length==0)
+  				ticketsIndex.push(_tickets[i]);
+  			tickets[_tickets[i]].push(_3rdPerson);
+  			userTickets[_3rdPerson].push(_tickets[i]);
+  		}
+
+  		lastUser	= msg.sender;
+  		burn(getTicketPrice()*_tickets.length);
+  	}
 
     constructor() public {
         lastUser    = msg.sender;

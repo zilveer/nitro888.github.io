@@ -32,3 +32,10 @@ Coming soon.
 ## 4. Etc.
 ### 4.1. Wallet
 Wallet is a client side wallet.
+
+
+1. Item 1
+1. Item 2
+1. Item 3
+   1. Item 3a
+   1. Item 3b

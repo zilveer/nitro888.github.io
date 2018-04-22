@@ -34,11 +34,6 @@ contract Service is Ownable {
 	uint internal constant	jackpotWithdrawalStart		= 1000000000000000000;	// 1 Eth
 	uint internal constant	jackpotWithdrawalPercent	= 5;    								// 5%
 
-	constructor(address _token) public {
-	    lastUser    = msg.sender;
-	    token       = ServiceToken(_token);
-	}
-
 	function terminate() public;
 	function getFee() internal constant returns (uint);
 

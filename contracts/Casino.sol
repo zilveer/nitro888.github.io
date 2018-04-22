@@ -59,8 +59,8 @@ contract Casino is Service {
 
 	function getBetPrice() internal constant returns (uint);
 	function getSlotMax() internal constant returns (uint8);
-    function getShoeDeckCount() internal constant returns (uint);
-    function isNotShoeChange(uint _round, address _a, address _b, uint _c) internal constant returns (bool);
+  function getShoeDeckCount() internal constant returns (uint);
+  function isNotShoeChange(uint _round, address _a, address _b, uint _c) internal constant returns (bool);
 
 	function information(address player) public constant returns (uint[2],STATE,uint,uint,uint,uint,uint8[]) {
 		return (round,state,address(this).balance,getBetPrice(),getFee(),pendings.length,userSlots[player]);

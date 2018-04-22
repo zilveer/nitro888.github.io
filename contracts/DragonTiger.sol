@@ -6,6 +6,11 @@ contract DragonTiger is Casino {
     uint constant   fee                 = 100000000000000;  // fee for transfer - 0.0001E (1,000,000,000,000,000,000 = 1eth)
     uint constant   betPrice            = 1000000000000000; // 0.001E (1,000,000,000,000,000,000 = 1eth)
 
+    constructor(address _token) public {
+  	    lastUser    = msg.sender;
+  	    token       = ServiceToken(_token);
+  	}
+
     function getFee() internal constant returns (uint) {
         return fee;
     }

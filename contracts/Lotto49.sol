@@ -13,6 +13,11 @@ contract Lotto49 is Lotto {
     uint constant percent2ndPrize       = 20;   // 20%
 
 
+    constructor(address _token) public {
+  	    lastUser    = msg.sender;
+  	    token       = ServiceToken(_token);
+  	}
+
     function getFee() internal constant returns (uint) {
         return fee;
     }

@@ -2,7 +2,7 @@ pragma solidity ^0.4.22;
 
 import "./Lotto.sol";
 
-contract Lotto645 is Lotto {
+contract Lotto525 is Lotto {
     uint constant fee                   = 100000000000000;  // fee for transfer - 0.0001E (1,000,000,000,000,000,000 = 1eth)
     uint constant ticketPrice           = 5000000000000000; // 0.005E (1,000,000,000,000,000,000 = 1eth)
 
@@ -12,6 +12,11 @@ contract Lotto645 is Lotto {
     uint constant percent1stPrize       = 25;   // 25%
     uint constant percent2ndPrize       = 20;   // 20%
     uint constant percent3rdPrize       = 20;   // 20%
+
+    constructor(address _token) public {
+  	    lastUser    = msg.sender;
+  	    token       = ServiceToken(_token);
+  	}
 
     function getFee() internal constant returns (uint) {
         return fee;

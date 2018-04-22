@@ -14,22 +14,32 @@ contract ServiceToken is BurnableToken, Ownable {
 	}
 
   mapping(address=>SERVICE) private services;
-  uint256 constant                  rate = 1000;
+  uint256 constant                  rateBuy     = 1000;
+  uint256 constant                  rateMileage = 1000;
 
-  function enableService(address _service) onlyOwner public {
+  function serviceEnable(address _service) onlyOwner public {
     services[_service]    = SERVICE(true,services[_service].amount);
   }
-  function disableService(address _service) onlyOwner public {
+  function serviceDisable(address _service) onlyOwner public {
     services[_service]    = SERVICE(false,services[_service].amount);
   }
+  function serviceState(address _address) public constant returns (bool,uint){
+    return (services[_address].enable,services[_address].amount);
+  }
 
-  event Mileage(address indexed to, uint256 amount);
+  event Mint(address indexed to, uint256 amount);
+  function mint(uint256 _amount) private {
+    totalSupply_          = totalSupply_.add(_amount);
+    balances[msg.sender]  = balances[msg.sender].add(_amount);
+    emit Mint(msg.sender, _amount);
+    emit Transfer(address(0), msg.sender, _amount);
+  }
+  function buy() payable public returns (bool) {
+    mint(msg.value.mul(rateBuy));
+    return true;
+  }
   function mileage(uint256 _amount) onlyService public returns (bool) {
-    uint256 amount        = _amount.mul(rate);
-    totalSupply_          = totalSupply_.add(amount);
-    balances[msg.sender]  = balances[msg.sender].add(amount);
-    emit Mileage(msg.sender, _amount);
-    emit Transfer(address(0), msg.sender, amount);
+    mint(_amount.mul(rateMileage));
     return true;
   }
 }

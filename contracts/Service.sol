@@ -29,16 +29,14 @@ contract Service is Ownable {
 	STATE internal		    	state   					= STATE.DONE;
 
 	ServiceToken internal		token;
-	//address internal				jackpot;
 	address	internal	    	lastUser;   // for rnd seed
 
 	uint internal constant	jackpotWithdrawalStart		= 1000000000000000000;	// 1 Eth
-	uint internal constant	jackpotWithdrawalPercent	= 5;    // 5%
+	uint internal constant	jackpotWithdrawalPercent	= 5;    								// 5%
 
-	constructor(address _token/*, address _jackpot*/) public {
+	constructor(address _token) public {
 	    lastUser    = msg.sender;
 	    token       = ServiceToken(_token);
-			//jackpot			= _jackpot;
 	}
 
 	function terminate() public;
@@ -48,11 +46,7 @@ contract Service is Ownable {
 		require(_value<=address(this).balance);
 		owner.transfer(_value);
 	}
-	function withdrawal2Jackpot(bool _jackPotEnable) internal {
-		/*
-		if(_jackPotEnable&&&&(jackpot!=address(0))&&(address(this).balance>=jackpotWithdrawalStart))
-			jackpot.transfer(Utils.PERCENT(address(this).balance, jackpotWithdrawalPercent));
-		*/
+	function withdrawal2Jackpot(bool _jackPotEnable) internal {	// todo :
 		if(_jackPotEnable&&(address(this)!=address(token))&&(address(this).balance>=jackpotWithdrawalStart))
 			address(token).transfer(Utils.PERCENT(address(this).balance, jackpotWithdrawalPercent));
 	}

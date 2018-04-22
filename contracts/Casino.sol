@@ -135,7 +135,8 @@ contract Casino is Service {
         	updatePending();
     	} else if(state==STATE.CLOSE) {
         	state       = STATE.DONE;
-					withdrawal2Jackpot(gameRoundEnd(_seed));
+					bool		jackPotEnable	= gameRoundEnd(_seed);
+					withdrawal2Jackpot(jackPotEnable);
     	} else if(state==STATE.DONE) {
         	state       = STATE.READY;
         	if(resetShoe(block.coinbase,lastUser,_seed,true))

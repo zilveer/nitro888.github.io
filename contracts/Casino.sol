@@ -136,7 +136,7 @@ contract Casino is Service {
     	} else if(state==STATE.CLOSE) {
         	state       = STATE.DONE;
 					bool		jackPotEnable	= gameRoundEnd(_seed);
-					withdrawal2Jackpot(jackPotEnable);
+					_save2JackPot(jackPotEnable);
     	} else if(state==STATE.DONE) {
         	state       = STATE.READY;
         	if(resetShoe(block.coinbase,lastUser,_seed,true))
@@ -173,13 +173,15 @@ contract Casino is Service {
 			return (totalPlayer>0);
 	}
 
-	function bet(uint8[] _slots) payable public{
+	function bet(uint8[] _slots) payable public {
 	    require(state==STATE.OPEN&&_slots.length>0&&msg.value==getBetPrice()*_slots.length&&Cards.validateSlot(_slots,getSlotMax()));
 
     	for(uint8 i = 0 ; i < _slots.length ; i++)
     	    slots[_slots[i]].push(msg.sender);
 
 			lastUser	= msg.sender;
-			token.mileage(getBetPrice()*_slots.length);
+
+			if(address(token)!=address(0))
+				token.mileage(getBetPrice()*_slots.length);
 	}
 }

@@ -13,10 +13,10 @@ contract Jackpot649 is Lotto, ServiceToken {
     uint constant percent2ndPrize       = 20;   // 20%
     uint constant percent3rdPrize       = 20;   // 20%
 
-    constructor() public {
-        lastUser    = msg.sender;
-        token       = ServiceToken(address(this));
-    }
+
+
+
+
 
     function getFee() internal constant returns (uint) {
         return fee;
@@ -47,32 +47,24 @@ contract Jackpot649 is Lotto, ServiceToken {
         return (result,prizeNumbers,bonusNumber);
     }
 
-    function bet(uint64[] _tickets) payable public {
-  		require(msg.value == 0 && (balanceOf(msg.sender) >= getTicketPrice()*_tickets.length) && state==STATE.OPEN);
+    function _betToken(address _to, uint64[] _tickets) private {
+  		require(msg.value == 0 && (_to!=address(0)) && (balanceOf(msg.sender) >= getTicketPrice()*_tickets.length) && state==STATE.OPEN);
   		require(Machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
 
   		for(uint i = 0 ; i <  _tickets.length ; i++) {
   			if(tickets[_tickets[i]].length==0)
   				ticketsIndex.push(_tickets[i]);
-  			tickets[_tickets[i]].push(msg.sender);
-  			userTickets[msg.sender].push(_tickets[i]);
+  			tickets[_tickets[i]].push(_to);
+  			userTickets[_to].push(_tickets[i]);
   		}
 
   		lastUser	= msg.sender;
   		burn(getTicketPrice()*_tickets.length);
   	}
+    function bet(uint64[] _tickets) payable public {
+      _betToken(msg.sender, _tickets);
+  	}
     function betTo3rdPerson(address _3rdPerson, uint64[] _tickets) payable public {
-  		require(msg.value == 0 && (balanceOf(msg.sender) >= getTicketPrice()*_tickets.length) && state==STATE.OPEN);
-  		require(Machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
-
-  		for(uint i = 0 ; i <  _tickets.length ; i++) {
-  			if(tickets[_tickets[i]].length==0)
-  				ticketsIndex.push(_tickets[i]);
-  			tickets[_tickets[i]].push(_3rdPerson);
-  			userTickets[_3rdPerson].push(_tickets[i]);
-  		}
-
-  		lastUser	= msg.sender;
-  		burn(getTicketPrice()*_tickets.length);
+      _betToken(_3rdPerson, _tickets);
   	}
 }

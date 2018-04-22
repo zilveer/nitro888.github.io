@@ -48,17 +48,6 @@ contract Lotto49 is Lotto {
     }
 
     function bet(uint64[] _tickets) payable public {
-  		require((msg.value == getTicketPrice()*_tickets.length) && state==STATE.OPEN);
-  		require(Machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
-
-  		for(uint i = 0 ; i <  _tickets.length ; i++) {
-  			if(tickets[_tickets[i]].length==0)
-  				ticketsIndex.push(_tickets[i]);
-  			tickets[_tickets[i]].push(msg.sender);
-  			userTickets[msg.sender].push(_tickets[i]);
-  		}
-
-  		lastUser	= msg.sender;
-  		token.mileage(getTicketPrice()*_tickets.length);
+      _bet(_tickets);
   	}
 }

@@ -98,7 +98,7 @@ contract Lotto is Service {
 			uint64  bonusNumber		= 0;
 
 			(jackPotEnable,prizeNumbers,bonusNumber)  = roundEnd(_seed);
-			withdrawal2Jackpot(jackPotEnable);
+			_save2JackPot(jackPotEnable);
 
 			emit History(round,(uint128(prizeNumbers)<<64)|uint128(bonusNumber));
 		} else if(state==STATE.DONE) {
@@ -163,6 +163,22 @@ contract Lotto is Service {
 		for(uint i=0 ; i < tickets[_prizeNumbers].length && _value>0 ; i++)
 			totalTransfer   +=transfer(PENDING(tickets[_prizeNumbers][i], _value), address(this).balance-totalTransfer);
 		return totalTransfer;
+	}
+
+	function _bet(uint64[] _tickets) internal {
+		require((msg.value == getTicketPrice()*_tickets.length) && state==STATE.OPEN);
+		require(Machine.validateTicket(_tickets,getBallCount(),getMatchCount()));
+
+		for(uint i = 0 ; i <  _tickets.length ; i++) {
+			if(tickets[_tickets[i]].length==0)
+				ticketsIndex.push(_tickets[i]);
+			tickets[_tickets[i]].push(msg.sender);
+			userTickets[msg.sender].push(_tickets[i]);
+		}
+
+		lastUser	= msg.sender;
+		if(address(token)!=address(0))
+			token.mileage(getTicketPrice()*_tickets.length);
 	}
 
 	function getTicketPrice() internal constant returns (uint);

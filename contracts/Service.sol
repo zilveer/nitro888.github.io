@@ -28,11 +28,11 @@ contract Service is Ownable {
 	enum			        			STATE							{ READY, OPEN, CLOSE, DONE, DISABLE }
 	STATE internal		    	state   					= STATE.DONE;
 
-	ServiceToken internal		token;
-	address	internal	    	lastUser;   // for rnd seed
+	ServiceToken internal		token							= ServiceToken(address(0));
+	address	internal	    	lastUser					= address(0);						// for rnd seed
 
-	uint internal constant	jackpotWithdrawalStart		= 1000000000000000000;	// 1 Eth
-	uint internal constant	jackpotWithdrawalPercent	= 5;    								// 5%
+	uint internal constant	withdrawalStart		= 1000000000000000000;	// 1 Eth
+	uint internal constant	withdrawalPercent	= 5;    								// 5%
 
 	function terminate() public;
 	function getFee() internal constant returns (uint);
@@ -41,9 +41,9 @@ contract Service is Ownable {
 		require(_value<=address(this).balance);
 		owner.transfer(_value);
 	}
-	function withdrawal2Jackpot(bool _jackPotEnable) internal {	// todo :
-		if(_jackPotEnable&&(address(this)!=address(token))&&(address(this).balance>=jackpotWithdrawalStart))
-			address(token).transfer(Utils.PERCENT(address(this).balance, jackpotWithdrawalPercent));
+	function _save2JackPot(bool _start) internal {	// todo :
+		if(_start&&(address(token)!=address(0))&&(address(this).balance>=withdrawalStart))
+			address(token).transfer(Utils.PERCENT(address(this).balance, withdrawalPercent));
 	}
 
 	function transfer(PENDING _pending, uint _lessThen) internal returns (uint) {

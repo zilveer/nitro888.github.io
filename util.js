@@ -396,7 +396,7 @@ let wallet	= new function() {
 						if(data!=null)	tx['data']	= data;
 						wallet.web3.eth.estimateGas(tx).then((gasLimit)=>{
 							tx['gasPrice']	= wallet.web3.utils.toHex(parseInt(gasPrice));
-							tx['gasLimit']	= wallet.web3.utils.toHex(gasLimit),
+							tx['gasLimit']	= wallet.web3.utils.toHex(parseInt(gasLimit)),
 							tx['value']			= wallet.web3.utils.toHex(wallet.web3.utils.toWei(amount, 'ether'));
 							wallet.web3.eth.accounts.privateKeyToAccount('0x'+privateKey).signTransaction(tx).then((r)=>{
 								wallet.web3.eth.sendSignedTransaction(r.rawTransaction)

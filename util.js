@@ -404,7 +404,7 @@ let wallet	= new function() {
 										modal.alert('<div class="alert alert-warning" role="alert">Tx <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r+'">'+r+'</a>)</small><div>');
 										storage.tx=r;
 									}).then((r)=>{
-										modal.alert('<div class="alert alert-warning" role="alert">Success <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r.transactionHash'">'+r.transactionHash+'</a>)</small><div>')
+										modal.alert('<div class="alert alert-warning" role="alert">Success <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r.transactionHash+'">'+r.transactionHash+'</a>)</small><div>');
 										storage.tx='';
 									}).catch(console.log);	// todo : check
 							});

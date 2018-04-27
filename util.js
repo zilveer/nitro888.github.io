@@ -383,30 +383,31 @@ let wallet	= new function() {
 			});
 		}
 	},
-	this.sendTransaction		= function(address,password,amount,data=null,gasLimit=4700000) {
+	this.sendTransaction		= function(address,password,amount,data=null) {
 		let privateKey	= wallet.getPrivateKeyString(password);
 
 		if(privateKey!=null&&wallet.web3.utils.isAddress(address)) {
-			wallet.web3.eth.getGasPrice((e,r)=>{
+			wallet.web3.eth.getGasPrice((e,gasPrice)=>{
 				if(e!=null) {
 					modal.alert('<div class="alert alert-warning" role="alert">Network error - getGasPrice</div>');
 				} else {
 					wallet.web3.eth.getTransactionCount(storage.address,(e,t)=>{
-						let tx	= {	'gasPrice':	wallet.web3.utils.toHex(parseInt(r)),
-												'gasLimit':	wallet.web3.utils.toHex(gasLimit),
-												'to'			:	address,
-												'value'		:	wallet.web3.utils.toHex(wallet.web3.utils.toWei(amount, 'ether'))};
-						if(data!=null)
-							tx['data']	= data;
-
-						wallet.web3.eth.accounts.privateKeyToAccount('0x'+privateKey).signTransaction(tx).then((r)=>{
-							wallet.web3.eth.sendSignedTransaction(r.rawTransaction)
-								.on('transactionHash',(r)=>{
-									modal.alert('<div class="alert alert-warning" role="alert">Success <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r+'">'+r+'</a>)</small><div>');
-									storage.tx=r;
-								})
-								.then(console.log)		// todo : check
-								.catch(console.log);	// todo : check
+						let tx = {from:wallet.web3.eth.accounts.address,to:address};
+						if(data!=null)	tx['data']	= data;
+						wallet.web3.eth.estimateGas(tx).then((gasLimit)=>{
+							tx['gasPrice']	= wallet.web3.utils.toHex(parseInt(gasPrice));
+							tx['gasLimit']	= wallet.web3.utils.toHex(gasLimit),
+							tx['value']			= wallet.web3.utils.toHex(wallet.web3.utils.toWei(amount, 'ether'));
+							wallet.web3.eth.accounts.privateKeyToAccount('0x'+privateKey).signTransaction(tx).then((r)=>{
+								wallet.web3.eth.sendSignedTransaction(r.rawTransaction)
+									.on('transactionHash',(r)=>{
+										modal.alert('<div class="alert alert-warning" role="alert">Tx <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r+'">'+r+'</a>)</small><div>');
+										storage.tx=r;
+									}).then((r)=>{
+										modal.alert('<div class="alert alert-warning" role="alert">Success <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r.transactionHash'">'+r.transactionHash+'</a>)</small><div>')
+										storage.tx='';
+									}).catch(console.log);	// todo : check
+							});
 						});
 					});
 				}

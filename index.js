@@ -16,18 +16,11 @@ let contracts	= new function() {
 	},
 	this.information		= function(game,address,callback) {
 		if(CONFIG[game]['contracts'][address]!=null)
-			CONFIG[game]['contracts'][address].methods.information(storage.address).call((e,r)=>{
+			CONFIG[game]['contracts'][address].methods.information().call((e,r)=>{
 				if (!e){
 					CONFIG[game]['prices'][address]	= parseInt(r[3]);
 					callback(game,address,r);
 				}
-			});
-	},
-	this.historyCasino				= function(game,address,callback) {
-		if(CONFIG[game]['contracts'][address]!=null)
-			CONFIG[game]['contracts'][address].methods.history().call((e,r)=>{
-				if (!e)
-					callback(game,address,r);
 			});
 	},
 	this.historyLotto				= function(game,address,callback) {
@@ -107,28 +100,6 @@ let page		= new function() {
 
 		$(id).html(body);
 	},
-	this.updateBtn			= function(game,address) {
-		let btn		= '<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.openInfo(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">announcement</i></button>';
-
-		// todo : for more lotto
-		switch(game) {
-		case 'jackpot649':
-		case 'lotto49':
-		case 'lotto525':
-			let maxMark = util.getLottoMaxMarkCol(game);
-			btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.openLottoHistory(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">history</i></button>'+btn;
-			if(wallet.state()==2)
-				btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.ticket(\''+game+'\',\''+address+'\','+maxMark.max+','+maxMark.mark+')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;
-			break;
-		default:
-			if(wallet.state()==2)
-				btn	='<button type="button" class="btn btn-link btn-sm text-secondary" onClick="page.play(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;
-			break;
-		}
-		// todo : for more lotto
-
-		return	btn;
-	},
 	this.openInfo		= function(game,address) {
 		modal.update(CONFIG[game]['name'],'Now Loading...');
 		contracts.information(game,address,modal.updateInformation);
@@ -165,11 +136,21 @@ let page		= new function() {
 		});
 		wallet.updateTimer(true);
 	},
-	this.updateLottoHistory		= function(game,address) {
-		$('#btn_'+game+'_'+address).html(page.updateBtn(game,address));
-		contracts.information(game,address,(_game,_address,_data)=>{
-			$('#rnd_'+_game+'_'+_address).html("Round "+parseInt(_data[0])+'<small> ('+util.getGameState(parseInt(_data[1]))+')</small>');
-		});
+	this.updateLottoHistory		= function(game,address,data) {
+		if(!util.stateBackup[address]) {
+			$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
+			$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
+			$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+" E");
+			util.stateBackup[address]	= {'round':data[0],'state':data[1],'wallet':wallet.state()};
+		}
+		else if(util.stateBackup[address]['round']	== data[0] && util.stateBackup[address]['state']	== data[1] && util.stateBackup[address]['wallet']	== wallet.state())
+			return;
+
+		$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
+		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
+		$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+" E");
+		$('#rnd_'+game+'_'+address).html("Round "+parseInt(data[0])+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
+
 		contracts.historyLotto(game,address,(logs)=>{
 			let maxCol		= util.getLottoMaxMarkCol(game);
 			for(let i = (logs.length>maxCol.col ? logs.length-maxCol.col : 0), k = 0 ; i < logs.length ; i++,k++)  {
@@ -183,10 +164,6 @@ let page		= new function() {
 					temp[1][j]=='1'?$('#'+game+'_'+address+'_'+k+'_'+l).html(util.getNumCircle(1+l,1,true)):'';
 			}
 		});
-	},
-	this.updateCasinoHistory	= function(game,address) {
-		$('#btn_'+game+'_'+address).html(page.updateBtn(game,address));
-		contracts.historyCasino(game,address,util.updateCasino);
 	},
 	this.ticket	= function (game,address,max,mark) {
 		let col			= 4;
@@ -276,17 +253,12 @@ let page		= new function() {
 
 // main
 let UPDATE = function () {
-	for(let i = 0 ; i < CONFIG['jackpot649']['address'].length ; i++)	page.updateLottoHistory('jackpot649',CONFIG['jackpot649']['address'][i]);
-	for(let i = 0 ; i < CONFIG['lotto49']['address'].length ; i++)		page.updateLottoHistory('lotto49',CONFIG['lotto49']['address'][i]);
-	for(let i = 0 ; i < CONFIG['lotto525']['address'].length ; i++)		page.updateLottoHistory('lotto525',CONFIG['lotto525']['address'][i]);
-	for(let i = 0 ; i < CONFIG['baccarat']['address'].length ; i++)		page.updateCasinoHistory('baccarat',CONFIG['baccarat']['address'][i]);
-	for(let i = 0 ; i < CONFIG['dragonTiger']['address'].length;i++)	page.updateCasinoHistory('dragonTiger',CONFIG['dragonTiger']['address'][i]);
-	for(let i = 0 ; i < CONFIG['highLow']['address'].length ; i++)		page.updateCasinoHistory('highLow',CONFIG['highLow']['address'][i]);
-}
-let INIT = function (game,address,data) {
-	$('#btn_'+game+'_'+address).html(page.updateBtn(game,address));
-	$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[2]).toString(),'ether')+" E");
-	$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
+	for(let i = 0 ; i < CONFIG['jackpot649']['address'].length ; i++)	contracts.information('jackpot649',CONFIG['jackpot649']['address'][i],page.updateLottoHistory);
+	for(let i = 0 ; i < CONFIG['lotto49']['address'].length ; i++)		contracts.information('lotto49',CONFIG['lotto49']['address'][i],page.updateLottoHistory);
+	for(let i = 0 ; i < CONFIG['lotto525']['address'].length ; i++)		contracts.information('lotto525',CONFIG['lotto525']['address'][i],page.updateLottoHistory);
+	for(let i = 0 ; i < CONFIG['baccarat']['address'].length ; i++)		contracts.information('baccarat',CONFIG['baccarat']['address'][i],util.updateCasino);
+	for(let i = 0 ; i < CONFIG['dragonTiger']['address'].length;i++)	contracts.information('dragonTiger',CONFIG['dragonTiger']['address'][i],util.updateCasino);
+	for(let i = 0 ; i < CONFIG['highLow']['address'].length ; i++)		contracts.information('highLow',CONFIG['highLow']['address'][i],util.updateCasino);
 }
 $.getJSON('config.json', (data)=>{
 	if(data!=null) {
@@ -301,12 +273,7 @@ $.getJSON('config.json', (data)=>{
 		page.start();
 		contracts.start();
 
-		for(let i = 0 ; i < CONFIG['jackpot649']['address'].length ; i++)	contracts.information('jackpot649',CONFIG['jackpot649']['address'][i],INIT);
-		for(let i = 0 ; i < CONFIG['lotto49']['address'].length ; i++)		contracts.information('lotto49',CONFIG['lotto49']['address'][i],INIT);
-		for(let i = 0 ; i < CONFIG['lotto525']['address'].length ; i++)		contracts.information('lotto525',CONFIG['lotto525']['address'][i],INIT);
-		for(let i = 0 ; i < CONFIG['baccarat']['address'].length ; i++)		contracts.information('baccarat',CONFIG['baccarat']['address'][i],INIT);
-		for(let i = 0 ; i < CONFIG['dragonTiger']['address'].length;i++)	contracts.information('dragonTiger',CONFIG['dragonTiger']['address'][i],INIT);
-		for(let i = 0 ; i < CONFIG['highLow']['address'].length ; i++)		contracts.information('highLow',CONFIG['highLow']['address'][i],INIT);
+		UPDATE();
 	}
 });
 //main

@@ -7,13 +7,13 @@ let page = new function() {
 	this.socketUrl	= 'https://nitro888main.herokuapp.com',
 	this.openInfo	= function () {
 		modal.update(CONFIG[page.game]['name'],'Now Loading...');
-		page.contract.methods.information(storage.address).call(
+		page.contract.methods.information().call(
 			(e,r)=>{
 				if(!e){
-					page.price	= parseInt(r[3]);
+					page.price	= parseInt(r[4]);
 					$('#rnd_'+page.game+'_'+page.address).html("Round "+parseInt(r[0][0])+"-"+parseInt(r[0][1])+'<small> ('+util.getGameState(parseInt(r[1]))+')</small>');
 					$('#price').html("Bet : "+wallet.web3.utils.fromWei((page.price).toString(),'ether')+" E");
-					$('#balance').html("Balance : "+wallet.web3.utils.fromWei(parseInt(r[2]).toString(),'ether')+" E");
+					$('#balance').html("Balance : "+wallet.web3.utils.fromWei(parseInt(r[3]).toString(),'ether')+" E");
 					modal.updateInformation(page.game,page.address,r);
 				}
 			});
@@ -43,7 +43,7 @@ let page = new function() {
 		if(wallet.state()!=2)
 			location.href=location.origin;
 		else
-			page.contract.methods.history().call((e,r)=>{
+			page.contract.methods.information().call((e,r)=>{
 				if (!e){
 					util.updateCasino(page.game,page.address,r);
 					if(page.scene.onUpdateGame(page.game,page.address,r))

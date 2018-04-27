@@ -494,10 +494,10 @@ let modal	= new function() {
 			case 'lotto49':
 			case 'lotto525':
 				table	+="<tr><td>Round</td><td>"+data[0]+" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
-				table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[2]).toString()+" ETH</td></tr>";
-				table	+="<tr><td>Price</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+" ETH</td></tr>";
-				table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.utils.fromWei(data[4]).toString()+" ETH</td></tr>";
-				table	+="<tr><td>Pending transfer</td><td>"+data[5]+" remains</td></tr>";
+				table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+" ETH</td></tr>";
+				table	+="<tr><td>Price</td><td>"+wallet.web3.utils.fromWei(data[4]).toString()+" ETH</td></tr>";
+				table	+="<tr><td>Transfer fee</td><td>"+parseInt(data[5])+" %</td></tr>";
+				/*
 				if(data[6].length>0) {
 					table	+="<tr><td colspan='2'>My tickets</td></tr>";
 					for(let i = 0 ; i < data[6].length ; i++) {
@@ -508,13 +508,13 @@ let modal	= new function() {
 						table	+="<tr><td colspan='2'>"+ticket+"</td></tr>";
 					}
 				}
+				*/
 				break;
 			default:
 				table	+="<tr><td>Round</td><td>"+data[0][0] +"-" + data[0][1] +" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
-				table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[2]).toString()+" ETH</td></tr>";
-				table	+="<tr><td>Bet</td><td>"+wallet.web3.utils.fromWei(data[3])+" ETH</td></tr>";
-				table	+="<tr><td>Transfer fee</td><td>"+wallet.web3.utils.fromWei(data[4])+" ETH</td></tr>";
-				table	+="<tr><td>Pending transfer</td><td>"+data[5]+" remains</td></tr>";
+				table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+" ETH</td></tr>";
+				table	+="<tr><td>Bet</td><td>"+wallet.web3.utils.fromWei(data[4])+" ETH</td></tr>";
+				table	+="<tr><td>Transfer fee</td><td>"+parseInt(data[5])+"%</td></tr>";
 				break;
 		}
 
@@ -527,6 +527,7 @@ $('#modlg').on('hidden.bs.modal', ()=>{modal.update('','')});
 let util	= new function() {
 	this.historyRow			= 6,
 	this.historyCol			= 90,
+	this.stateBackup		= {},
 	this.win				= function(game,openCards) {
 		let win			= 0;
 		let toolTip	= '';
@@ -645,17 +646,47 @@ let util	= new function() {
 		for(let j=0 ; j<mark ; j++)
 			$('#t'+ticket+'_'+marks[j]).prop('checked',true);
 	},
+	this.updateBtn			= function(game,address) {
+		let btn		= '<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.openInfo(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">announcement</i></button>';
+
+		// todo : for more lotto
+		switch(game) {
+		case 'jackpot649':
+		case 'lotto49':
+		case 'lotto525':
+			let maxMark = util.getLottoMaxMarkCol(game);
+			btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.openLottoHistory(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">history</i></button>'+btn;
+			if(wallet.state()==2)
+				btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.ticket(\''+game+'\',\''+address+'\','+maxMark.max+','+maxMark.mark+')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;
+			break;
+		default:
+			if(wallet.state()==2)
+				btn	='<button type="button" class="btn btn-link btn-sm text-secondary" onClick="page.play(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;
+			break;
+		}
+		// todo : for more lotto
+
+		return	btn;
+	},
 	this.updateCasino	= function(game,address,data) {
+		if(!util.stateBackup[address]) {
+			$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
+			$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
+			$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+" E");
+			util.stateBackup[address]	= {'round':data[0],'state':data[1],'wallet':wallet.state()};
+		}
+		else if(util.stateBackup[address]['round'][0]	== data[0][0] && util.stateBackup[address]['round'][1]	== data[0][1] && util.stateBackup[address]['state']	== data[1] && util.stateBackup[address]['wallet']	== wallet.state())
+			return;
 
+		$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
+		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
+		$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+" E");
 		$('#rnd_'+game+'_'+address).html("Round "+parseInt(data[0][0])+"-"+parseInt(data[0][1])+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
-
-		//if(data.lastState&&(parseInt(data.lastState[0][0])==parseInt(data[0][0]))&&(parseInt(data.lastState[0][1])==parseInt(data[0][1])))
-		//	return;
 
 		let history = new Array();
 
-		for(let i = 0 ; i < data[3].length ; i++)
-			history.push(util.openCards(parseInt(data[3][i])));
+		for(let i = 0 ; i < data[6].length ; i++)
+			history.push(util.openCards(parseInt(data[6][i])));
 
 		for(let i = 0 ; i < util.historyRow ; i ++)
 			for(let j = 0 ; j < util.historyCol ; j++)

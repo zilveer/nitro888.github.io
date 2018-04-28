@@ -392,12 +392,11 @@ let wallet	= new function() {
 					modal.alert('Network error - getGasPrice.');
 				} else {
 					wallet.web3.eth.getTransactionCount(storage.address,(e,t)=>{
-						let tx = {from:wallet.web3.eth.accounts.address,to:address};
+						let tx = {'from':storage.address,'to':address,'value':wallet.web3.utils.toHex(wallet.web3.utils.toWei(amount, 'ether'))};
 						if(data!=null)	tx['data']	= data;
 						wallet.web3.eth.estimateGas(tx).then((gasLimit)=>{
 							tx['gasPrice']	= wallet.web3.utils.toHex(parseInt(gasPrice));
-							tx['gasLimit']	= wallet.web3.utils.toHex(parseInt(gasLimit)),
-							tx['value']			= wallet.web3.utils.toHex(wallet.web3.utils.toWei(amount, 'ether'));
+							tx['gasLimit']	= wallet.web3.utils.toHex(parseInt(gasLimit));
 							wallet.web3.eth.accounts.privateKeyToAccount('0x'+privateKey).signTransaction(tx).then((r)=>{
 								wallet.web3.eth.sendSignedTransaction(r.rawTransaction)
 									.on('transactionHash',(r)=>{
@@ -466,8 +465,10 @@ let wallet	= new function() {
 		let jsonUrl	= CONFIG['_api']+"/api?module=account&action=txlistinternal&address="+address+"&startblock=0&endblock=latest&sort=desc";
 		$.getJSON(jsonUrl,callback);
 	},
-	this.getLogs	= function(address,callback) {
+	this.getLogs	= function(address,topic0,callback) {
 		let jsonUrl	= CONFIG['_api']+'/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address='+address;
+		if(topic0!='')
+			jsonUrl +='&topic0='+topic0;
 		$.getJSON(jsonUrl,(data)=>{callback(data.result);});
 	}
 }

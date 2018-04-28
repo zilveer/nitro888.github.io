@@ -50,7 +50,7 @@ let wallet	= new function() {
 	},
 	this.start			= function(mainUpdate) {
 		if(!storage.hasStorage())
-			$('#top-alert').html('<div class="alert alert-warning" role="alert">This browser is not support storage!</div>');
+			modal.alert('This browser is not support storage!');
 		else if(!storage.hasData()) {
 			storage.remove();
 		} else {
@@ -144,7 +144,7 @@ let wallet	= new function() {
 									'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="pass2" type="password" class="form-control" placeholder="Password retype" aria-label="Password retype">' +
 									'</div></div>';
 		modal.update(	'Create wallet',body,'wallet.createOK()');
-		modal.alert(	'<div class="alert alert-danger font-weight-bold" role="alert"><center>Don\'t forget your password. And MUST backup your wallet.</center></div>');
+		modal.alert(	'<center>Don\'t forget your password. And MUST backup your wallet.</center>','alert-danger');
 	},
 	this.getPrivateKeyString	= function(password) {
 		let privateKey	= null;
@@ -182,12 +182,12 @@ let wallet	= new function() {
 			UPDATE();
 
 			modal.update('Create','Success create your new account.');
-			modal.alert('<div class="alert alert-danger font-weight-bold" role="alert"><center>Don\'t forget your password. And must backup your wallet.</center></div>');
+			modal.alert('<center>Don\'t forget your password. And must backup your wallet.</center>','alert-danger');
 		} else {
 			if(p1!=p2) {
-				modal.alert('<div class="alert alert-warning" role="alert">Passwords are not same</div>');
+				modal.alert('Passwords are not same.');
 			} else {
-				modal.alert('<div class="alert alert-warning" role="alert">password is TOO short</div>');
+				modal.alert('password is too short.');
 			}
 		}
 	}
@@ -208,9 +208,9 @@ let wallet	= new function() {
 			wallet.loginWithPK();
 		} catch (e) {
 			if(password!='')
-				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong.</div>');
+				modal.alert('Password is wrong.');
 			else
-				modal.alert('<div class="alert alert-warning" role="alert">Password is empty</div>');
+				modal.alert('Password is empty.');
 		}
 	},
 	this.loginWithPK		= function() {
@@ -265,9 +265,9 @@ let wallet	= new function() {
 			modal.update('Destory','Destory wallet complete');
 		} catch (e) {
 			if(password!='')
-				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong.</div>');
+				modal.alert('Password is wrong.');
 			else
-				modal.alert('<div class="alert alert-warning" role="alert">Password is empty</div>');
+				modal.alert('Password is empty.');
 		}
 	},
 	// destory
@@ -288,9 +288,9 @@ let wallet	= new function() {
 			modal.update('Export Wallet','<div style="overflow-x:auto;"><small>'+storage.wallet+'</small></div>');
 		} catch (e) {
 			if(re=='')
-				modal.alert('<div class="alert alert-warning" role="alert">Password is empty</div>');
+				modal.alert('Password is empty.');
 			else
-				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');
+				modal.alert('Password is wrong.');
 		}
 	},
 	this.restore	= function() {
@@ -318,11 +318,11 @@ let wallet	= new function() {
 			modal.update('Restore','Restore wallet complete');
 		} catch (e) {
 			if(password!=''&&restore!='')
-				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong.</div>');
+				modal.alert('Password is wrong.');
 			else if(restore=='')
-				modal.alert('<div class="alert alert-warning" role="alert">Restore string is empty</div>');
+				modal.alert('Restore string is empty.');
 			else if(password=='')
-				modal.alert('<div class="alert alert-warning" role="alert">Restore password is empty</div>');
+				modal.alert('Restore password is empty.');
 		}
 	},
 	// export & import
@@ -351,11 +351,11 @@ let wallet	= new function() {
 		modal.alert('');
 
 		if(address==''||amount==0||amount==''||password==''||!wallet.web3.utils.isAddress(address)||address==storage.address) {
-			if(!wallet.web3.utils.isAddress(address))	modal.alert('<div class="alert alert-warning" role="alert">Address is wrong</div>');
-			else if(address=='')											modal.alert('<div class="alert alert-warning" role="alert">Address is empty</div>');
-			else if(amount==0||amount=='')						modal.alert('<div class="alert alert-warning" role="alert">Withrawal is zero</div>');
-			else if(password=='')											modal.alert('<div class="alert alert-warning" role="alert">Passward is empty</div>');
-			else if(address==storage.address)					modal.alert('<div class="alert alert-warning" role="alert">This is your address</div>');
+			if(!wallet.web3.utils.isAddress(address))	modal.alert('Address is wrong.');
+			else if(address=='')											modal.alert('Address is empty.');
+			else if(amount==0||amount=='')						modal.alert('Withrawal is zero.');
+			else if(password=='')											modal.alert('Passward is empty.');
+			else if(address==storage.address)					modal.alert('This is your address.');
 		} else {
 			wallet.updateBalance(()=>{
 				if(wallet.balance>wallet.web3.utils.toWei(amount,'ether')) {
@@ -363,22 +363,22 @@ let wallet	= new function() {
 						wallet.web3.eth.getTransaction(storage.tx,function(e,r){
 							if(!e)
 								if(r.blockNumber==null || parseInt(r.blockHash) == 0)
-									modal.alert('<div class="alert alert-warning" role="alert">Transaction is pending : <br/><small><a target="_blank" href="'+CONFIG['_href']+'/tx/'+storage.tx+'">'+storage.tx+'</a></small></div>');
+									modal.alert('Transaction is pending : <br/><small><a target="_blank" href="'+CONFIG['_href']+'/tx/'+storage.tx+'">'+storage.tx+'</a></small>');
 								else {
 									storage.tx	= '';
 									storage.save();
 									if(!wallet.sendTransaction(address,password,amount))
-										modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');
+										modal.alert('Password is wrong.');
 								}
 							else
-								modal.alert('<div class="alert alert-warning" role="alert">Transaction fail</div>');
+								modal.alert('Transaction fail.');
 						});
 					} else {
 						if(!wallet.sendTransaction(address,password,amount))
-							modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');
+							modal.alert('Password is wrong.');
 					}
 				} else {
-					modal.alert('<div class="alert alert-warning" role="alert">Amount is too big. Less then '+wallet.web3.utils.fromWei(wallet.balance.toString(),'ether')+' Eth</div>');
+					modal.alert('Amount is too big. Less then '+wallet.web3.utils.fromWei(wallet.balance.toString(),'ether')+' Eth');
 				}
 			});
 		}
@@ -389,7 +389,7 @@ let wallet	= new function() {
 		if(privateKey!=null&&wallet.web3.utils.isAddress(address)) {
 			wallet.web3.eth.getGasPrice((e,gasPrice)=>{
 				if(e!=null) {
-					modal.alert('<div class="alert alert-warning" role="alert">Network error - getGasPrice</div>');
+					modal.alert('Network error - getGasPrice.');
 				} else {
 					wallet.web3.eth.getTransactionCount(storage.address,(e,t)=>{
 						let tx = {from:wallet.web3.eth.accounts.address,to:address};
@@ -401,10 +401,10 @@ let wallet	= new function() {
 							wallet.web3.eth.accounts.privateKeyToAccount('0x'+privateKey).signTransaction(tx).then((r)=>{
 								wallet.web3.eth.sendSignedTransaction(r.rawTransaction)
 									.on('transactionHash',(r)=>{
-										modal.alert('<div class="alert alert-warning" role="alert">Tx <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r+'">'+r+'</a>)</small><div>');
+										modal.alert('Tx <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r+'">'+r+'</a>)</small>');
 										storage.tx=r;
 									}).then((r)=>{
-										modal.alert('<div class="alert alert-warning" role="alert">Success <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r.transactionHash+'">'+r.transactionHash+'</a>)</small><div>');
+										modal.alert('Success <small>(<a target="_blank" href="'+CONFIG['_href']+'/tx/'+r.transactionHash+'">'+r.transactionHash+'</a>)</small>');
 										storage.tx='';
 									}).catch(console.log);	// todo : check
 							});
@@ -480,8 +480,15 @@ let modal	= new function() {
 		$('#modalBody').html(body);
 		$('#modalFooter').html(foot===''?dismiss:'<button type="button" class="btn btn-primary" onClick="script:'+foot+'">Confirm</button>'+dismiss);
 	},
-	this.alert	= function(alert=''){
-		$('#modalAlert').html(alert);
+	this.alert	= function(msg='',type='alert-warning'){
+		if(msg=='')
+			$('#alert').modal("hide");
+		else {
+			msg = '<div class="alert alert-fix '+type+' alert-dismissible fade show" role="alert">'+msg;
+			msg +='<button type="button" class="close" data-dismiss="modal">&times;</button></div>';
+			$('#alertMsg').html(msg);
+			$("#alert").modal();
+		}
 	},
 	this.updateInformation		= function(game,address,data) {
 		wallet.updateTimer(true);
@@ -606,7 +613,7 @@ let util	= new function() {
 		switch(game) {
 			case 'jackpot649':	max=49;	mark=6;	col=3;	break;
 			case 'lotto49':			max=9;	mark=4;	col=6;	break;
-			case 'lotto525':		max=25;	mark=5;	col=3;	break;
+			case 'lotto525':		max=25;	mark=5;	col=4;	break;
 		}
 		return {'max':max,'mark':mark,'col':col};
 	},

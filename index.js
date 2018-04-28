@@ -38,7 +38,7 @@ let contracts	= new function() {
 			let data	= CONFIG[game]['contracts'][address].methods.bet(slots).encodeABI();
 			if(!wallet.sendTransaction(address,password,amount,data)) {
 				callback();
-				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');
+				modal.alert('Password is wrong.');
 			}
 		}
 	}
@@ -214,13 +214,13 @@ let page		= new function() {
 		let contract		= CONFIG[game]['contracts'][CONFIG[game]['address'][0]];
 
 		if(password=='')
-			modal.alert('<div class="alert alert-warning" role="alert">Password is empty</div>');
+			modal.alert('Password is empty.');
 		else if (buyTicket.length==0)
-			modal.alert('<div class="alert alert-warning" role="alert">Marking please.</div>');
+			modal.alert('Marking please.');
 		else {
 			let privateKey	= wallet.getPrivateKeyString(password);
 			if(privateKey==null)
-				modal.alert('<div class="alert alert-warning" role="alert">Password is wrong</div>');
+				modal.alert('Password is wrong.');
 			else {
 				wallet.updateBalance(()=>{
 
@@ -228,11 +228,11 @@ let page		= new function() {
 					let price 	= CONFIG[game]['prices'][address];
 
 					if(wallet.balance<(buyTicket.length*price))
-						modal.alert('<div class="alert alert-warning" role="alert">Balance is too low</div>');
+						modal.alert('Balance is too low.');
 					else
 						contracts.information(game,address,(_game,_address,_data)=>{
 							if((parseInt(_data[1])!=1)) {
-								modal.alert('<div class="alert alert-warning" role="alert">Counter is not open!</div>');
+								modal.alert('Counter is not open!');
 							} else {
 								let tickets	= [];
 								for(let i=0;i<buyTicket.length;i++) {

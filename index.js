@@ -25,9 +25,10 @@ let contracts	= new function() {
 	},
 	this.historyLotto				= function(game,address,callback) {
 		wallet.getLogs(address,(logs)=>{
-			let list = new Array();
+			let list 	= new Array();
+			let index	= game=='jackPot649'?21:11;
 			for(let i=0;i<logs.length;i++)
-				list.push(wallet.web3.eth.abi.decodeLog(CONFIG[game]['abi'][5]['inputs'],logs[i].data,logs[i].topics));
+				list.push(wallet.web3.eth.abi.decodeLog(CONFIG[game]['abi'][index]['inputs'],logs[i].data,logs[i].topics));
 			callback(list);
 		});
 	},
@@ -137,10 +138,12 @@ let page		= new function() {
 		wallet.updateTimer(true);
 	},
 	this.updateLottoHistory		= function(game,address,data) {
+		let coin	= (game=='jackpot649'?" "+util.nitroCoin:" E");
+
 		if(!util.stateBackup[address]) {
 			$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
 			$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
-			$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+" E");
+			$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+coin);
 			util.stateBackup[address]	= {'round':data[0],'state':data[1],'wallet':wallet.state()};
 		}
 		else if(util.stateBackup[address]['round']	== data[0] && util.stateBackup[address]['state']	== data[1] && util.stateBackup[address]['wallet']	== wallet.state())
@@ -148,7 +151,7 @@ let page		= new function() {
 
 		$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
 		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
-		$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+" E");
+		$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+coin);
 		$('#rnd_'+game+'_'+address).html("Round "+parseInt(data[0])+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
 
 		contracts.historyLotto(game,address,(logs)=>{

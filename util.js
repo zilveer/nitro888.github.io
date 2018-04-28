@@ -494,9 +494,11 @@ let modal	= new function() {
 			case 'jackpot649':
 			case 'lotto49':
 			case 'lotto525':
+
+				let coin	= (game=='jackpot649'?" "+util.nitroCoin:" ETH");
 				table	+="<tr><td>Round</td><td>"+data[0]+" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
 				table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+" ETH</td></tr>";
-				table	+="<tr><td>Price</td><td>"+wallet.web3.utils.fromWei(data[4]).toString()+" ETH</td></tr>";
+				table	+="<tr><td>Price</td><td>"+wallet.web3.utils.fromWei(data[4]).toString()+coin+"</td></tr>";
 				table	+="<tr><td>Transfer fee</td><td>"+parseInt(data[5])+" %</td></tr>";
 				/*
 				if(data[6].length>0) {
@@ -524,8 +526,10 @@ let modal	= new function() {
 	}
 }
 $('#modlg').on('hidden.bs.modal', ()=>{modal.update('','')});
+$(function () {$('[data-toggle="tooltip"]').tooltip()})	// todo : ?????
 
 let util	= new function() {
+	this.nitroCoin			= 'Nitro',
 	this.historyRow			= 6,
 	this.historyCol			= 90,
 	this.stateBackup		= {},
@@ -687,7 +691,8 @@ let util	= new function() {
 		let history = new Array();
 
 		for(let i = 0 ; i < data[6].length ; i++)
-			history.push(util.openCards(parseInt(data[6][i])));
+			history.push(util.openCards(new wallet.web3.utils.BN(data[6][i])));
+
 
 		for(let i = 0 ; i < util.historyRow ; i ++)
 			for(let j = 0 ; j < util.historyCol ; j++)

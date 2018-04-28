@@ -410,7 +410,7 @@ let gameScene = cc.Scene.extend({
 		return new cc.Point(pos.x + Math.floor(Math.random() * 8) + 1 ,pos.y + Math.floor(Math.random() * 6) + 1 )
 	},
 	updateCards:function(data) {
-		let openCards	= util.openCards(parseInt(data[7]));
+		let openCards	= util.openCards(new wallet.web3.utils.BN(data[7]));
 		let win				= util.win(this.game,openCards)['win'];
 		let from			= new cc.Point(cc.winSize.width/2,cc.winSize.height*1.5);
 

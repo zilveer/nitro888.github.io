@@ -26,7 +26,7 @@ let contracts	= new function() {
 	this.historyLotto				= function(game,address,callback) {
 		wallet.getLogs(address,(logs)=>{
 			let list 	= new Array();
-			let index	= game=='jackPot649'?21:11;
+			let index	= (game=='jackpot649'?21:11);
 			for(let i=0;i<logs.length;i++)
 				list.push(wallet.web3.eth.abi.decodeLog(CONFIG[game]['abi'][index]['inputs'],logs[i].data,logs[i].topics));
 			callback(list);

@@ -420,7 +420,7 @@ let wallet	= new function() {
 	// history
 	this.history			= function() {
 		wallet.updateTimer(true);
-		modal.update('Transaction History',"Now Loading");
+		modal.update('Transaction History',"Now Loading...");
 
 		let jsonUrl	= CONFIG['_api']+"/api?module=account&action=txlist&address="+storage.address+"&startblock=0&endblock=latest&sort=desc";
 		wallet.getNormalTransactions(storage.address,(data)=>{
@@ -495,31 +495,17 @@ let modal	= new function() {
 		wallet.updateTimer(true);
 
 		let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
-
 		table		+='<tr><td>Contract</td><td><a style="cursor:hand" onClick="window.open(\''+CONFIG['_href']+'/address/'+address+'\',\'_blank\')"><small>'+address+"</small></td></tr>";
 
 		switch(game){
 			case 'jackpot649':
 			case 'lotto49':
 			case 'lotto525':
-
 				let coin	= (game=='jackpot649'?" "+util.nitroCoin:" ETH");
 				table	+="<tr><td>Round</td><td>"+data[0]+" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
 				table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+" ETH</td></tr>";
 				table	+="<tr><td>Price</td><td>"+wallet.web3.utils.fromWei(data[4]).toString()+coin+"</td></tr>";
 				table	+="<tr><td>Transfer fee</td><td>"+parseInt(data[5])+" %</td></tr>";
-				/*
-				if(data[6].length>0) {
-					table	+="<tr><td colspan='2'>My tickets</td></tr>";
-					for(let i = 0 ; i < data[6].length ; i++) {
-						let temp		= (new wallet.web3.utils.BN(data[6][i])).toString(2);
-						let ticket	='';
-						for(let j=temp.length-1,k=1;j>=0;j--,k++)
-							ticket	+= temp[j]=='1'?'<a class="numberCircle1">'+k+'</a>':'';
-						table	+="<tr><td colspan='2'>"+ticket+"</td></tr>";
-					}
-				}
-				*/
 				break;
 			default:
 				table	+="<tr><td>Round</td><td>"+data[0][0] +"-" + data[0][1] +" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
@@ -533,7 +519,7 @@ let modal	= new function() {
 		modal.update(CONFIG[game]['name'],table);
 	}
 }
-$('#modlg').on('hidden.bs.modal', ()=>{modal.update('','')});
+$('#modlg').on('hidden.bs.modal', ()=>{modal.update('&nbsp','&nbsp')});
 $(function () {$('[data-toggle="tooltip"]').tooltip()})	// todo : ?????
 
 let util	= new function() {
@@ -669,17 +655,64 @@ let util	= new function() {
 		case 'lotto525':
 			let maxMark = util.getLottoMaxMarkCol(game);
 			btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.openLottoHistory(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">history</i></button>'+btn;
-			if(wallet.state()==2)
+			if(wallet.state()==2) {
+				btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="util.myBet(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">receipt</i></button>'+btn;
 				btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="page.ticket(\''+game+'\',\''+address+'\','+maxMark.max+','+maxMark.mark+')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;
+			}
 			break;
 		default:
-			if(wallet.state()==2)
-				btn	='<button type="button" class="btn btn-link btn-sm text-secondary" onClick="page.play(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;
+			if(wallet.state()==2) {
+				btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="util.myBet(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">receipt</i></button>'+btn;
+				btn	='<button type="button" class="btn btn-link btn-sm text-secondary" onClick="page.play(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;				
+			}
 			break;
 		}
 		// todo : for more lotto
 
 		return	btn;
+	},
+	this.myBet	= function(game,address) {
+		modal.update(CONFIG[game]['name'],"Now Loading...");
+
+		let index		= (game=='jackpot649'?22:12);
+		let topic0	= CONFIG[game]['abi'][index]['signature'];
+
+		wallet.getLogs(address,topic0,(logs)=>{	// ??? :storage.address
+			let list 	= new Array();
+
+			for(let i=0;i<logs.length;i++) {
+				let bet = wallet.web3.eth.abi.decodeLog(CONFIG[game]['abi'][index]['inputs'],logs[i].data,logs[i].topics);
+				if(bet[1].toUpperCase()==storage.address.toUpperCase())
+					list.push(bet);
+			}
+
+			if(list.length==0) {
+				modal.update(CONFIG[game]['name'],"No Tickets...");
+			} else {
+				let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
+				table	+="<tr>My tickets</tr>";
+				switch(game){
+					case 'jackpot649':
+					case 'lotto49':
+					case 'lotto525':
+						for(let i = 0 ; i < list.length ; i++) {
+							table	+="<tr><td><strong>Round "+list[i][0]+"</strong></td></tr>";
+							for(let j = 0 ; j < list[i][2].length ; j++) {
+								let temp		= (new wallet.web3.utils.BN(list[i][2][j])).toString(2);
+								let ticket	='';
+								for(let j=temp.length-1,k=1;j>=0;j--,k++)
+									ticket	+= temp[j]=='1'?'<a class="numberCircle1">'+k+'</a>':'';
+								table	+="<tr><td>"+ticket+"</td></tr>";
+							}
+						}
+						break;
+					default:
+						break;
+				}
+				table		+="</tbody></table></div>";
+				modal.update(CONFIG[game]['name'],table);
+			}
+		});
 	},
 	this.updateCasino	= function(game,address,data) {
 		if(!util.stateBackup[address]) {

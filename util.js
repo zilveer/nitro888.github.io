@@ -65,6 +65,7 @@ let wallet	= new function() {
 			wallet.web3		= new Web3(new Web3.providers.WebsocketProvider(CONFIG['_provider']));
 			wallet.web3.eth.subscribe('newBlockHeaders',wallet.update);
 		}
+		console.log("web3 :"+wallet.web3.version);
 	},
 	this.update					= function(){
 		wallet.updateTimer(false);
@@ -663,7 +664,7 @@ let util	= new function() {
 		default:
 			if(wallet.state()==2) {
 				btn	='<button data-toggle="modal" data-target="#modlg" type="button" class="btn btn-link btn-sm text-secondary" onClick="util.myBet(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">receipt</i></button>'+btn;
-				btn	='<button type="button" class="btn btn-link btn-sm text-secondary" onClick="page.play(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;				
+				btn	='<button type="button" class="btn btn-link btn-sm text-secondary" onClick="page.play(\''+game+'\',\''+address+'\')"><i class="material-icons" style="font-size:20px;">create</i></button>'+btn;
 			}
 			break;
 		}
@@ -707,6 +708,7 @@ let util	= new function() {
 						}
 						break;
 					default:
+						// todo : mybet
 						break;
 				}
 				table		+="</tbody></table></div>";

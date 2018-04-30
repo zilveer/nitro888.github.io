@@ -18,7 +18,7 @@ let contracts	= new function() {
 		if(CONFIG[game]['contracts'][address]!=null)
 			CONFIG[game]['contracts'][address].methods.information().call((e,r)=>{
 				if (!e){
-					CONFIG[game]['prices'][address]	= parseInt(r[3]);
+					CONFIG[game]['prices'][address]	= parseInt(r[4]);
 					callback(game,address,r);
 				}
 			});
@@ -37,7 +37,7 @@ let contracts	= new function() {
 	},
 	this.bet	= function(game,address,slots,password,callback) {
 		if(CONFIG[game]['contracts'][address]!=null) {
-			let amount= wallet.web3.utils.fromWei((CONFIG[game]['prices'][address]*slots.length).toString(),'ether');
+			let amount= CONFIG[game]['prices'][address]*slots.length;
 			let data	= CONFIG[game]['contracts'][address].methods.bet(slots).encodeABI();
 			if(!wallet.sendTransaction(address,password,amount,data)) {
 				callback();
@@ -143,9 +143,10 @@ let page		= new function() {
 	this.updateLottoHistory		= function(game,address,data) {
 		let coin	= (game=='jackpot649'?" "+util.nitroCoin:" E");
 
+		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
+
 		if(!util.stateBackup[address]) {
 			$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
-			$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
 			$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+coin);
 			util.stateBackup[address]	= {'round':data[0],'state':data[1],'wallet':wallet.state()};
 		}
@@ -153,7 +154,6 @@ let page		= new function() {
 			return;
 
 		$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
-		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
 		$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+coin);
 		$('#rnd_'+game+'_'+address).html("Round "+parseInt(data[0])+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
 

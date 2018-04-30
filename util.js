@@ -368,14 +368,14 @@ let wallet	= new function() {
 								else {
 									storage.tx	= '';
 									storage.save();
-									if(!wallet.sendTransaction(address,password,amount))
+									if(!wallet.sendTransaction(address,password,wallet.web3.utils.toWei(amount, 'ether')))
 										modal.alert('Password is wrong.');
 								}
 							else
 								modal.alert('Transaction fail.');
 						});
 					} else {
-						if(!wallet.sendTransaction(address,password,amount))
+						if(!wallet.sendTransaction(address,password,wallet.web3.utils.toWei(amount, 'ether')))
 							modal.alert('Password is wrong.');
 					}
 				} else {
@@ -393,8 +393,9 @@ let wallet	= new function() {
 					modal.alert('Network error - getGasPrice.');
 				} else {
 					wallet.web3.eth.getTransactionCount(storage.address,(e,t)=>{
-						let tx = {'from':storage.address,'to':address,'value':wallet.web3.utils.toHex(wallet.web3.utils.toWei(amount, 'ether'))};
+						let tx = {'from':storage.address,'to':address,'value':wallet.web3.utils.toHex(amount)};
 						if(data!=null)	tx['data']	= data;
+
 						wallet.web3.eth.estimateGas(tx).then((gasLimit)=>{
 							tx['gasPrice']	= wallet.web3.utils.toHex(parseInt(gasPrice));
 							tx['gasLimit']	= wallet.web3.utils.toHex(parseInt(gasLimit));
@@ -696,8 +697,11 @@ let util	= new function() {
 					case 'jackpot649':
 					case 'lotto49':
 					case 'lotto525':
+						let round = -1;
 						for(let i = 0 ; i < list.length ; i++) {
-							table	+="<tr><td><strong>Round "+list[i][0]+"</strong></td></tr>";
+							if(round!=list[i][0])
+								table	+="<tr><td><strong>Round "+list[i][0]+"</strong></td></tr>";
+							round = list[i][0];
 							for(let j = 0 ; j < list[i][2].length ; j++) {
 								let temp		= (new wallet.web3.utils.BN(list[i][2][j])).toString(2);
 								let ticket	='';
@@ -717,9 +721,10 @@ let util	= new function() {
 		});
 	},
 	this.updateCasino	= function(game,address,data) {
+		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
+
 		if(!util.stateBackup[address]) {
 			$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
-			$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
 			$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+" E");
 			util.stateBackup[address]	= {'round':data[0],'state':data[1],'wallet':wallet.state()};
 		}
@@ -727,7 +732,6 @@ let util	= new function() {
 			return;
 
 		$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
-		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
 		$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+" E");
 		$('#rnd_'+game+'_'+address).html("Round "+parseInt(data[0][0])+"-"+parseInt(data[0][1])+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
 

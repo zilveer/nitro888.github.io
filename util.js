@@ -522,7 +522,6 @@ let modal	= new function() {
 	}
 }
 $('#modlg').on('hidden.bs.modal', ()=>{modal.update('&nbsp','&nbsp')});
-$(function () {$('[data-toggle="tooltip"]').tooltip()})	// todo : ?????
 
 let util	= new function() {
 	this.nitroCoin			= 'Nitro',
@@ -737,9 +736,8 @@ let util	= new function() {
 
 		let history = new Array();
 
-		for(let i = 0 ; i < data[6].length ; i++)
+		for(let i = 0 ; i < parseInt(data[0][1]-1) ; i++)
 			history.push(util.openCards(new wallet.web3.utils.BN(data[6][i])));
-
 
 		for(let i = 0 ; i < util.historyRow ; i ++)
 			for(let j = 0 ; j < util.historyCol ; j++)

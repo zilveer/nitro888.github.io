@@ -39,7 +39,7 @@ section h2 {
   line-height: 1.6em;
   margin-right: 5px;
   text-align: center;
-  width: 1.6em; 
+  width: 1.6em;
 }
 
 .numberCircle2 {
@@ -53,7 +53,7 @@ section h2 {
   line-height: 1.6em;
   margin-right: 5px;
   text-align: center;
-  width: 1.6em; 
+  width: 1.6em;
 }
 
 .scroll-to-top {
@@ -281,4 +281,21 @@ a:focus, a:hover, a:active {
 .btn-secondary:hover, .btn-secondary:focus, .btn-secondary:active {
   background-color: #1a252f;
   border-color: #1a252f;
+}
+
+header.svgbg {
+  background:url(ethereum_icon.svg) no-repeat;
+  background-size:20em 20em;
+  background-position:50% 70%;
+}
+
+span.ethereum {
+  background: url(ethereum-icon.svg) no-repeat;
+  display: inline-flex;
+  height:1.5em;
+  width:1.5em;
+}
+
+span.ethereumBalance {
+  vertical-align: 0.3em;
 }

@@ -39,9 +39,9 @@ let wallet	= new function() {
 	this.balance			= -2,
 	this.stateBackup	= -1,
 	this.timer				= 1800000,
-	this.wallet0icon	= '<i class="material-icons">account_balance_wallet</i>',
+	this.wallet0icon	= '<span class="ethereum"></span>',
 	this.wallet0name	= ' Eth',
-	this.wallet1icon	= '<i class="material-icons">account_balance_wallet</i>',
+	this.wallet1icon	= '<span class="ethereum"></span>',
 	this.wallet1name	= ' Nitro',
 	this.wallet1addr	= '0x95cB7826Fe891146baf55F2C3aeE0f6ebde5fE5B',	// ERC20 Token Address
 	this.ERC20Contract= null,
@@ -125,7 +125,7 @@ let wallet	= new function() {
 				$('#navAccount').html(	'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.logIn()">Login</a>' );
 				break;
 			case 2:
-				$('#navAccount').html(	'<a class="dropdown-header">'+wallet.wallet0icon+'<span class="align-top" id="balance0"></span></a>' + '<a class="dropdown-header">'+wallet.wallet1icon+'<span class="align-top" id="balance1"></span></a>' +
+				$('#navAccount').html(	'<a class="dropdown-header">'+wallet.wallet0icon+'<span id="balance0" class="ethereumBalance"></span></a>' + '<a class="dropdown-header">'+wallet.wallet1icon+'<span id="balance1" class="ethereumBalance"></span></a>' +
 																'<div class="dropdown-divider"></div>' +
 																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.deposit()">Deposit</a>' +
 																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.withrawal()">Withrawal</a>' +

@@ -493,31 +493,31 @@ let modal	= new function() {
 			$("#alert").modal();
 		}
 	},
-	this.updateInformation		= function(game,address,data) {
+	this.updateInformation		= function(game,address,data,rate) {
 		wallet.updateTimer(true);
 
+		let coin	= (game=='jackpot649'?" "+util.nitroCoin:" ETH");
 		let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
-		table		+='<tr><td>Contract</td><td><a style="cursor:hand" onClick="window.open(\''+CONFIG['_href']+'/address/'+address+'\',\'_blank\')"><small>'+address+"</small></td></tr>";
+		table			+='<tr><td>Contract</td><td><a style="cursor:hand" onClick="window.open(\''+CONFIG['_href']+'/address/'+address+'\',\'_blank\')"><small>'+address+"</small></td></tr>";
 
 		switch(game){
 			case 'jackpot649':
 			case 'lotto49':
 			case 'lotto525':
-				let coin	= (game=='jackpot649'?" "+util.nitroCoin:" ETH");
 				table	+="<tr><td>Round</td><td>"+data[0]+" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
-				table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+" ETH</td></tr>";
-				table	+="<tr><td>Price</td><td>"+wallet.web3.utils.fromWei(data[4]).toString()+coin+"</td></tr>";
-				table	+="<tr><td>Transfer fee</td><td>"+parseInt(data[5])+" %</td></tr>";
 				break;
 			default:
 				table	+="<tr><td>Round</td><td>"+data[0][0] +"-" + data[0][1] +" <small>("+util.getGameState(parseInt(data[1]))+")</small></td></tr>";
-				table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+" ETH</td></tr>";
-				table	+="<tr><td>Bet</td><td>"+wallet.web3.utils.fromWei(data[4])+" ETH</td></tr>";
-				table	+="<tr><td>Transfer fee</td><td>"+parseInt(data[5])+"%</td></tr>";
 				break;
 		}
 
-		table		+="</tbody></table></div>";
+		table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+" ETH</td></tr>";
+		table	+="<tr><td>Bet</td><td>"+wallet.web3.utils.fromWei(data[4]).toString()+coin+"</td></tr>";
+		table	+="<tr><td>Transfer fee</td><td>"+parseInt(data[5])+" %</td></tr>";
+		if(parseInt(rate)!=0)
+			table	+="<tr><td>Mileage</td><td> 1 ETH = "+parseInt(rate)+"&nbsp"+util.nitroCoin+"</td></tr>";
+		table	+="</tbody></table></div>";
+
 		modal.update(CONFIG[game]['name'],table);
 	}
 }

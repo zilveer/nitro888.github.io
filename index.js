@@ -19,7 +19,12 @@ let contracts	= new function() {
 			CONFIG[game]['contracts'][address].methods.information().call((e,r)=>{
 				if (!e){
 					CONFIG[game]['prices'][address]	= parseInt(r[4]);
-					callback(game,address,r);
+					if(game=='jackpot649')
+						callback(game,address,r,0);
+					else
+						CONFIG['jackpot649']['contracts'][CONFIG['jackpot649']['address'][0]].methods.serviceState(address).call((e,rate)=>{
+								callback(game,address,r,rate);
+						});
 				}
 			});
 	},

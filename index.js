@@ -146,9 +146,9 @@ let page		= new function() {
 		wallet.updateTimer(true);
 	},
 	this.updateLottoHistory		= function(game,address,data) {
-		let coin	= (game=='jackpot649'?" "+util.nitroCoin:" E");
+		let coin	= (game=='jackpot649'?wallet.wallet1name:wallet.wallet0name);
 
-		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
+		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+wallet.wallet0name);
 
 		if(!util.stateBackup[address]) {
 			$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));

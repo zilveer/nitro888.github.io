@@ -39,6 +39,13 @@ let wallet	= new function() {
 	this.balance			= -2,
 	this.stateBackup	= -1,
 	this.timer				= 1800000,
+	this.wallet0icon	= '<i class="material-icons">account_balance_wallet</i>',
+	this.wallet0name	= ' Eth',
+	this.wallet1icon	= '<i class="material-icons">account_balance_wallet</i>',
+	this.wallet1name	= ' Nitro',
+	this.wallet1addr	= '0x95cB7826Fe891146baf55F2C3aeE0f6ebde5fE5B',	// ERC20 Token Address
+	this.ERC20Contract= null,
+	this.ERC20ABI			= [{"constant": true,"inputs": [],"name": "name","outputs": [{"name": "","type": "string"}],"payable": false,"type": "function"},{"constant": true,"inputs": [],"name": "decimals","outputs": [{"name": "","type": "uint8"}],"payable": false,"type": "function"},{"constant": true,"inputs": [{"name": "_owner","type": "address"}],"name": "balanceOf","outputs": [{"name": "balance","type": "uint256"}],"payable": false,"type": "function"},{"constant": true,"inputs": [],"name": "symbol","outputs": [{"name": "","type": "string"}],"payable": false,"type": "function"}],
 	this.state				= function() {
 		if (storage.hasStorage() && storage.hasData() && storage.wallet != '') {
 			if(storage.address!=='')
@@ -65,6 +72,9 @@ let wallet	= new function() {
 			wallet.web3		= new Web3(new Web3.providers.WebsocketProvider(CONFIG['_provider']));
 			wallet.web3.eth.subscribe('newBlockHeaders',wallet.update);
 		}
+
+		wallet.ERC20Contract	= new wallet.web3.eth.Contract(wallet.ERC20ABI,wallet.wallet1addr);
+
 		console.log("web3 :"+wallet.web3.version);
 	},
 	this.update					= function(){
@@ -90,15 +100,14 @@ let wallet	= new function() {
 	},
 	this.updateBalance			= function(callback) {
 		wallet.web3.eth.getBalance(storage.address,(e,r)=>{if (!e) {
-			wallet.balance=parseInt(r);
-			/*
-			// todo : show balance
-			if(wallet.state()==2&&wallet.balance>=0)
-				console.log("html updateBalance : " + wallet.balance);
-			else
-				console.log("html updateBalance : " + "");
-			// todo : show balance
-			*/
+			if(wallet.state()==2) {
+				wallet.balance=parseInt(r);
+				$('#balance0').html("&nbsp"+wallet.web3.utils.fromWei(parseInt(r).toString(),'ether')+wallet.wallet0name);
+				wallet.ERC20Contract.methods.balanceOf(storage.address).call((e,r)=>{
+					$('#balance1').html("&nbsp"+wallet.web3.utils.fromWei(parseInt(r).toString(),'ether')+wallet.wallet1name);
+				});
+			} else
+				wallet.balance = -1;
 			callback();
 			}});
 	},
@@ -116,7 +125,9 @@ let wallet	= new function() {
 				$('#navAccount').html(	'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.logIn()">Login</a>' );
 				break;
 			case 2:
-				$('#navAccount').html(	'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.deposit()">Deposit</a>' +
+				$('#navAccount').html(	'<a class="dropdown-header">'+wallet.wallet0icon+'<span class="align-top" id="balance0"></span></a>' + '<a class="dropdown-header">'+wallet.wallet1icon+'<span class="align-top" id="balance1"></span></a>' +
+																'<div class="dropdown-divider"></div>' +
+																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.deposit()">Deposit</a>' +
 																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.withrawal()">Withrawal</a>' +
 																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.history()">History</a>' +
 																'<div class="dropdown-divider"></div>' +
@@ -379,7 +390,7 @@ let wallet	= new function() {
 							modal.alert('Password is wrong.');
 					}
 				} else {
-					modal.alert('Amount is too big. Less then '+wallet.web3.utils.fromWei(wallet.balance.toString(),'ether')+' Eth');
+					modal.alert('Amount is too big. Less then '+wallet.web3.utils.fromWei(wallet.balance.toString(),'ether')+wallet.wallet0name);
 				}
 			});
 		}
@@ -448,9 +459,9 @@ let wallet	= new function() {
 
 						if(data["result"][i]["from"]==storage.address) {
 							value *= -1;
-							table	+="<tr><td><div><h6>"+date+"</h6></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>Tx : "+tx+"</small></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>To : "+to+"</small></div></td><td class='align-middle text-right'>"+status+value+" ETH</td></tr>";
+							table	+="<tr><td><div><h6>"+date+"</h6></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>Tx : "+tx+"</small></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>To : "+to+"</small></div></td><td class='align-middle text-right'>"+status+value+wallet.wallet0name+"</td></tr>";
 						} else {
-							table	+="<tr><td><div><h6>"+date+"</h6></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>Tx : "+tx+"</small></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>From : "+from+"</small></div></td><td class='align-middle text-right'>"+status+value+" ETH</td></tr>";
+							table	+="<tr><td><div><h6>"+date+"</h6></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>Tx : "+tx+"</small></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>From : "+from+"</small></div></td><td class='align-middle text-right'>"+status+value+wallet.wallet0name+"</td></tr>";
 						}
 					}
 					table		+= "</tbody></table></div>";
@@ -496,7 +507,7 @@ let modal	= new function() {
 	this.updateInformation		= function(game,address,data,rate) {
 		wallet.updateTimer(true);
 
-		let coin	= (game=='jackpot649'?" "+util.nitroCoin:" ETH");
+		let coin	= (game=='jackpot649'?wallet.wallet1name:wallet.wallet0name);
 		let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
 		table			+='<tr><td>Contract</td><td><a style="cursor:hand" onClick="window.open(\''+CONFIG['_href']+'/address/'+address+'\',\'_blank\')"><small>'+address+"</small></td></tr>";
 
@@ -511,11 +522,11 @@ let modal	= new function() {
 				break;
 		}
 
-		table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+" ETH</td></tr>";
+		table	+="<tr><td>Balance</td><td>"+wallet.web3.utils.fromWei(data[3]).toString()+wallet.wallet0name+"</td></tr>";
 		table	+="<tr><td>Bet</td><td>"+wallet.web3.utils.fromWei(data[4]).toString()+coin+"</td></tr>";
 		table	+="<tr><td>Transfer fee</td><td>"+parseInt(data[5])+" %</td></tr>";
 		if(parseInt(rate)!=0)
-			table	+="<tr><td>Mileage</td><td> 1 ETH = "+parseInt(rate)+"&nbsp"+util.nitroCoin+"</td></tr>";
+			table	+="<tr><td>Mileage</td><td> 1"+wallet.wallet0name+" = "+parseInt(rate)+wallet.wallet1name+"</td></tr>";
 		table	+="</tbody></table></div>";
 
 		modal.update(CONFIG[game]['name'],table);
@@ -524,7 +535,6 @@ let modal	= new function() {
 $('#modlg').on('hidden.bs.modal', ()=>{modal.update('&nbsp','&nbsp')});
 
 let util	= new function() {
-	this.nitroCoin			= 'Nitro',
 	this.historyRow			= 6,
 	this.historyCol			= 90,
 	this.stateBackup		= {},
@@ -720,18 +730,18 @@ let util	= new function() {
 		});
 	},
 	this.updateCasino	= function(game,address,data) {
-		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+" E");
+		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+wallet.wallet0name);
 
 		if(!util.stateBackup[address]) {
 			$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
-			$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+" E");
+			$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+wallet.wallet0name);
 			util.stateBackup[address]	= {'round':data[0],'state':data[1],'wallet':wallet.state()};
 		}
 		else if(util.stateBackup[address]['round'][0]	== data[0][0] && util.stateBackup[address]['round'][1]	== data[0][1] && util.stateBackup[address]['state']	== data[1] && util.stateBackup[address]['wallet']	== wallet.state())
 			return;
 
 		$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
-		$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+" E");
+		$('#price_'+game+'_'+address).html("Bet : "+wallet.web3.utils.fromWei(parseInt(data[4]).toString(),'ether')+wallet.wallet0name);
 		$('#rnd_'+game+'_'+address).html("Round "+parseInt(data[0][0])+"-"+parseInt(data[0][1])+'<small> ('+util.getGameState(parseInt(data[1]))+')</small>');
 
 		let history = new Array();

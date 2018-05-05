@@ -39,7 +39,7 @@ let wallet	= new function() {
 	this.stateBackup	= -1,
 	this.timer				= 1800000,
 	this.coins				= [	{'icon':'<span class="ethereum"></span>','name':' Eth','balance':-2,'address':''},
-												{'icon':'<span class="ethereum"></span>','name':' Nitro','balance':-2,'address':'0x95cB7826Fe891146baf55F2C3aeE0f6ebde5fE5B','contract':null}],
+												{'icon':'<span class="ethereum"></span>','name':' Nitro','balance':-2,'address':'0x7Afb74413bDE81006c6e8BC150E0CaCD4c3aEd47','contract':null}],
 	this.ERC20ABI			= [{"constant": true,"inputs": [],"name": "name","outputs": [{"name": "","type": "string"}],"payable": false,"type": "function"},{"constant": true,"inputs": [],"name": "decimals","outputs": [{"name": "","type": "uint8"}],"payable": false,"type": "function"},{"constant": true,"inputs": [{"name": "_owner","type": "address"}],"name": "balanceOf","outputs": [{"name": "balance","type": "uint256"}],"payable": false,"type": "function"},{"constant": true,"inputs": [],"name": "symbol","outputs": [{"name": "","type": "string"}],"payable": false,"type": "function"}],
 	this.state				= function() {
 		if (storage.hasStorage() && storage.hasData() && storage.wallet != '') {
@@ -403,13 +403,16 @@ let wallet	= new function() {
 		}
 	},
 	this.transfer	= function(coin,address,password,amount) {
+		let data = null;
 		if(coin==0) {
-			if(!wallet.sendTransaction(address,password,wallet.web3.utils.toWei(amount, 'ether')))
-				modal.alert('Password is wrong.');
+			amount	= wallet.web3.utils.toWei(amount, 'ether');
 		} else {
-			// todo
-			//wallet.coins[coin]['contract'].methods.transfer(address,wallet.web3.utils.toWei(amount, 'ether'))
+			amount	= wallet.web3.utils.toWei(0, 'ether');
+			data		= wallet.coins[coin]['contract'].methods.transfer(amount).encodeABI();
 		}
+
+		if(!wallet.sendTransaction(address,password,amount,data))
+			modal.alert('Password is wrong.');
 	},
 	this.sendTransaction		= function(address,password,amount,data=null) {
 		let privateKey	= wallet.getPrivateKeyString(password);
@@ -452,46 +455,33 @@ let wallet	= new function() {
 		modal.update('Transaction History',"Now Loading...");
 
 		if(coin==0)
-			wallet.getNormalTransactions(storage.address,(data)=>{
-				if(data["result"].length==0)
-					modal.update('Transaction History',data["message"]);
-				else {
-						let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
-
-						for(i=0;i<data["result"].length;i++){
-							let date	= new Date(data["result"][i]["timeStamp"]*1000);
-							let tx		= '<a target="_blank" href="'+CONFIG['_href']+'/tx/' + data["result"][i]["hash"] + '">'+data["result"][i]["hash"]+'</a>';
-							let from	= '<a target="_blank" href="'+CONFIG['_href']+'/address/' + data["result"][i]["from"] + '">'+data["result"][i]["from"]+'</a>';
-							let to		= '<a target="_blank" href="'+CONFIG['_href']+'/address/' + data["result"][i]["to"] + '">'+data["result"][i]["to"]+'</a>';
-							let value	= wallet.web3.utils.fromWei(data["result"][i]["value"],'ether');
-							let status= data["result"][i]["txreceipt_status"]==0?"<div class='text-danger'><small>[CANCELLED]</small></div>":"";
-
-							if(data["result"][i]["from"]==storage.address) {
-								value *= -1;
-								table	+="<tr><td><div><h6>"+date+"</h6></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>Tx : "+tx+"</small></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>To : "+to+"</small></div></td><td class='align-middle text-right'>"+status+value+wallet.coins[0]['name']+"</td></tr>";
-							} else {
-								table	+="<tr><td><div><h6>"+date+"</h6></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>Tx : "+tx+"</small></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>From : "+from+"</small></div></td><td class='align-middle text-right'>"+status+value+wallet.coins[0]['name']+"</td></tr>";
-							}
-						}
-						table		+= "</tbody></table></div>";
-						modal.update('Transaction History',table);
-					}
-				});
+			wallet.getNormalTransactions(storage.address,(data)=>{wallet.trasactionItems(coin,data);});
 		else
-			wallet.getInternalTransactions(storage.address,(data)=>{
-				if(data["result"].length==0)
-					modal.update('Transaction History',data["message"]);
-				else {
-					let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
+			wallet.getERC20transactions(coin,(data)=>{wallet.trasactionItems(coin,data);});
+	},
+	this.trasactionItems = function (coin, data) {
+		if(data["result"].length==0)
+			modal.update('Transaction History',data["message"]);
+		else {
+			let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
+			for(i=0;i<data["result"].length;i++){
+				let date	= new Date(data["result"][i]["timeStamp"]*1000);
+				let tx		= '<a target="_blank" href="'+CONFIG['_href']+'/tx/' + data["result"][i]["hash"] + '">'+data["result"][i]["hash"]+'</a>';
+				let from	= '<a target="_blank" href="'+CONFIG['_href']+'/address/' + data["result"][i]["from"] + '">'+data["result"][i]["from"]+'</a>';
+				let to		= '<a target="_blank" href="'+CONFIG['_href']+'/address/' + data["result"][i]["to"] + '">'+data["result"][i]["to"]+'</a>';
+				let value	= wallet.web3.utils.fromWei(data["result"][i]["value"],'ether');
+				let status= data["result"][i]["txreceipt_status"]==0?"<div class='text-danger'><small>[CANCELLED]</small></div>":"";
 
-					for(i=0;i<data["result"].length;i++){
-						// todo :
-						console.log(data["result"][i]);
-					}
-					table		+= "</tbody></table></div>";
-					modal.update('Transaction History',table);
+				if(data["result"][i]["from"]==storage.address) {
+					value *= -1;
+					table	+="<tr><td><div><h6>"+date+"</h6></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>Tx : "+tx+"</small></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>To : "+to+"</small></div></td><td class='align-middle text-right'>"+status+value+wallet.coins[coin]['name']+"</td></tr>";
+				} else {
+					table	+="<tr><td><div><h6>"+date+"</h6></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>Tx : "+tx+"</small></div><div class='d-inline-block text-truncate' style='max-width: 320px;'><small>From : "+from+"</small></div></td><td class='align-middle text-right'>"+status+value+wallet.coins[coin]['name']+"</td></tr>";
 				}
-			})
+			}
+			table		+= "</tbody></table></div>";
+			modal.update('Transaction History',table);
+		}
 	},
 	// transaction history
 	this.getNormalTransactions = function(address,callback) {
@@ -500,6 +490,10 @@ let wallet	= new function() {
 	},
 	this.getInternalTransactions = function(address,callback) {
 		let jsonUrl	= CONFIG['_api']+"/api?module=account&action=txlistinternal&address="+address+"&startblock=0&endblock=latest&sort=desc";
+		$.getJSON(jsonUrl,callback);
+	},
+	this.getERC20transactions	= function (coin,callback) {
+		let jsonUrl	= CONFIG['_api']+'/api?module=account&action=tokentx&contractaddress='+wallet.coins[coin]['address']+'&address='+storage.address+'&startblock=0&endblock=latest&sort=asc';
 		$.getJSON(jsonUrl,callback);
 	},
 	this.getLogs	= function(address,topic0,callback) {

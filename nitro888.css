@@ -296,6 +296,6 @@ span.ethereum {
   width:1.5em;
 }
 
-span.ethereumBalance {
+.withIcon {
   vertical-align: 0.3em;
 }

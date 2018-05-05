@@ -146,9 +146,9 @@ let page		= new function() {
 		wallet.updateTimer(true);
 	},
 	this.updateLottoHistory		= function(game,address,data) {
-		let coin	= (game=='jackpot649'?wallet.wallet1name:wallet.wallet0name);
+		let coin	= (game=='jackpot649'?wallet.coins[1]['name']:wallet.coins[0]['name']);
 
-		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+wallet.wallet0name);
+		$('#bal_'+game+'_'+address).html("Balance : "+wallet.web3.utils.fromWei(parseInt(data[3]).toString(),'ether')+wallet.coins[0]['name']);
 
 		if(!util.stateBackup[address]) {
 			$('#btn_'+game+'_'+address).html(util.updateBtn(game,address));
@@ -230,12 +230,14 @@ let page		= new function() {
 			if(privateKey==null)
 				modal.alert('Password is wrong.');
 			else {
-				wallet.updateBalance(()=>{
+				let coin		= (game=='jackpot649'?1:0);
+
+				wallet.updateBalance(coin,()=>{
 
 					let address	= CONFIG[game]['address'][0];
 					let price 	= CONFIG[game]['prices'][address];
 
-					if(wallet.balance<(buyTicket.length*price))
+					if(wallet.coins[coin]['balance']<(buyTicket.length*price))
 						modal.alert('Balance is too low.');
 					else
 						contracts.information(game,address,(_game,_address,_data)=>{

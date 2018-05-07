@@ -39,7 +39,7 @@ let wallet	= new function() {
 	this.stateBackup	= -1,
 	this.timer				= 1800000,
 	this.coins				= [	{'icon':'<span class="ethereum"></span>','name':' Eth','balance':-2,'address':''},
-												{'icon':'<span class="ethereum"></span>','name':' Nitro','balance':-2,'address':'0x7Afb74413bDE81006c6e8BC150E0CaCD4c3aEd47','contract':null}],
+												{'icon':'<span class="ethereum"></span>','name':' Nitro','balance':-2,'address':'0xdF60Ce3dE7b799Ba695A3F049E03c94f8b70fD6A','contract':null}],
 	this.ERC20ABI			= [{"constant": true,"inputs": [],"name": "name","outputs": [{"name": "","type": "string"}],"payable": false,"type": "function"},{"constant": true,"inputs": [],"name": "decimals","outputs": [{"name": "","type": "uint8"}],"payable": false,"type": "function"},{"constant": true,"inputs": [{"name": "_owner","type": "address"}],"name": "balanceOf","outputs": [{"name": "balance","type": "uint256"}],"payable": false,"type": "function"},{"constant": true,"inputs": [],"name": "symbol","outputs": [{"name": "","type": "string"}],"payable": false,"type": "function"}],
 	this.state				= function() {
 		if (storage.hasStorage() && storage.hasData() && storage.wallet != '') {

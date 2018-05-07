@@ -9,7 +9,7 @@ let util	= new function() {
 
 		let coin	= (game=='jackpot649'?wallet.coins[1]['name']:wallet.coins[0]['name']);
 		let table	= "<div style='overflow-x:auto;'><table class='table table-striped table-hover'><tbody>";
-		table			+='<tr><td>Contract</td><td><a style="cursor:hand" onClick="window.open(\''+CONFIG['_href']+'/address/'+address+'\',\'_blank\')"><small>'+address+"</small></td></tr>";
+		table			+='<tr><td>Contract</td><td><a style="cursor:hand" onClick="window.open(\''+WALLET[WALLET['net']]['href']+'/address/'+address+'\',\'_blank\')"><small>'+address+"</small></td></tr>";
 
 		switch(game){
 			case 'jackpot649':

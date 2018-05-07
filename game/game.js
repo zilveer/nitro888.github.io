@@ -190,11 +190,11 @@ let gameScene = cc.Scene.extend({
 				this.initBaccarat();
 				this.initGeneral();
 			break;
-			case 'dragonTiger':
+			case 'dragontiger':
 				this.initDragonTiger();
 				this.initGeneral();
 			break;
-			case 'highLow':
+			case 'highlow':
 				this.initHighLow();
 				this.initGeneral();
 			break;
@@ -442,7 +442,7 @@ let gameScene = cc.Scene.extend({
 					this.messageBox.showMessage(false);
 				}
 			break;
-			case 'dragonTiger':
+			case 'dragontiger':
 				if(this.state==3) {
 					let pos1			= this.randomPosition(new cc.Point(cc.winSize.width/2-109 ,cc.winSize.height/2+10));
 					let pos2			= this.randomPosition(new cc.Point(cc.winSize.width/2+109 ,cc.winSize.height/2+10));
@@ -457,7 +457,7 @@ let gameScene = cc.Scene.extend({
 					this.messageBox.showMessage(false);
 				}
 			break;
-			case 'highLow':
+			case 'highlow':
 				if(this.state==1 || this.state==2) {
 					let pos1			= this.randomPosition(new cc.Point(cc.winSize.width/2-109 ,cc.winSize.height/2+10));
 					this.openCards[0].open(from,pos1,openCards['1st'][0]);

@@ -569,13 +569,13 @@ let util	= new function() {
 				toolTip = '('+b+','+p+')';
 				win 		= b>p?1:b<p?2:3;
 				break;
-			case 'dragonTiger':
+			case 'dragontiger':
 				let d	= util.card(openCards['1st'][0]);
 				let t	= util.card(openCards['2nd'][0]);
 				toolTip = '('+d+','+t+')';
 				win 		= d>t?1:d<t?2:3;
 				break;
-			case 'highLow':
+			case 'highlow':
 				let c1	= util.card(openCards['1st'][0]);
 				let c2	= util.card(openCards['2nd'][0]);
 				toolTip = '('+c1+','+c2+')';
@@ -703,7 +703,7 @@ let util	= new function() {
 	this.myBet	= function(game,address) {
 		modal.update(CONFIG[game]['name'],"Now Loading...");
 
-		let index		= (game=='jackpot649'?22:12);
+		let index		= (game=='jackpot649'?18:17);
 		let topic0	= CONFIG[game]['abi'][index]['signature'];
 
 		wallet.getLogs(address,topic0,(logs)=>{	// ??? :storage.address

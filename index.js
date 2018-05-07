@@ -1,6 +1,6 @@
 let contracts	= new function() {
 	this.start		= function() {
-		contracts.create('nitrotoken');
+		contracts.create('nitrotoken');	// todo : temp
 		contracts.create('jackpot649');
 		contracts.create('lotto49');
 		contracts.create('lotto525');
@@ -11,7 +11,7 @@ let contracts	= new function() {
 	this.create		= function(game) {
 		for(let i=0;i<CONFIG[game]['address'].length;i++) {
 			CONFIG[game]['contracts'][CONFIG[game]['address'][i]]	= new wallet.web3.eth.Contract(CONFIG[game]['abi'],CONFIG[game]['address'][i]);
-			if(CONFIG['_type']!="http")
+			if(WALLET['type']!="http")
 				CONFIG[game]['contracts'][CONFIG[game]['address'][i]].events.eventUpdate(console.log); // todo : test
 		}
 	},
@@ -23,7 +23,7 @@ let contracts	= new function() {
 					if(game=='jackpot649')
 						callback(game,address,r,0);
 					else
-						CONFIG['nitrotoken']['contracts'][CONFIG['nitrotoken']['address'][0]].methods.serviceState(address).call((e,rate)=>{
+						CONFIG['nitrotoken']['contracts'][CONFIG['nitrotoken']['address'][0]].methods.serviceState(address).call((e,rate)=>{	// todo : temp
 								callback(game,address,r,rate);
 						});
 				}
@@ -112,7 +112,7 @@ let page		= new function() {
 	},
 	this.openInfo		= function(game,address) {
 		modal.update(CONFIG[game]['name'],'Now Loading...');
-		contracts.information(game,address,modal.updateInformation);
+		contracts.information(game,address,util.updateInformation);
 	},
 	this.splitLottoNumber	= function (number) {
 		let temp0	= (new wallet.web3.utils.BN(number)).toString(2);
@@ -277,11 +277,6 @@ let UPDATE = function () {
 $.getJSON('config.json', (data)=>{
 	if(data!=null) {
 		CONFIG							= data;
-		CONFIG['_name']			= CONFIG['networks']['selected'][0];
-		CONFIG['_type']			= CONFIG['networks']['selected'][1];
-		CONFIG['_provider']	= CONFIG['networks'][CONFIG['_name']][CONFIG['_type']];
-		CONFIG['_api']			= CONFIG['networks'][CONFIG['_name']]['api'];
-		CONFIG['_href']			= CONFIG['networks'][CONFIG['_name']]['href'];
 
 		wallet.start(UPDATE);
 		page.start();

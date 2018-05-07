@@ -14,8 +14,8 @@ let page = new function() {
 					$('#rnd_'+page.game+'_'+page.address).html("Round "+parseInt(r[0][0])+"-"+parseInt(r[0][1])+'<small> ('+util.getGameState(parseInt(r[1]))+')</small>');
 					$('#price').html("Bet : "+wallet.web3.utils.fromWei((page.price).toString(),'ether')+" E");
 					$('#balance').html("Balance : "+wallet.web3.utils.fromWei(parseInt(r[3]).toString(),'ether')+" E");
-					CONFIG['jackpot649']['contracts'][CONFIG['jackpot649']['address'][0]].methods.serviceState(address).call((e,rate)=>{
-							modal.updateInformation(page.game,page.address,r,rate);
+					CONFIG['nitrotoken']['contracts'][CONFIG['nitrotoken']['address'][0]].methods.serviceState(address).call((e,rate)=>{ // todo : temp
+							util.updateInformation(page.game,page.address,r,rate);
 					});
 				}
 			});

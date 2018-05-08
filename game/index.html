@@ -16,15 +16,14 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
 
-    	<!-- nitro888.com -->
-    	<link rel="stylesheet" href="../nitro888.min.css">
-
+  	<!-- nitro888.com -->
+  	<link rel="stylesheet" href="../nitro888.min.css">
   </head>
 
   <body class="bg-secondary" id="page-top">
 
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg bg-secondary fixed-top text-uppercase" id="mainNav">
+    <nav class="navbar navbar-expand-lg bg-secondary sticky-top text-uppercase" id="mainNav">
       <!-- <div class="container">  -->
         <a class="navbar-brand js-scroll-trigger" href="../">Nitro888</a>
         <button class="navbar-toggler navbar-toggler-right text-uppercase bg-secondary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,7 +34,7 @@
           <ul class="navbar-nav ml-auto">
             <li class="nav-item mx-0 mx-lg-1 dropdown">
               <a class="nav-link py-3 px-0 px-lg-3 rounded dropdown-toggle" style="cursor:hand" id="navbarDropdownMenuAccount" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons">account_box</i></a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuAccount" id="navAccount"></div>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuAccount" id="navAccount"></div>
             </li>
           </ul>
         </div>
@@ -43,24 +42,7 @@
     </nav>
     <!-- Navigation -->
 
-	<!--navigation-->
-	<nav class="navbar sticky-top navbar-dark bg-dark">
-		<a class="navbar-brand text-white" onClick="script:page.enter()" style="cursor:hand">Nitro888</a>
-		<ul class="nav justify-content-end text-white">
-			<li class="nav-item">
-				<a class="nav-link disabled mr-md-2" id="walletBalance"></a>
-			</li>
-			<li class="nav-item dropdown" id="mainNavWallet">
-			</li>
-			<li class="nav-item dropdown">
-				<a class="nav-link dropdown-toggle" style="cursor:hand" id="navbarDropdownMenuAccount" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="material-icons">account_box</i></a>
-				<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuAccount" id="mainNavAccount"></div>
-			</li>
-		</ul>
-	</nav>
-	<!--navigation-->
-
-    	<!--Modal Dlg-->
+  <!--Modal Dlg-->
 	<div class="modal fade" id="modlg" tabindex="-1">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -80,22 +62,22 @@
 	<div id="contentsBody">
 
 	    <!-- game -->
-	    <section class="bg-light text-dark mb-0" id="lotto953">
+	    <section class="jumbotron bg-light text-dark mb-0">
 	      <div class="container">
-			<h2 class="text-center text-uppercase" id="gameTitle"></h2>
+			    <h2 class="text-uppercase" id="gameTitle"></h2>
 	      	<div class="row" id="gameTop">
-				<div class="col-md-6 panel" id="gameFrame">
-          <div id="gameRound"></div>
-					<canvas id="gameCanvas" width=720 height=720 style="background:linear-gradient(to bottom, #33cc33 0%, #006600 100%)"></canvas>
-          <div><table style="width:100%"><tr><td><small id="balance"></small></td><td style="float:right;"><small style="float:right;" id="price"></small></td></tr></table></div>
-				</div>
-				<div class="col-md-6 panel">
-					<div id="line"><h6>HISTORY</h6></div>
-					<div id="gameHistory"></div>
-					<div><h6>CHAT</h6></div>
-					<div class="list-unstyled" id="chatmessage" align="left" style="overflow-y:auto;background-color:#DEDEDE;"></div>
-					<div><input id="chatInput" type="text" class="form-control" placeholder="message"></div>
-				</div>
+    				<div class="col-md-6 panel" id="gameFrame">
+              <div id="gameRound"></div>
+    					<canvas id="gameCanvas" width=720 height=720 style="background:linear-gradient(to bottom, #33cc33 0%, #006600 100%)"></canvas>
+              <div><table style="width:100%"><tr><td><small id="balance"></small></td><td style="float:right;"><small style="float:right;" id="price"></small></td></tr></table></div>
+    				</div>
+    				<div class="col-md-6 panel">
+    					<div id="line"><h6>HISTORY</h6></div>
+    					<div id="gameHistory"></div>
+    					<div><h6>CHAT</h6></div>
+    					<div class="list-unstyled" id="chatmessage" align="left" style="overflow-y:auto;background-color:#DEDEDE;"></div>
+    					<div><input id="chatInput" type="text" class="form-control" placeholder="message"></div>
+    				</div>
 	      	</div>
 	      </div>
 	    </section>

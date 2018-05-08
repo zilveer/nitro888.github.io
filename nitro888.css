@@ -283,13 +283,13 @@ a:focus, a:hover, a:active {
   border-color: #1a252f;
 }
 
-header.svgbg {
+.ethereumbg {
   background:url(ethereum_icon.svg) no-repeat;
-  background-size:20em 20em;
-  background-position:50% 70%;
+  background-size:15em 15em;
+  background-position:50% 50%;
 }
 
-span.ethereum {
+.ethereum {
   background: url(ethereum-icon.svg) no-repeat;
   display: inline-flex;
   height:1.5em;

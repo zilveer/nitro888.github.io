@@ -21,6 +21,7 @@ let storage	= new function() {
 	this.address	= '',
 	this.tx				= '',
 	this.time			= 0,
+	this.MAIN			= null,
 	this.load		= function() {
 		if(!storage.hasData())
 			return;
@@ -75,9 +76,11 @@ let wallet	= new function() {
 			wallet.updateTimer(true);
 		}
 
+		wallet.MAIN = mainUpdate;
+
 		if(WALLET['type']=="http") {
 			wallet.web3		= new Web3(new Web3.providers.HttpProvider(WALLET[WALLET['net']][WALLET['type']]));
-			setInterval(()=>{wallet.update();mainUpdate();},2000);
+			setInterval(()=>{wallet.update();wallet.MAIN();},2000);
 		} else {
 			wallet.web3		= new Web3(new Web3.providers.WebsocketProvider(WALLET[WALLET['net']][WALLET['type']]));
 			wallet.web3.eth.subscribe('newBlockHeaders',wallet.update);
@@ -214,7 +217,7 @@ let wallet	= new function() {
 			storage.save();
 
 			wallet.updateNavAccount();
-			UPDATE();
+			wallet.MAIN();
 
 			modal.update('Create','Success create your new account.');
 			modal.alert('<center>Don\'t forget your password. And must backup your wallet.</center>','alert-danger');
@@ -258,7 +261,7 @@ let wallet	= new function() {
 					storage.save();
 
 					wallet.updateNavAccount();
-					UPDATE();
+					wallet.MAIN();
 
 					modal.update('Login','Login Success');
 				} else  {
@@ -275,7 +278,7 @@ let wallet	= new function() {
 		storage.save();
 
 		wallet.updateNavAccount();
-		UPDATE();
+		wallet.MAIN();
 
 		modal.update('Logout','See you next time.');
 		setTimeout(function(){storage.reset();storage.save();location.href=location.origin;},2000);

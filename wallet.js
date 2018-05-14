@@ -20,18 +20,22 @@ let storage	= new function() {
 	this.wallet		= '',
 	this.address	= '',
 	this.tx				= '',
+	this.nonce		= 0,
+	this.txs			= [],
 	this.time			= 0,
-	this.MAIN			= null,
 	this.load		= function() {
 		if(!storage.hasData())
 			return;
 		let data				= JSON.parse(localStorage[WALLET['net']]);
 		storage.wallet	= data.wallet;
 		storage.address	= data.address;
+		storage.tx			= data.tx;
+		storage.nonce		= data.nonce;
+		storage.txs			= data.txs;
 		storage.time		= data.time;
 	},
 	this.save		= function() {
-		localStorage[WALLET['net']] = storage.wallet!=''?JSON.stringify({'wallet':storage.wallet,'address':storage.address,'tx':storage.tx,'time':storage.time}):'';
+		localStorage[WALLET['net']] = storage.wallet!=''?JSON.stringify({'wallet':storage.wallet,'address':storage.address,'tx':storage.tx,'nonce':storage.nonce,'txs':storage.txs,'time':storage.time}):'';
 	},
 	this.hasData		= function() {
 		return (typeof localStorage[WALLET['net']] !== 'undefined' && localStorage[WALLET['net']] != '');
@@ -43,6 +47,8 @@ let storage	= new function() {
 		storage.wallet	= '';
 		storage.address	= '';
 		storage.tx			= '';
+		storage.nonce		= 0;
+		storage.txs			= [];
 		localStorage.removeItem(WALLET['net']);
 	},
 	this.reset		= function() {
@@ -53,6 +59,7 @@ let storage	= new function() {
 
 let wallet	= new function() {
 	this.web3					= null,
+	this.MAIN					= null,
 	this.stateBackup	= -1,
 	this.timer				= 1800000,
 	this.coins				= [	{'icon':'<span class="ethereum"></span>','name':' Eth','balance':-2},
@@ -80,7 +87,7 @@ let wallet	= new function() {
 
 		if(WALLET['type']=="http") {
 			wallet.web3		= new Web3(new Web3.providers.HttpProvider(WALLET[WALLET['net']][WALLET['type']]));
-			setInterval(()=>{wallet.update();wallet.MAIN();},2000);
+			setInterval(()=>{wallet.update();wallet.MAIN();},60000);
 		} else {
 			wallet.web3		= new Web3(new Web3.providers.WebsocketProvider(WALLET[WALLET['net']][WALLET['type']]));
 			wallet.web3.eth.subscribe('newBlockHeaders',wallet.update);
@@ -88,6 +95,8 @@ let wallet	= new function() {
 
 		for(let i=1 ; i < WALLET['tokens'].length ; i++)
 			WALLET[WALLET['tokens'][i]]['contract']	= new wallet.web3.eth.Contract(WALLET['tokenABI'],WALLET[WALLET['tokens'][i]]['address']);
+
+		wallet.update();
 
 		console.log("web3 :"+wallet.web3.version);
 	},
@@ -216,7 +225,7 @@ let wallet	= new function() {
 			storage.reset();
 			storage.save();
 
-			wallet.updateNavAccount();
+			wallet.update();
 			wallet.MAIN();
 
 			modal.update('Create','Success create your new account.');
@@ -260,7 +269,7 @@ let wallet	= new function() {
 					storage.time		= new Date().getTime();
 					storage.save();
 
-					wallet.updateNavAccount();
+					wallet.update();
 					wallet.MAIN();
 
 					modal.update('Login','Login Success');
@@ -277,7 +286,7 @@ let wallet	= new function() {
 		storage.reset();
 		storage.save();
 
-		wallet.updateNavAccount();
+		wallet.update();
 		wallet.MAIN();
 
 		modal.update('Logout','See you next time.');
@@ -420,7 +429,7 @@ let wallet	= new function() {
 			});
 		}
 	},
-	this.transfer	= function(coin,address,password,amount) {
+	this.transfer	= function(coin,address,password,amount,callback=null) {
 		let data = null;
 		if(coin==0) {
 			amount	= wallet.web3.utils.toWei(amount, 'ether');
@@ -429,10 +438,10 @@ let wallet	= new function() {
 			data		= WALLET[WALLET['tokens'][coin]]['contract'].methods.transfer(amount).encodeABI();
 		}
 
-		if(!wallet.sendTransaction(address,password,amount,data))
+		if(!wallet.sendTransaction(address,password,amount,data,callback))
 			modal.alert('Password is wrong.');
 	},
-	this.sendTransaction		= function(address,password,amount,data=null) {
+	this.sendTransaction		= function(address,password,amount,data=null,callback=null) {
 		let privateKey	= wallet.getPrivateKeyString(password);
 
 		if(privateKey!=null&&wallet.web3.utils.isAddress(address)) {
@@ -440,7 +449,7 @@ let wallet	= new function() {
 				if(e!=null) {
 					modal.alert('Network error - getGasPrice.');
 				} else {
-					wallet.web3.eth.getTransactionCount(storage.address,(e,t)=>{
+					wallet.web3.eth.getTransactionCount(storage.address,(e,t)=>{ // todo : t????????
 						let tx = {'from':storage.address,'to':address,'value':wallet.web3.utils.toHex(amount)};
 						if(data!=null)	tx['data']	= data;
 
@@ -450,11 +459,14 @@ let wallet	= new function() {
 							wallet.web3.eth.accounts.privateKeyToAccount('0x'+privateKey).signTransaction(tx).then((r)=>{
 								wallet.web3.eth.sendSignedTransaction(r.rawTransaction)
 									.on('transactionHash',(r)=>{
-										modal.alert('Tx <small>(<a target="_blank" href="'+WALLET[WALLET['net']]['href']+'/tx/'+r+'">'+r+'</a>)</small>');
+										modal.alert('Tx<hr/><small><span class="d-inline-block text-truncate" style="max-width: 450px;><a target="_blank" href="'+WALLET[WALLET['net']]['href']+'/tx/'+r+'">'+r+'</a></span></small>');
 										storage.tx=r;
 									}).then((r)=>{
-										modal.alert('Success <small>(<a target="_blank" href="'+WALLET[WALLET['net']]['href']+'/tx/'+r.transactionHash+'">'+r.transactionHash+'</a>)</small>');
+										modal.alert('Success<hr/><small><span class="d-inline-block text-truncate" style="max-width: 450px;><a target="_blank" href="'+WALLET[WALLET['net']]['href']+'/tx/'+r.transactionHash+'">'+r.transactionHash+'</a></span></small>');
 										storage.tx='';
+										wallet.update();
+										if(callback!=null)
+											callback(r);
 									}).catch(console.log);	// todo : check
 							});
 						});

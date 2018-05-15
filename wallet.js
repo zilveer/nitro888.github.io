@@ -220,7 +220,6 @@ let wallet	= new function() {
 			let dk				= keythereum.create();
 			let keyObject	= keythereum.dump(p1, dk.privateKey, dk.salt, dk.iv);
 
-			keyObject.isMainNet	= WALLET['net']=='main';
 			storage.wallet			= JSON.stringify(keyObject);
 			storage.reset();
 			storage.save();
@@ -242,9 +241,9 @@ let wallet	= new function() {
 
 	// login&out
 	this.logIn			= function() {
-		let body=	'<div style="overflow-x:auto;">' +
-							'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="loginPass" type="password" class="form-control" placeholder="Password" aria-label="Password"></div>' +
-							'</div>';
+		let body	=	'<div style="overflow-x:auto;">' +
+								'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="loginPass" type="password" class="form-control" placeholder="Password" aria-label="Password"></div>' +
+								'</div>';
 		modal.update('Login',body,'wallet.logInOK()');
 	},
 	this.logInOK		= function() {
@@ -297,9 +296,9 @@ let wallet	= new function() {
 	// destory
 	this.destory			= function() {
 		let body	=	'<p class="text-danger">Destroy Wallet.</p>' +
-						'<div style="overflow-x:auto;">' +
-						'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="destoryPass" type="password" class="form-control" placeholder="Password" aria-label="Password"></div>' +
-						'</div>';
+								'<div style="overflow-x:auto;">' +
+								'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="destoryPass" type="password" class="form-control" placeholder="Password" aria-label="Password"></div>' +
+								'</div>';
 		modal.update('Destory',body,'wallet.destroyOK()');
 	},
 	this.destroyOK		= function() {
@@ -332,7 +331,10 @@ let wallet	= new function() {
 
 		try {
 			let privateKey		= keythereum.recover(password, JSON.parse(storage.wallet));
-			modal.update('Export Wallet','<div style="overflow-x:auto;"><small>'+storage.wallet+'</small></div>');
+			let body					= '<div class="form-group"><textarea class="form-control form-control-sm mb-1" id="copy" readonly>'+storage.wallet+'</textarea>'+
+													'<div class="float-right"><button type="button" class="btn btn-primary btn-sm" onclick="wallet.clipboard()">Copy to clipboard</button><button type="button" class="btn btn-primary btn-sm" onclick="wallet.saveWallet()">Save</button></div>'+
+													'</div>';
+			modal.update('Export Wallet',body);
 		} catch (e) {
 			if(re=='')
 				modal.alert('Password is empty.');
@@ -340,21 +342,25 @@ let wallet	= new function() {
 				modal.alert('Password is wrong.');
 		}
 	},
+	this.clipboard	= function() {
+		document.getElementById("copy").select();
+		document.execCommand("copy");
+	},
+	this.saveWallet = function() {
+		modal.alert('Save wallet<hr/><small>'+ storage.address+".wallet</small>");
+		saveTextAs(JSON.stringify(JSON.parse(storage.wallet), null, '\t'), storage.address+"("+WALLET['net']+").wallet");
+	},
 	this.restore	= function() {
 		if(!storage.hasStorage()) {
 			modal.update('Restore Fail','This browser is not support storage!');
 			return;
 		}
-
-		let body	=	'<div style="overflow-x:auto;">' +
-								'<div class="input-group mb-3"><input id="restoreStr" type="text" class="form-control" placeholder="Restore string" aria-label="Restore string"></div>' +
-								'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="restorePass" type="password" class="form-control" placeholder="Password" aria-label="Password"></div>' +
-								'</div>';
-		modal.update('Restore',body,'wallet.restoreOK()');
+		let body	=	'<div class="form-group"><textarea class="form-control form-control-sm mb-1" placeholder="Restore wallet" id="restoreStr"></textarea>'+
+								'<div class="float-right mb-1"><label class="btn btn-sm btn-block btn-primary">Load from file<input type="file" style="display: none;" id="ItemThumbnail0" accept=".wallet, .json" onchange="wallet.loadWallet(this);"></label></div></div>'+
+								'<div class="input-group"><div class="input-group-prepend"><span class="input-group-text"><i class="material-icons">lock</i></span></div><input id="restorePass" type="password" class="form-control" placeholder="Password" aria-label="Password"></div>';
+		modal.update('Restore',body,"wallet.restoreOK($('#restorePass').val(),$('#restoreStr').val())");
 	},
-	this.restoreOK	= function() {
-		let password	= $('#restorePass').val();
-		let restore		= $('#restoreStr').val();
+	this.restoreOK	= function(password,restore) {
 		let keyObject	= JSON.parse(restore);
 
 		try {
@@ -363,6 +369,9 @@ let wallet	= new function() {
 			storage.reset();
 			storage.save();
 			modal.update('Restore','Restore wallet complete');
+
+			wallet.update();
+			wallet.MAIN();
 		} catch (e) {
 			if(password!=''&&restore!='')
 				modal.alert('Password is wrong.');
@@ -372,14 +381,21 @@ let wallet	= new function() {
 				modal.alert('Restore password is empty.');
 		}
 	},
+	this.loadWallet = function(input) {
+		if (input.files && input.files[0]) {
+			let reader		= new FileReader();
+			reader.onload = function (e) {$("#restoreStr").val(e.target.result);};
+      reader.readAsText(input.files[0]);
+		}
+	},
 	// export & import
 
 	// deposit & withdrawal
 	this.deposit			= function() {
 		wallet.updateTimer(true);
 		let body	= '<div align="center"><p class="text-warning">!! WARNING! THIS NETWORK IS '+WALLET['net']+' !!</p></div>';
-		body		+="<div align='center'><img src='https://api.qrserver.com/v1/create-qr-code/?data="+storage.address+"&size=256x256 alt='' width='256' height='256'/></div><br/>";
-		body		+="<div align='center'><a class='text-primary' target='_blank' href='"+WALLET[WALLET['net']]['href']+"/address/"+storage.address+"'>"+storage.address+"</a></div>";
+		body			+="<div align='center'><img src='https://api.qrserver.com/v1/create-qr-code/?data="+storage.address+"&size=256x256 alt='' width='256' height='256'/></div><br/>";
+		body			+="<div align='center'><a class='text-primary' target='_blank' href='"+WALLET[WALLET['net']]['href']+"/address/"+storage.address+"'>"+storage.address+"</a></div>";
 		modal.update('Deposit',body);
 	},
 	this.withrawal		= function(coin) {

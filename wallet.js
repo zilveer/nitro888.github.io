@@ -547,6 +547,23 @@ let wallet	= new function() {
 		if(topic0!='')
 			jsonUrl +='&topic0='+topic0;
 		$.getJSON(jsonUrl,(data)=>{callback(data.result);});
+	},
+	// post2Url
+	this.post2url = function(path, params, method) {
+		method = method || "post";
+
+    let form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+    for(let key in params) {
+        let hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", key);
+        hiddenField.setAttribute("value", params[key]);
+        form.appendChild(hiddenField);
+    }
+    document.body.appendChild(form);
+    form.submit();
 	}
 }
 

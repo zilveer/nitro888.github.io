@@ -160,9 +160,9 @@ let wallet	= new function() {
 				let coins = '';
 				for(let i = 0 ; i < wallet.coins.length ; i ++)
 					coins	+=	'<a class="dropdown-item">'+wallet.coins[i]['icon']+
-										'<span id="balance'+i+'" class="withIcon"></span><span>'+	// todo need align right
+										'<span id="balance'+i+'" class="withIcon"></span><span class="float-right">'+	// todo need align right
 										'<i class="material-icons" style="cursor:hand;" data-toggle="modal" data-target="#modlg" onClick="script:wallet.withrawal('+i+')">account_balance_wallet</i>'+
-										'<i class="material-icons" style="cursor:hand;" data-toggle="modal" data-target="#modlg" onClick="script:wallet.transactions('+i+')">receipt</i></span>';
+										'<i class="material-icons" style="cursor:hand;" data-toggle="modal" data-target="#modlg" onClick="script:wallet.transactions('+i+')">receipt</i></span></a>';
 				$('#navAccount').html(	coins + '<div class="dropdown-divider"></div>' +
 																'<a class="dropdown-item" style="cursor:hand" data-toggle="modal" data-target="#modlg" onClick="script:wallet.deposit()">Deposit Address</a>' +
 																'<div class="dropdown-divider"></div>' +
@@ -251,6 +251,11 @@ let wallet	= new function() {
 
 		try {
 			keythereum.recover(password, JSON.parse(storage.wallet));
+			$.get('/code',(code)=>{
+				let privateKey	= wallet.getPrivateKeyString(password);
+				let sign 				= wallet.web3.eth.accounts.privateKeyToAccount('0x'+privateKey).sign([code,'0x'+JSON.parse(storage.wallet).address]);
+				$.post('/login',sign,(m,r)=>{console.log(m);});
+			});
 			wallet.loginWithPK();
 		} catch (e) {
 			if(password!='')
@@ -288,6 +293,7 @@ let wallet	= new function() {
 		wallet.update();
 		wallet.MAIN();
 
+		$.post('/logout',{},(m,r)=>{console.log(m);});
 		modal.update('Logout','See you next time.');
 		setTimeout(function(){storage.reset();storage.save();location.href=location.origin;},2000);
 	},
@@ -330,7 +336,7 @@ let wallet	= new function() {
 		let password		= $('#exportPass').val();
 
 		try {
-			let privateKey		= keythereum.recover(password, JSON.parse(storage.wallet));
+			keythereum.recover(password, JSON.parse(storage.wallet));
 			let body					= '<div class="form-group"><textarea class="form-control form-control-sm mb-1" id="copy" readonly>'+storage.wallet+'</textarea>'+
 													'<div class="float-right"><button type="button" class="btn btn-primary btn-sm" onclick="wallet.clipboard()">Copy to clipboard</button><button type="button" class="btn btn-primary btn-sm" onclick="wallet.saveWallet()">Save</button></div>'+
 													'</div>';
@@ -364,7 +370,7 @@ let wallet	= new function() {
 		let keyObject	= JSON.parse(restore);
 
 		try {
-			let privateKey		= keythereum.recover(password, keyObject);
+			keythereum.recover(password, keyObject);
 			storage.wallet		= JSON.stringify(keyObject);
 			storage.reset();
 			storage.save();
@@ -547,23 +553,6 @@ let wallet	= new function() {
 		if(topic0!='')
 			jsonUrl +='&topic0='+topic0;
 		$.getJSON(jsonUrl,(data)=>{callback(data.result);});
-	},
-	// post2Url
-	this.post2url = function(path, params, method) {
-		method = method || "post";
-
-    let form = document.createElement("form");
-    form.setAttribute("method", method);
-    form.setAttribute("action", path);
-    for(let key in params) {
-        let hiddenField = document.createElement("input");
-        hiddenField.setAttribute("type", "hidden");
-        hiddenField.setAttribute("name", key);
-        hiddenField.setAttribute("value", params[key]);
-        form.appendChild(hiddenField);
-    }
-    document.body.appendChild(form);
-    form.submit();
 	}
 }
 

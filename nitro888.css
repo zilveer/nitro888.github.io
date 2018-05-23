@@ -8,7 +8,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 700;
+  font-weight: bold;
   font-family: 'Montserrat';
 }
 
@@ -43,9 +43,7 @@ section h2 {
 }
 
 #mainNav {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  font-weight: 700;
+  font-weight: bold;
   font-family: 'Montserrat';
 }
 
@@ -80,13 +78,6 @@ section h2 {
 }
 
 @media (min-width: 992px) {
-  #mainNav {
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-    -webkit-transition: padding-top 0.3s, padding-bottom 0.3s;
-    -moz-transition: padding-top 0.3s, padding-bottom 0.3s;
-    transition: padding-top 0.3s, padding-bottom 0.3s;
-  }
   #mainNav .navbar-brand {
     font-size: 2em;
     -webkit-transition: font-size 0.3s;
@@ -104,42 +95,70 @@ section h2 {
     color: #fff;
     background: #00b5ff;
   }
-  #mainNav.navbar-shrink {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-  #mainNav.navbar-shrink .navbar-brand {
-    font-size: 1.5em;
-  }
 }
 
+nav.bg-i {
+  background-image:url('top.png');
+  background-repeat:no-repeat;
+  background-position: center top;
+}
+header.bg-i {
+  background-image:url('top.png');
+  background-repeat:no-repeat;
+  background-position: center -68px;
+}
 header.masthead {
-  padding-top: calc(6rem + 72px);
+  padding-top: 6rem;
   padding-bottom: 6rem;
 }
-
 header.masthead h1 {
-  font-size: 3rem;
+  font-size: 4rem;
   line-height: 3rem;
+  font-weight: 100;
+  font-family: 'monotonregular';
 }
-
 header.masthead h2 {
   font-size: 1.3rem;
   font-family: 'Lato';
 }
+.shadow {
+  -webkit-filter: drop-shadow( 2px 3px 1.5px #000 );
+          filter: drop-shadow( 2px 3px 1.5px #000 );
+}
 
 @media (min-width: 992px) {
+  nav.bg-i {
+    background-image:url('top.png');
+    background-repeat:no-repeat;
+    background-position: center top;
+  }
+  header.bg-i {
+    background-image:url('top.png');
+    background-repeat:no-repeat;
+    background-position: center -74px;
+  }
   header.masthead {
-    padding-top: calc(6rem + 106px);
+    padding-top: 6rem;
     padding-bottom: 6rem;
   }
   header.masthead h1 {
-    font-size: 4.75em;
-    line-height: 4rem;
+    font-size: 5em;
+    line-height: 3rem;
+    font-weight: 100;
   }
   header.masthead h2 {
     font-size: 1.75em;
   }
+  .shadow {
+    -webkit-filter: drop-shadow( 3px 4px 1.5px #000 );
+            filter: drop-shadow( 3px 4px 1.5px #000 );
+  }
+}
+
+footer {
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  background: #000000;
 }
 
 .bg-primary {
@@ -156,11 +175,6 @@ header.masthead h2 {
 
 .text-secondary {
   color: #2C3E50 !important;
-}
-
-.footer {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
 }
 
 .numberCircle1 {
@@ -204,6 +218,41 @@ header.masthead h2 {
   width:1.5em;
 }
 
+.infinity {
+  -webkit-mask: url(infinity.svg) no-repeat;
+  mask: url(infinity.svg) no-repeat;
+  transition: background-color .2s;
+  background-color: white;
+  display: inline-flex;
+  width:1.38em;
+  height:0.85em;
+}
+.infinity:hover {
+  background-color: red;
+}
+
 .withIcon {
   vertical-align: 0.3em;
+}
+
+.zoom {
+    transition: transform .2s;
+    margin: 0 auto;
+}
+.zoom:hover {
+    -ms-transform: scale(1.1); /* IE 9 */
+    -webkit-transform: scale(1.1); /* Safari 3-8 */
+    transform: scale(1.1);
+}
+.avoid-clicks {
+  pointer-events: none;
+}
+
+@font-face {
+    font-family: 'monotonregular';
+    src: url('monoton-regular-webfont.woff2') format('woff2'),
+         url('monoton-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
 }

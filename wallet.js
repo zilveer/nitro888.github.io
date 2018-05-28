@@ -402,6 +402,10 @@ let wallet	= new function() {
 		let body	= '<div align="center"><p class="text-warning">!! WARNING! THIS NETWORK IS '+WALLET['net']+' !!</p></div>';
 		body			+="<div align='center'><img src='https://api.qrserver.com/v1/create-qr-code/?data="+storage.address+"&size=256x256 alt='' width='256' height='256'/></div><br/>";
 		body			+="<div align='center'><a class='text-primary' target='_blank' href='"+WALLET[WALLET['net']]['href']+"/address/"+storage.address+"'>"+storage.address+"</a></div>";
+
+		if(WALLET['net']=='ropsten')
+			body +="<div align='center'><a class='text-primary' target='_blank' href='http://faucet.ropsten.be:3001/donate/"+storage.address+"'> >>Get Ethereum </a></div>"
+
 		modal.update('Deposit',body);
 	},
 	this.withrawal		= function(coin) {

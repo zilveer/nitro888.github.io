@@ -159,6 +159,11 @@ footer {
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;
   background: #000000;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 1024;
 }
 
 .bg-primary {

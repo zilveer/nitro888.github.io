@@ -115,7 +115,7 @@ header.masthead h1 {
   font-size: 4rem;
   line-height: 3rem;
   font-weight: 100;
-  font-family: 'monotonregular';
+  font-family: 'Monoton', cursive;
 }
 header.masthead h2 {
   font-size: 1.3rem;
@@ -240,24 +240,20 @@ footer {
   vertical-align: 0.3em;
 }
 
+
+.zoomFrame {
+  overflow: hidden;
+}
+
 .zoom {
-    transition: transform .2s;
-    margin: 0 auto;
+  transition: transform .2s;
+  margin: 0 auto;
 }
 .zoom:hover {
-    -ms-transform: scale(1.1); /* IE 9 */
-    -webkit-transform: scale(1.1); /* Safari 3-8 */
-    transform: scale(1.1);
+  -ms-transform: scale(1.1); /* IE 9 */
+  -webkit-transform: scale(1.1); /* Safari 3-8 */
+  transform: scale(1.1);
 }
 .avoid-clicks {
   pointer-events: none;
-}
-
-@font-face {
-    font-family: 'monotonregular';
-    src: url('monoton-regular-webfont.woff2') format('woff2'),
-         url('monoton-regular-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
-
 }

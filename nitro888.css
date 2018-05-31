@@ -105,7 +105,7 @@ nav.bg-i {
 header.bg-i {
   background-image:url('top.png');
   background-repeat:no-repeat;
-  background-position: center -68px;
+  background-position: center -56px;
 }
 header.masthead {
   padding-top: 6rem;
@@ -239,7 +239,11 @@ footer {
 .withIcon {
   vertical-align: 0.3em;
 }
-
+.material-icons {
+  font-size: inherit;
+  line-height: inherit;
+  vertical-align: bottom;
+}
 
 .zoomFrame {
   overflow: hidden;

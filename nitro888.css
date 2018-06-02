@@ -261,3 +261,10 @@ footer {
 .avoid-clicks {
   pointer-events: none;
 }
+
+.gitter-chat-embed {
+  z-index: 1048;
+}
+.gitter-open-chat-button {
+  z-index: 1048;
+}

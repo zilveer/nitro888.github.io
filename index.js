@@ -31,9 +31,9 @@ let contracts	= new function() {
 	},
 	this.historyLotto				= function(game,address,callback) {
 		let index		= (game=='jackpot649'?17:16);
-		let topic0	= CONFIG[game]['abi'][index]['signature'];
+		let topics	= 'topic0='+CONFIG[game]['abi'][index]['signature'];
 
-		wallet.getLogs(address,topic0,(logs)=>{
+		wallet.getLogs(address,topics,(logs)=>{
 			let list 	= new Array();
 
 			for(let i=0;i<logs.length;i++)

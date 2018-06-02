@@ -179,9 +179,9 @@ let util	= new function() {
 		modal.update(CONFIG[game]['name'],"Now Loading...");
 
 		let index		= (game=='jackpot649'?18:17);
-		let topic0	= CONFIG[game]['abi'][index]['signature'];
+		let topics	= 'topic0='+CONFIG[game]['abi'][index]['signature'];
 
-		wallet.getLogs(address,topic0,(logs)=>{	// ??? :storage.address
+		wallet.getLogs(address,topics,(logs)=>{	// ??? :storage.address
 			let list 	= new Array();
 
 			for(let i=0;i<logs.length;i++) {

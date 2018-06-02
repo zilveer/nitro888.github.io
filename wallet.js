@@ -552,10 +552,10 @@ let wallet	= new function() {
 		let jsonUrl	= WALLET[WALLET['net']]['api']+'/api?module=account&action=tokentx&contractaddress='+wallet.coins[coin]['address']+'&address='+storage.address+'&startblock=0&endblock=latest&sort=asc';
 		$.getJSON(jsonUrl,callback);
 	},
-	this.getLogs	= function(address,topic0,callback) {
+	this.getLogs	= function(address,topics,callback) {
 		let jsonUrl	= WALLET[WALLET['net']]['api']+'/api?module=logs&action=getLogs&fromBlock=0&toBlock=latest&address='+address;
-		if(topic0!='')
-			jsonUrl +='&topic0='+topic0;
+		if(topics!='')
+			jsonUrl +='&'+topics;
 		$.getJSON(jsonUrl,(data)=>{callback(data.result);});
 	}
 }
